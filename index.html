@@ -261,6 +261,14 @@
     .tips-tag { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
     .tips-desc { font-size: 13px; color: var(--text2); line-height: 1.6; margin-bottom: 6px; }
     .tips-hint { font-size: 12px; color: var(--blue-text); background: var(--blue-bg); padding: 4px 10px; border-radius: 999px; display: inline-block; }
+
+    /* ── 気になった点 ── */
+    .concerns-toggle { width: 100%; display: flex; justify-content: space-between; align-items: center; background: var(--bg2); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 13px 12px; font-size: 14px; font-weight: 500; color: var(--text2); cursor: pointer; -webkit-tap-highlight-color: transparent; }
+    .concerns-toggle.has-selection { color: var(--text); border-color: var(--border2); }
+    .concerns-arrow { font-size: 11px; color: var(--text3); transition: transform 0.2s; }
+    .concerns-arrow.open { transform: rotate(90deg); }
+    .ftag-concern { font-size: 14px; padding: 8px 13px; border-radius: 999px; background: var(--bg2); color: var(--text2); border: 0.5px solid var(--border); cursor: pointer; -webkit-tap-highlight-color: transparent; user-select: none; display: inline-block; margin: 0 4px 6px 0; transition: all 0.15s; }
+    .ftag-concern.on-concern { background: var(--red-bg); color: var(--red-text); border-color: transparent; font-weight: 500; }
   </style>
 </head>
 <body>
@@ -456,6 +464,39 @@
             <input type="range" id="f-fizz" min="0" max="3" value="0" step="1">
             <span class="slider-end right">強い</span>
           </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ⑤ 気になった点 -->
+    <div class="field">
+      <button class="concerns-toggle" id="concerns-toggle" type="button">
+        <span>気になった点（任意）</span>
+        <span class="concerns-arrow" id="concerns-arrow">▶</span>
+      </button>
+      <div id="concerns-wrap" style="display:none;margin-top:12px">
+        <div class="ftag-group-label" style="margin-bottom:8px">最大3つまで選択</div>
+        <div class="ftag-group-label" style="margin-bottom:6px;font-size:10px">味のバランス</div>
+        <div class="ftag-wrap" style="margin-bottom:10px">
+          <span class="ftag-concern">甘すぎ</span>
+          <span class="ftag-concern">辛すぎ</span>
+          <span class="ftag-concern">酸が強い</span>
+          <span class="ftag-concern">薄い</span>
+          <span class="ftag-concern">重い</span>
+          <span class="ftag-concern">苦い</span>
+        </div>
+        <div class="ftag-group-label" style="margin-bottom:6px;font-size:10px">香り</div>
+        <div class="ftag-wrap" style="margin-bottom:10px">
+          <span class="ftag-concern">香り強</span>
+          <span class="ftag-concern">香り弱</span>
+          <span class="ftag-concern">好みじゃない香り</span>
+        </div>
+        <div class="ftag-group-label" style="margin-bottom:6px;font-size:10px">後味・飲み心地</div>
+        <div class="ftag-wrap">
+          <span class="ftag-concern">余韻が長い</span>
+          <span class="ftag-concern">雑味</span>
+          <span class="ftag-concern">飲み疲れる</span>
+          <span class="ftag-concern">アルコール感</span>
         </div>
       </div>
     </div>
@@ -708,6 +749,32 @@ function setupEvents() {
   // TIPS overlay
   document.getElementById('tips-close').addEventListener('click', () => document.getElementById('tips-overlay').classList.remove('open'));
   document.getElementById('tips-overlay').addEventListener('click', e => { if (e.target === e.currentTarget) e.currentTarget.classList.remove('open'); });
+
+  // 気になった点トグル
+  document.getElementById('concerns-toggle').addEventListener('click', () => {
+    const wrap = document.getElementById('concerns-wrap');
+    const arrow = document.getElementById('concerns-arrow');
+    const isOpen = wrap.style.display !== 'none';
+    wrap.style.display = isOpen ? 'none' : 'block';
+    arrow.classList.toggle('open', !isOpen);
+  });
+
+  // 気になった点タグ（最大3つ）
+  document.querySelectorAll('.ftag-concern').forEach(el => {
+    el.addEventListener('click', () => {
+      const selected = document.querySelectorAll('.ftag-concern.on-concern');
+      if (el.classList.contains('on-concern')) {
+        el.classList.remove('on-concern');
+      } else if (selected.length < 3) {
+        el.classList.add('on-concern');
+      }
+      const count = document.querySelectorAll('.ftag-concern.on-concern').length;
+      const btn = document.getElementById('concerns-toggle');
+      btn.classList.toggle('has-selection', count > 0);
+      if (count > 0) btn.querySelector('span').textContent = `気になった点（${count}件選択中）`;
+      else btn.querySelector('span').textContent = '気になった点（任意）';
+    });
+  });
 }
 
 /* ── Photo handling ── */
@@ -795,6 +862,18 @@ function openForm(rec) {
         if (aromaSub.includes(el.textContent)) el.classList.add('on-check');
       });
     }
+    // concerns復元
+    const concerns = rec.concerns || [];
+    if (concerns.length) {
+      document.querySelectorAll('.ftag-concern').forEach(el => {
+        if (concerns.includes(el.textContent)) el.classList.add('on-concern');
+      });
+      document.getElementById('concerns-wrap').style.display = 'block';
+      document.getElementById('concerns-arrow').classList.add('open');
+      const btn = document.getElementById('concerns-toggle');
+      btn.classList.add('has-selection');
+      btn.querySelector('span').textContent = `気になった点（${concerns.length}件選択中）`;
+    }
     // Load existing photos into pendingPhotos
     loadRecordPhotos(rec);
   } else {
@@ -832,6 +911,13 @@ function resetForm() {
   const def = document.querySelector('.ftag-radio[data-val=""]');
   if (def) def.classList.add('on-radio');
   updateAromaSubTags('');
+  // 気になった点リセット
+  document.querySelectorAll('.ftag-concern').forEach(el => el.classList.remove('on-concern'));
+  document.getElementById('concerns-wrap').style.display = 'none';
+  document.getElementById('concerns-arrow').classList.remove('open');
+  const toggleBtn = document.getElementById('concerns-toggle');
+  toggleBtn.classList.remove('has-selection');
+  toggleBtn.querySelector('span').textContent = '気になった点（任意）';
   rating = 0; pendingPhotos = []; mainPhotoIdx = 0;
   document.querySelectorAll('.star').forEach(s => s.classList.remove('active'));
   renderPreview();
@@ -860,6 +946,8 @@ async function save() {
     const aromaSub  = [...document.querySelectorAll('.ftag-check.on-check')].map(el => el.textContent);
     const flavors = { aromaMain, aromaSub };
 
+    const concerns = [...document.querySelectorAll('.ftag-concern.on-concern')].map(el => el.textContent);
+
     const editId = document.getElementById('f-edit-id').value;
     const recId = editId ? parseInt(editId) : Date.now();
 
@@ -877,7 +965,7 @@ async function save() {
       type: document.getElementById('f-type').value,
       region: document.getElementById('f-region').value.trim(),
       date: document.getElementById('f-date').value,
-      rating, scores, flavors,
+      rating, scores, flavors, concerns,
       memo: document.getElementById('f-memo').value.trim(),
       photoIds, mainPhotoIdx
     };
@@ -1003,6 +1091,13 @@ async function openDetail(id) {
       ${tasteRows}
     </div>
     ${r.memo ? `<div class="detail-note">${esc(r.memo)}</div>` : ''}
+    ${r.concerns && r.concerns.length ? `
+      <div class="detail-flavors" style="border-top:0.5px solid var(--border);padding-top:12px;margin-top:0">
+        <div class="detail-flavors-title">気になった点</div>
+        <div class="detail-ftag-wrap">
+          ${r.concerns.map(c => `<span class="detail-ftag" style="background:var(--red-bg);color:var(--red-text)">${esc(c)}</span>`).join('')}
+        </div>
+      </div>` : ''}
     <div class="detail-actions">
       <button class="btn-edit" id="detail-edit-btn">編集</button>
       <button class="btn-delete" id="detail-del-btn">削除</button>
