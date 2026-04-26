@@ -12,266 +12,223 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --bg: #ffffff;
-      --bg2: #f5f5f0;
-      --bg3: #eeeee8;
-      --text: #1a1a1a;
-      --text2: #666660;
-      --text3: #aaaaaa;
-      --border: rgba(0,0,0,0.12);
-      --border2: rgba(0,0,0,0.22);
-      --radius: 10px;
-      --radius-lg: 14px;
-      --amber: #c97b2e;
-      --blue: #185FA5;
-      --blue-bg: #E6F1FB;
-      --blue-text: #0C447C;
-      --green: #3B6D11;
-      --green-bg: #EAF3DE;
-      --green-text: #27500A;
+      --bg: #ffffff; --bg2: #f5f5f0; --bg3: #eeeee8;
+      --text: #1a1a1a; --text2: #666660; --text3: #aaaaaa;
+      --border: rgba(0,0,0,0.12); --border2: rgba(0,0,0,0.22);
+      --radius: 10px; --radius-lg: 14px; --amber: #c97b2e;
+      --blue-bg: #E6F1FB; --blue-text: #0C447C;
+      --green-bg: #EAF3DE; --green-text: #27500A;
+      --teal-bg: #E1F5EE; --teal-text: #085041;
+      --purple-bg: #EEEDFE; --purple-text: #3C3489;
+      --red-bg: #FCEBEB; --red-text: #A32D2D;
     }
     @media (prefers-color-scheme: dark) {
       :root {
-        --bg: #1c1c1e;
-        --bg2: #2c2c2e;
-        --bg3: #3a3a3c;
-        --text: #f2f2f7;
-        --text2: #aeaeb2;
-        --text3: #636366;
-        --border: rgba(255,255,255,0.12);
-        --border2: rgba(255,255,255,0.22);
-        --blue-bg: #0c2d4a;
-        --blue-text: #85B7EB;
-        --green-bg: #1a2e0a;
-        --green-text: #97C459;
+        --bg: #1c1c1e; --bg2: #2c2c2e; --bg3: #3a3a3c;
+        --text: #f2f2f7; --text2: #aeaeb2; --text3: #636366;
+        --border: rgba(255,255,255,0.12); --border2: rgba(255,255,255,0.22);
+        --blue-bg: #0c2d4a; --blue-text: #85B7EB;
+        --green-bg: #1a2e0a; --green-text: #97C459;
+        --teal-bg: #04342C; --teal-text: #5DCAA5;
+        --purple-bg: #26215C; --purple-text: #AFA9EC;
+        --red-bg: #3a1010; --red-text: #F09595;
       }
     }
-
     html, body {
-      height: 100%;
-      background: var(--bg);
-      color: var(--text);
+      height: 100%; background: var(--bg); color: var(--text);
       font-family: -apple-system, 'Hiragino Sans', 'Noto Sans JP', sans-serif;
-      font-size: 16px;
-      -webkit-font-smoothing: antialiased;
-      overscroll-behavior: none;
+      font-size: 16px; -webkit-font-smoothing: antialiased; overscroll-behavior: none;
     }
-
-    .app {
-      max-width: 480px;
-      margin: 0 auto;
-      min-height: 100%;
-      display: flex;
-      flex-direction: column;
-    }
-
-    /* Header */
-    .header {
-      padding: 16px 16px 0;
-      flex-shrink: 0;
-    }
+    .app { max-width: 480px; margin: 0 auto; min-height: 100%; display: flex; flex-direction: column; }
+    .header { padding: 16px 16px 0; flex-shrink: 0; }
     .header-title { font-size: 20px; font-weight: 600; color: var(--text); }
     .header-sub { font-size: 13px; color: var(--text3); margin-top: 2px; }
-
-    /* Bottom nav */
     .nav {
-      display: flex;
-      border-top: 0.5px solid var(--border);
-      background: var(--bg);
-      flex-shrink: 0;
-      padding-bottom: env(safe-area-inset-bottom, 0px);
+      display: flex; border-top: 0.5px solid var(--border); background: var(--bg);
+      flex-shrink: 0; padding-bottom: env(safe-area-inset-bottom, 0px);
     }
     .nav-btn {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 3px;
-      background: none;
-      border: none;
-      cursor: pointer;
-      padding: 10px 0 8px;
+      flex: 1; display: flex; flex-direction: column; align-items: center;
+      gap: 3px; background: none; border: none; cursor: pointer; padding: 10px 0 8px;
       -webkit-tap-highlight-color: transparent;
     }
     .nav-icon { font-size: 22px; line-height: 1; }
     .nav-label { font-size: 10px; color: var(--text3); }
     .nav-btn.active .nav-label { color: var(--text); font-weight: 600; }
-
-    /* Screens */
     .screens { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; }
     .screen { display: none; padding: 0 16px 32px; }
     .screen.active { display: block; }
-
     .sec-title { font-size: 15px; font-weight: 600; color: var(--text); margin: 20px 0 14px; }
 
     /* Form */
     .field { margin-bottom: 18px; }
-    .field label {
-      display: block;
-      font-size: 13px;
-      color: var(--text2);
-      margin-bottom: 7px;
-      font-weight: 500;
-    }
+    .field label { display: block; font-size: 13px; color: var(--text2); margin-bottom: 7px; font-weight: 500; }
     input[type=text], input[type=date], select, textarea {
-      width: 100%;
-      padding: 13px 12px;
-      font-size: 16px;
-      background: var(--bg2);
-      border: 0.5px solid var(--border);
-      border-radius: var(--radius);
-      color: var(--text);
-      -webkit-appearance: none;
-      outline: none;
+      width: 100%; padding: 13px 12px; font-size: 16px; background: var(--bg2);
+      border: 0.5px solid var(--border); border-radius: var(--radius);
+      color: var(--text); -webkit-appearance: none; outline: none;
     }
     input[type=text]:focus, input[type=date]:focus, select:focus, textarea:focus {
-      border-color: var(--border2);
-      background: var(--bg);
+      border-color: var(--border2); background: var(--bg);
     }
-    textarea {
-      resize: none;
-      height: 90px;
-      font-family: inherit;
-      line-height: 1.5;
-    }
+    textarea { resize: none; height: 90px; font-family: inherit; line-height: 1.5; }
     .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 
     /* Stars */
     .stars { display: flex; gap: 6px; padding: 4px 0; }
-    .star {
-      font-size: 36px;
-      cursor: pointer;
-      color: var(--border2);
-      -webkit-tap-highlight-color: transparent;
-      transition: transform 0.1s;
-      line-height: 1;
-    }
+    .star { font-size: 36px; cursor: pointer; color: var(--border2); -webkit-tap-highlight-color: transparent; transition: transform 0.1s; line-height: 1; }
     .star.active { color: var(--amber); }
     .star:active { transform: scale(0.82); }
 
     /* Flavor tags */
-    .ftag-wrap { display: flex; flex-wrap: wrap; gap: 8px; }
+    .ftag-group { margin-bottom: 12px; }
+    .ftag-group-label {
+      font-size: 11px; font-weight: 600; color: var(--text3);
+      letter-spacing: 0.05em; margin-bottom: 8px; text-transform: uppercase;
+    }
+    .ftag-wrap { display: flex; flex-wrap: wrap; gap: 7px; }
     .ftag {
-      font-size: 14px;
-      padding: 9px 14px;
-      border-radius: 999px;
-      background: var(--bg2);
-      color: var(--text2);
-      border: 0.5px solid var(--border);
-      cursor: pointer;
-      -webkit-tap-highlight-color: transparent;
-      transition: all 0.15s;
-      user-select: none;
+      font-size: 14px; padding: 8px 13px; border-radius: 999px; background: var(--bg2);
+      color: var(--text2); border: 0.5px solid var(--border); cursor: pointer;
+      -webkit-tap-highlight-color: transparent; transition: all 0.15s; user-select: none;
     }
-    .ftag.on {
-      background: var(--blue-bg);
-      color: var(--blue-text);
-      border-color: transparent;
-      font-weight: 500;
-    }
+    .ftag.on-aroma  { background: var(--purple-bg); color: var(--purple-text); border-color: transparent; font-weight: 500; }
+    .ftag.on-taste  { background: var(--teal-bg);   color: var(--teal-text);   border-color: transparent; font-weight: 500; }
+    .ftag.on-finish { background: var(--green-bg);  color: var(--green-text);  border-color: transparent; font-weight: 500; }
 
     /* Sliders */
-    .slider-wrap {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 6px 0;
+    .slider-item { margin-bottom: 14px; }
+    .slider-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 4px; }
+    .slider-name { font-size: 13px; color: var(--text2); font-weight: 500; }
+    .slider-val { font-size: 13px; font-weight: 600; color: var(--text); min-width: 60px; text-align: right; }
+    .slider-track { display: flex; align-items: center; gap: 8px; }
+    .slider-track input[type=range] {
+      flex: 1; -webkit-appearance: none; height: 44px; background: transparent; padding: 0; border: none;
     }
-    .slider-wrap input[type=range] {
-      flex: 1;
-      -webkit-appearance: none;
-      height: 44px;
-      background: transparent;
-      padding: 0;
-      border: none;
+    .slider-track input[type=range]::-webkit-slider-runnable-track { height: 4px; background: var(--bg3); border-radius: 2px; }
+    .slider-track input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none; width: 26px; height: 26px; border-radius: 50%; background: var(--text); margin-top: -11px;
     }
-    .slider-wrap input[type=range]::-webkit-slider-runnable-track {
-      height: 4px;
-      background: var(--bg3);
-      border-radius: 2px;
+    .slider-end { font-size: 11px; color: var(--text3); white-space: nowrap; min-width: 36px; }
+    .slider-end.right { text-align: right; }
+
+    /* Photo */
+    .photo-upload-area {
+      border: 1.5px dashed var(--border2); border-radius: var(--radius-lg);
+      padding: 20px; text-align: center; cursor: pointer;
+      -webkit-tap-highlight-color: transparent; margin-bottom: 12px;
     }
-    .slider-wrap input[type=range]::-webkit-slider-thumb {
-      -webkit-appearance: none;
-      width: 26px;
-      height: 26px;
-      border-radius: 50%;
-      background: var(--text);
-      margin-top: -11px;
-    }
-    .slider-end { font-size: 12px; color: var(--text3); white-space: nowrap; }
-    .slider-val {
-      font-size: 16px;
-      font-weight: 600;
-      min-width: 22px;
-      text-align: center;
-      color: var(--text);
+    .photo-upload-area:active { background: var(--bg2); }
+    .photo-upload-icon { font-size: 32px; line-height: 1; margin-bottom: 6px; }
+    .photo-upload-text { font-size: 14px; color: var(--text2); }
+    .photo-upload-sub { font-size: 12px; color: var(--text3); margin-top: 4px; }
+    input[type=file] { display: none; }
+    .photo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .photo-thumb { position: relative; aspect-ratio: 1; border-radius: var(--radius); overflow: hidden; background: var(--bg2); }
+    .photo-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .photo-del {
+      position: absolute; top: 4px; right: 4px; width: 24px; height: 24px;
+      border-radius: 50%; background: rgba(0,0,0,0.55); color: #fff;
+      border: none; font-size: 16px; line-height: 24px; text-align: center;
+      cursor: pointer; -webkit-tap-highlight-color: transparent; padding: 0;
     }
 
-    /* Save button */
     .btn-save {
-      width: 100%;
-      padding: 17px;
-      background: var(--text);
-      color: var(--bg);
-      border: none;
-      border-radius: var(--radius-lg);
-      font-size: 16px;
-      font-weight: 600;
-      cursor: pointer;
-      margin-top: 8px;
-      -webkit-tap-highlight-color: transparent;
+      width: 100%; padding: 17px; background: var(--text); color: var(--bg);
+      border: none; border-radius: var(--radius-lg); font-size: 16px; font-weight: 600;
+      cursor: pointer; margin-top: 8px; -webkit-tap-highlight-color: transparent;
     }
-    .btn-save:active { opacity: 0.75; transform: scale(0.98); }
+    .btn-save:active { opacity: 0.75; }
+    .btn-save:disabled { opacity: 0.5; }
 
     /* List */
     .record-card {
-      background: var(--bg);
-      border: 0.5px solid var(--border);
-      border-radius: var(--radius-lg);
-      padding: 16px;
-      margin-bottom: 12px;
+      background: var(--bg); border: 0.5px solid var(--border);
+      border-radius: var(--radius-lg); padding: 16px; margin-bottom: 12px;
+      cursor: pointer; -webkit-tap-highlight-color: transparent;
     }
     .rc-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
     .rc-name { font-size: 17px; font-weight: 600; color: var(--text); }
     .rc-date { font-size: 12px; color: var(--text3); margin-top: 3px; }
     .rc-stars { font-size: 16px; white-space: nowrap; flex-shrink: 0; }
+    .rc-photos { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 10px; }
+    .rc-photo { aspect-ratio: 1; border-radius: 8px; overflow: hidden; background: var(--bg2); }
+    .rc-photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
     .rc-badges { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
     .badge { font-size: 12px; padding: 4px 10px; border-radius: 999px; font-weight: 500; }
     .b-type { background: var(--blue-bg); color: var(--blue-text); }
     .b-region { background: var(--green-bg); color: var(--green-text); }
-    .rc-flavors { font-size: 13px; color: var(--text2); margin-top: 8px; line-height: 1.6; }
+    .rc-flavors { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
+    .rc-ftag { font-size: 12px; padding: 3px 9px; border-radius: 999px; background: var(--bg2); color: var(--text2); }
     .rc-note { font-size: 13px; color: var(--text3); margin-top: 6px; font-style: italic; line-height: 1.5; }
+    .empty { text-align: center; padding: 60px 0; color: var(--text3); font-size: 14px; line-height: 2.2; }
+    .loading { text-align: center; padding: 40px; color: var(--text3); font-size: 14px; }
 
-    .empty {
-      text-align: center;
-      padding: 60px 0;
-      color: var(--text3);
-      font-size: 14px;
-      line-height: 2.2;
+    /* Radar-like scores on list */
+    .rc-scores { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+    .rc-score { font-size: 11px; color: var(--text3); display: flex; flex-direction: column; align-items: center; gap: 3px; min-width: 36px; }
+    .rc-score-bar { width: 36px; height: 4px; background: var(--bg3); border-radius: 2px; overflow: hidden; }
+    .rc-score-fill { height: 4px; border-radius: 2px; background: var(--amber); }
+    .rc-score-name { font-size: 10px; color: var(--text3); }
+
+    /* Detail */
+    .overlay {
+      display: none; position: fixed; inset: 0; z-index: 100;
+      background: var(--bg); overflow-y: auto; -webkit-overflow-scrolling: touch;
+    }
+    .overlay.open { display: block; }
+    .overlay-header {
+      display: flex; align-items: center; gap: 12px; padding: 16px;
+      border-bottom: 0.5px solid var(--border); position: sticky; top: 0; background: var(--bg); z-index: 1;
+    }
+    .btn-back { background: none; border: none; font-size: 16px; color: var(--text2); cursor: pointer; padding: 6px 10px 6px 0; -webkit-tap-highlight-color: transparent; }
+    .overlay-title { font-size: 17px; font-weight: 600; color: var(--text); }
+    .overlay-body { padding: 16px; }
+    .detail-photos { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 16px; }
+    .detail-photo { aspect-ratio: 1; border-radius: var(--radius); overflow: hidden; background: var(--bg2); cursor: pointer; }
+    .detail-photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .detail-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 0.5px solid var(--border); }
+    .detail-label { font-size: 13px; color: var(--text3); }
+    .detail-value { font-size: 14px; color: var(--text); font-weight: 500; text-align: right; max-width: 65%; }
+
+    /* Score bars in detail */
+    .detail-scores { padding: 14px 0; border-bottom: 0.5px solid var(--border); }
+    .detail-scores-title { font-size: 13px; color: var(--text3); margin-bottom: 12px; }
+    .dscore-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+    .dscore-name { font-size: 13px; color: var(--text2); width: 72px; flex-shrink: 0; }
+    .dscore-bar-bg { flex: 1; height: 6px; background: var(--bg3); border-radius: 3px; overflow: hidden; }
+    .dscore-bar-fill { height: 6px; border-radius: 3px; background: var(--amber); transition: width 0.4s; }
+    .dscore-val { font-size: 13px; font-weight: 600; color: var(--text); min-width: 12px; }
+
+    .detail-flavors { padding: 12px 0; border-bottom: 0.5px solid var(--border); }
+    .detail-flavors-title { font-size: 13px; color: var(--text3); margin-bottom: 8px; }
+    .detail-ftag-wrap { display: flex; flex-wrap: wrap; gap: 6px; }
+    .detail-ftag { font-size: 13px; padding: 5px 11px; border-radius: 999px; font-weight: 500; }
+
+    .detail-note { padding: 14px 0; font-size: 14px; color: var(--text2); line-height: 1.7; border-bottom: 0.5px solid var(--border); }
+    .btn-delete {
+      width: 100%; margin-top: 24px; padding: 15px; background: var(--red-bg); color: var(--red-text);
+      border: none; border-radius: var(--radius-lg); font-size: 15px; font-weight: 600;
+      cursor: pointer; -webkit-tap-highlight-color: transparent;
     }
 
     /* Stats */
     .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
-    .stat-box {
-      background: var(--bg2);
-      border-radius: var(--radius);
-      padding: 16px;
-      text-align: center;
-    }
+    .stat-box { background: var(--bg2); border-radius: var(--radius); padding: 16px; text-align: center; }
     .stat-n { font-size: 30px; font-weight: 600; color: var(--text); }
     .stat-l { font-size: 12px; color: var(--text2); margin-top: 4px; }
-    .chart-card {
-      background: var(--bg);
-      border: 0.5px solid var(--border);
-      border-radius: var(--radius-lg);
-      padding: 16px;
-      margin-bottom: 12px;
-    }
+    .chart-card { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 16px; margin-bottom: 12px; }
     .chart-title { font-size: 14px; font-weight: 600; margin-bottom: 14px; color: var(--text); }
     .bar-row { margin-bottom: 12px; }
     .bar-meta { display: flex; justify-content: space-between; font-size: 13px; color: var(--text2); margin-bottom: 5px; }
     .bar-bg { background: var(--bg2); border-radius: 4px; height: 10px; overflow: hidden; }
     .bar-fill { height: 10px; border-radius: 4px; }
+
+    /* Lightbox */
+    .lightbox { display: none; position: fixed; inset: 0; z-index: 200; background: rgba(0,0,0,0.92); align-items: center; justify-content: center; }
+    .lightbox.open { display: flex; }
+    .lightbox img { max-width: 100%; max-height: 90vh; object-fit: contain; }
+    .lightbox-close { position: absolute; top: 16px; right: 16px; background: rgba(255,255,255,0.2); border: none; color: #fff; width: 38px; height: 38px; border-radius: 50%; font-size: 22px; cursor: pointer; -webkit-tap-highlight-color: transparent; }
   </style>
 </head>
 <body>
@@ -282,8 +239,7 @@
   </div>
 
   <div class="screens" id="screens">
-
-    <!-- 記録画面 -->
+    <!-- 記録 -->
     <div id="s-add" class="screen active">
       <div class="sec-title">新しく記録する</div>
 
@@ -291,22 +247,14 @@
         <label>酒の名前 *</label>
         <input type="text" id="f-name" placeholder="例：獺祭 純米大吟醸" autocomplete="off">
       </div>
-
       <div class="grid2">
         <div class="field">
           <label>種類</label>
           <select id="f-type">
             <option value="">選択...</option>
-            <option>純米大吟醸</option>
-            <option>大吟醸</option>
-            <option>純米吟醸</option>
-            <option>純米酒</option>
-            <option>吟醸酒</option>
-            <option>本醸造</option>
-            <option>にごり酒</option>
-            <option>スパークリング</option>
-            <option>古酒</option>
-            <option>その他</option>
+            <option>純米大吟醸</option><option>大吟醸</option><option>純米吟醸</option>
+            <option>純米酒</option><option>吟醸酒</option><option>本醸造</option>
+            <option>にごり酒</option><option>スパークリング</option><option>古酒</option><option>その他</option>
           </select>
         </div>
         <div class="field">
@@ -314,58 +262,126 @@
           <input type="date" id="f-date">
         </div>
       </div>
-
       <div class="field">
         <label>産地・蔵元</label>
         <input type="text" id="f-region" placeholder="例：山口県 / 旭酒造" autocomplete="off">
       </div>
 
       <div class="field">
+        <label>写真（複数枚可）</label>
+        <input type="file" id="f-photos" accept="image/*" multiple>
+        <div class="photo-upload-area" id="upload-area">
+          <div class="photo-upload-icon">📷</div>
+          <div class="photo-upload-text">タップして撮影・アルバムから選択</div>
+          <div class="photo-upload-sub">ラベル・お猪口など何枚でも</div>
+        </div>
+        <div class="photo-grid" id="photo-preview"></div>
+      </div>
+
+      <div class="field">
         <label>総合評価</label>
         <div class="stars" id="stars">
-          <span class="star" data-v="1">★</span>
-          <span class="star" data-v="2">★</span>
-          <span class="star" data-v="3">★</span>
-          <span class="star" data-v="4">★</span>
-          <span class="star" data-v="5">★</span>
+          <span class="star" data-v="1">★</span><span class="star" data-v="2">★</span>
+          <span class="star" data-v="3">★</span><span class="star" data-v="4">★</span><span class="star" data-v="5">★</span>
         </div>
       </div>
 
       <div class="field">
-        <label>風味の特徴（タップで選択）</label>
-        <div class="ftag-wrap" id="ftags">
-          <span class="ftag">フルーティ</span>
-          <span class="ftag">甘口</span>
-          <span class="ftag">辛口</span>
-          <span class="ftag">すっきり</span>
-          <span class="ftag">コク深い</span>
-          <span class="ftag">香り高い</span>
-          <span class="ftag">旨み強い</span>
-          <span class="ftag">なめらか</span>
-          <span class="ftag">酸味</span>
-          <span class="ftag">キレがある</span>
-          <span class="ftag">熟成感</span>
-          <span class="ftag">後味すっきり</span>
+        <label>風味の特徴</label>
+        <div class="ftag-group">
+          <div class="ftag-group-label">香り</div>
+          <div class="ftag-wrap" data-group="aroma">
+            <span class="ftag" data-group="aroma">吟醸香</span>
+            <span class="ftag" data-group="aroma">フルーティ</span>
+            <span class="ftag" data-group="aroma">花・華やか</span>
+            <span class="ftag" data-group="aroma">ハーブ・草</span>
+            <span class="ftag" data-group="aroma">木・樽</span>
+            <span class="ftag" data-group="aroma">熟成・ナッツ</span>
+            <span class="ftag" data-group="aroma">ほぼ無香</span>
+          </div>
+        </div>
+        <div class="ftag-group">
+          <div class="ftag-group-label">味わい</div>
+          <div class="ftag-wrap" data-group="taste">
+            <span class="ftag" data-group="taste">旨み豊か</span>
+            <span class="ftag" data-group="taste">ミネラル</span>
+            <span class="ftag" data-group="taste">乳酸・ヨーグルト</span>
+            <span class="ftag" data-group="taste">苦み</span>
+            <span class="ftag" data-group="taste">渋み</span>
+            <span class="ftag" data-group="taste">なめらか</span>
+            <span class="ftag" data-group="taste">発泡感</span>
+          </div>
+        </div>
+        <div class="ftag-group">
+          <div class="ftag-group-label">後味・余韻</div>
+          <div class="ftag-wrap" data-group="finish">
+            <span class="ftag" data-group="finish">キレがいい</span>
+            <span class="ftag" data-group="finish">余韻が長い</span>
+            <span class="ftag" data-group="finish">ふくよか</span>
+            <span class="ftag" data-group="finish">後味すっきり</span>
+            <span class="ftag" data-group="finish">じわっと広がる</span>
+          </div>
         </div>
       </div>
 
       <div class="field">
-        <label>甘辛度</label>
-        <div class="slider-wrap">
-          <span class="slider-end">甘口</span>
-          <input type="range" id="f-sweet" min="1" max="5" value="3" step="1">
-          <span class="slider-end">辛口</span>
-          <span class="slider-val" id="sv-s">3</span>
-        </div>
-      </div>
-
-      <div class="field">
-        <label>香りの強さ</label>
-        <div class="slider-wrap">
-          <span class="slider-end">控えめ</span>
-          <input type="range" id="f-aroma" min="1" max="5" value="3" step="1">
-          <span class="slider-end">華やか</span>
-          <span class="slider-val" id="sv-a">3</span>
+        <label>テイスティングスコア</label>
+        <div id="sliders">
+          <div class="slider-item">
+            <div class="slider-header">
+              <span class="slider-name">甘辛度</span>
+              <span class="slider-val" id="lbl-sweet">甘口 ←→ 辛口：3</span>
+            </div>
+            <div class="slider-track">
+              <span class="slider-end">甘口</span>
+              <input type="range" id="f-sweet" min="1" max="5" value="3" step="1">
+              <span class="slider-end right">辛口</span>
+            </div>
+          </div>
+          <div class="slider-item">
+            <div class="slider-header">
+              <span class="slider-name">酸味</span>
+              <span class="slider-val" id="lbl-acid">弱い ←→ 強い：3</span>
+            </div>
+            <div class="slider-track">
+              <span class="slider-end">弱い</span>
+              <input type="range" id="f-acid" min="1" max="5" value="3" step="1">
+              <span class="slider-end right">強い</span>
+            </div>
+          </div>
+          <div class="slider-item">
+            <div class="slider-header">
+              <span class="slider-name">濃淡</span>
+              <span class="slider-val" id="lbl-body">淡麗 ←→ 濃醇：3</span>
+            </div>
+            <div class="slider-track">
+              <span class="slider-end">淡麗</span>
+              <input type="range" id="f-body" min="1" max="5" value="3" step="1">
+              <span class="slider-end right">濃醇</span>
+            </div>
+          </div>
+          <div class="slider-item">
+            <div class="slider-header">
+              <span class="slider-name">香りの強さ</span>
+              <span class="slider-val" id="lbl-aroma">控えめ ←→ 華やか：3</span>
+            </div>
+            <div class="slider-track">
+              <span class="slider-end">控えめ</span>
+              <input type="range" id="f-aroma" min="1" max="5" value="3" step="1">
+              <span class="slider-end right">華やか</span>
+            </div>
+          </div>
+          <div class="slider-item">
+            <div class="slider-header">
+              <span class="slider-name">余韻</span>
+              <span class="slider-val" id="lbl-finish">短い ←→ 長い：3</span>
+            </div>
+            <div class="slider-track">
+              <span class="slider-end">短い</span>
+              <input type="range" id="f-finish" min="1" max="5" value="3" step="1">
+              <span class="slider-end right">長い</span>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -373,17 +389,17 @@
         <label>メモ・感想</label>
         <textarea id="f-memo" placeholder="どこで飲んだか、合わせた料理、感想など..."></textarea>
       </div>
-
       <button class="btn-save" id="btn-save">記録する</button>
+      <div style="height:16px"></div>
     </div>
 
-    <!-- 一覧画面 -->
+    <!-- 一覧 -->
     <div id="s-list" class="screen">
       <div class="sec-title">記録一覧</div>
       <div id="list-wrap"></div>
     </div>
 
-    <!-- 統計画面 -->
+    <!-- 統計 -->
     <div id="s-stats" class="screen">
       <div class="sec-title">統計</div>
       <div class="stats-grid">
@@ -397,182 +413,334 @@
         <div id="type-chart"><p style="font-size:13px;color:var(--text3)">記録がありません</p></div>
       </div>
       <div class="chart-card">
-        <div class="chart-title">よく選んだ風味</div>
+        <div class="chart-title">よく選んだ風味タグ</div>
         <div id="flavor-chart"><p style="font-size:13px;color:var(--text3)">記録がありません</p></div>
       </div>
+      <div class="chart-card">
+        <div class="chart-title">平均テイスティングスコア</div>
+        <div id="score-chart"><p style="font-size:13px;color:var(--text3)">記録がありません</p></div>
+      </div>
     </div>
-
-  </div><!-- /screens -->
+  </div>
 
   <nav class="nav">
-    <button class="nav-btn active" data-screen="add">
-      <span class="nav-icon">✏️</span>
-      <span class="nav-label">記録</span>
-    </button>
-    <button class="nav-btn" data-screen="list">
-      <span class="nav-icon">📋</span>
-      <span class="nav-label">一覧</span>
-    </button>
-    <button class="nav-btn" data-screen="stats">
-      <span class="nav-icon">📊</span>
-      <span class="nav-label">統計</span>
-    </button>
+    <button class="nav-btn active" data-screen="add"><span class="nav-icon">✏️</span><span class="nav-label">記録</span></button>
+    <button class="nav-btn" data-screen="list"><span class="nav-icon">📋</span><span class="nav-label">一覧</span></button>
+    <button class="nav-btn" data-screen="stats"><span class="nav-icon">📊</span><span class="nav-label">統計</span></button>
   </nav>
 </div>
 
+<!-- Detail -->
+<div class="overlay" id="overlay">
+  <div class="overlay-header">
+    <button class="btn-back" id="btn-back">← 戻る</button>
+    <div class="overlay-title" id="ov-title"></div>
+  </div>
+  <div class="overlay-body" id="ov-body"></div>
+</div>
+
+<!-- Lightbox -->
+<div class="lightbox" id="lightbox">
+  <button class="lightbox-close" id="lb-close">×</button>
+  <img id="lb-img" src="" alt="">
+</div>
+
 <script>
-  // --- State ---
-  let records = [];
-  let rating = 0;
+const SLIDERS = [
+  { id: 'sweet',  lbl: 'lbl-sweet',  name: '甘辛度',    left: '甘口',  right: '辛口'  },
+  { id: 'acid',   lbl: 'lbl-acid',   name: '酸味',      left: '弱い',  right: '強い'  },
+  { id: 'body',   lbl: 'lbl-body',   name: '濃淡',      left: '淡麗',  right: '濃醇'  },
+  { id: 'aroma',  lbl: 'lbl-aroma',  name: '香りの強さ', left: '控えめ', right: '華やか' },
+  { id: 'finish', lbl: 'lbl-finish', name: '余韻',      left: '短い',  right: '長い'  },
+];
 
-  try { records = JSON.parse(localStorage.getItem('sake_note_v1') || '[]'); } catch(e) {}
+const FTAG_COLORS = { aroma: 'on-aroma', taste: 'on-taste', finish: 'on-finish' };
+const FTAG_DETAIL_STYLE = {
+  'on-aroma':  'background:var(--purple-bg);color:var(--purple-text)',
+  'on-taste':  'background:var(--teal-bg);color:var(--teal-text)',
+  'on-finish': 'background:var(--green-bg);color:var(--green-text)',
+};
 
-  // --- Init ---
+const DB_NAME = 'sake_note_db', DB_VER = 1;
+let db, records = [], rating = 0, pendingPhotos = [];
+
+function openDB() {
+  return new Promise((res, rej) => {
+    const r = indexedDB.open(DB_NAME, DB_VER);
+    r.onupgradeneeded = e => {
+      const d = e.target.result;
+      if (!d.objectStoreNames.contains('records')) d.createObjectStore('records', { keyPath: 'id' });
+      if (!d.objectStoreNames.contains('photos'))  d.createObjectStore('photos',  { keyPath: 'id' });
+    };
+    r.onsuccess = e => { db = e.target.result; res(db); };
+    r.onerror = () => rej(r.error);
+  });
+}
+function tx(store, mode, fn) {
+  return new Promise((res, rej) => {
+    const t = db.transaction(store, mode), s = t.objectStore(store), r = fn(s);
+    r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error);
+  });
+}
+const dbPut    = (store, val) => tx(store, 'readwrite', s => s.put(val));
+const dbGetAll = store        => tx(store, 'readonly',  s => s.getAll());
+const dbGet    = (store, key) => tx(store, 'readonly',  s => s.get(key));
+const dbDel    = (store, key) => tx(store, 'readwrite', s => s.delete(key));
+
+async function init() {
+  await openDB();
+  try {
+    const old = JSON.parse(localStorage.getItem('sake_note_v1') || '[]');
+    if (old.length) { for (const r of old) await dbPut('records', r); localStorage.removeItem('sake_note_v1'); }
+  } catch(e) {}
+  records = await dbGetAll('records');
+  records.sort((a, b) => b.id - a.id);
+  setupUI();
+}
+
+function setupUI() {
   document.getElementById('f-date').valueAsDate = new Date();
 
-  document.querySelectorAll('.ftag').forEach(el => {
-    el.addEventListener('click', () => el.classList.toggle('on'));
+  // Stars
+  document.querySelectorAll('.star').forEach(s => s.addEventListener('click', () => {
+    rating = parseInt(s.dataset.v);
+    document.querySelectorAll('.star').forEach((st, i) => st.classList.toggle('active', i < rating));
+  }));
+
+  // Flavor tags
+  document.querySelectorAll('.ftag').forEach(el => el.addEventListener('click', () => {
+    const g = el.dataset.group;
+    const cls = FTAG_COLORS[g];
+    if (el.classList.contains(cls)) { el.classList.remove(cls); }
+    else { el.classList.add(cls); }
+  }));
+
+  // Sliders
+  SLIDERS.forEach(s => {
+    const el = document.getElementById('f-' + s.id);
+    const update = () => { document.getElementById(s.lbl).textContent = `${s.left} ←→ ${s.right}：${el.value}`; };
+    el.addEventListener('input', update);
   });
 
-  document.querySelectorAll('.star').forEach(s => {
-    s.addEventListener('click', () => {
-      rating = parseInt(s.dataset.v);
-      document.querySelectorAll('.star').forEach((st, i) => st.classList.toggle('active', i < rating));
-    });
-  });
+  // Photos
+  document.getElementById('upload-area').addEventListener('click', () => document.getElementById('f-photos').click());
+  document.getElementById('f-photos').addEventListener('change', handlePhotos);
 
-  document.getElementById('f-sweet').addEventListener('input', function() {
-    document.getElementById('sv-s').textContent = this.value;
-  });
-  document.getElementById('f-aroma').addEventListener('input', function() {
-    document.getElementById('sv-a').textContent = this.value;
-  });
+  // Nav
+  document.querySelectorAll('.nav-btn').forEach(btn => btn.addEventListener('click', () => {
+    const id = btn.dataset.screen;
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('s-' + id).classList.add('active');
+    document.getElementById('screens').scrollTop = 0;
+    if (id === 'list') renderList();
+    if (id === 'stats') renderStats();
+  }));
 
-  // --- Nav ---
-  document.querySelectorAll('.nav-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const id = btn.dataset.screen;
-      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-      btn.classList.add('active');
-      document.getElementById('s-' + id).classList.add('active');
-      document.getElementById('screens').scrollTop = 0;
-      if (id === 'list') renderList();
-      if (id === 'stats') renderStats();
-    });
-  });
+  document.getElementById('btn-save').addEventListener('click', save);
+  document.getElementById('btn-back').addEventListener('click', closeOverlay);
+  document.getElementById('lb-close').addEventListener('click', () => document.getElementById('lightbox').classList.remove('open'));
+  document.getElementById('lightbox').addEventListener('click', e => { if (e.target === e.currentTarget) e.currentTarget.classList.remove('open'); });
+}
 
-  // --- Save ---
-  document.getElementById('btn-save').addEventListener('click', () => {
-    const name = document.getElementById('f-name').value.trim();
-    if (!name) { alert('酒の名前を入力してください'); return; }
-    const flavors = [...document.querySelectorAll('.ftag.on')].map(el => el.textContent);
+function handlePhotos(e) {
+  [...e.target.files].forEach(file => {
+    const reader = new FileReader();
+    reader.onload = ev => {
+      pendingPhotos.push({ id: 'p_' + Date.now() + '_' + Math.random().toString(36).slice(2), dataUrl: ev.target.result });
+      renderPreview();
+    };
+    reader.readAsDataURL(file);
+  });
+  e.target.value = '';
+}
+
+function renderPreview() {
+  const grid = document.getElementById('photo-preview');
+  grid.innerHTML = pendingPhotos.map((p, i) => `
+    <div class="photo-thumb"><img src="${p.dataUrl}" alt=""><button class="photo-del" data-i="${i}">×</button></div>
+  `).join('');
+  grid.querySelectorAll('.photo-del').forEach(btn => btn.addEventListener('click', () => {
+    pendingPhotos.splice(parseInt(btn.dataset.i), 1); renderPreview();
+  }));
+}
+
+async function save() {
+  const name = document.getElementById('f-name').value.trim();
+  if (!name) { alert('酒の名前を入力してください'); return; }
+  const btn = document.getElementById('btn-save');
+  btn.textContent = '保存中...'; btn.disabled = true;
+  try {
+    const photoIds = [];
+    for (const p of pendingPhotos) { await dbPut('photos', p); photoIds.push(p.id); }
+
+    const scores = {};
+    SLIDERS.forEach(s => { scores[s.id] = parseInt(document.getElementById('f-' + s.id).value); });
+
+    const flavors = [...document.querySelectorAll('.ftag')].filter(el =>
+      Object.values(FTAG_COLORS).some(c => el.classList.contains(c))
+    ).map(el => ({ text: el.textContent, group: el.dataset.group }));
+
     const rec = {
-      id: Date.now(),
-      name,
+      id: Date.now(), name,
       type: document.getElementById('f-type').value,
       region: document.getElementById('f-region').value.trim(),
       date: document.getElementById('f-date').value,
-      rating,
-      sweet: parseInt(document.getElementById('f-sweet').value),
-      aroma: parseInt(document.getElementById('f-aroma').value),
-      flavors,
-      memo: document.getElementById('f-memo').value.trim()
+      rating, scores, flavors,
+      memo: document.getElementById('f-memo').value.trim(),
+      photoIds
     };
+    await dbPut('records', rec);
     records.unshift(rec);
-    try { localStorage.setItem('sake_note_v1', JSON.stringify(records)); } catch(e) {}
     resetForm();
     alert('記録しました！');
+  } catch(e) { alert('保存に失敗しました'); }
+  finally { btn.textContent = '記録する'; btn.disabled = false; }
+}
+
+function resetForm() {
+  ['f-name','f-region','f-memo'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('f-type').value = '';
+  document.getElementById('f-date').valueAsDate = new Date();
+  SLIDERS.forEach(s => {
+    document.getElementById('f-' + s.id).value = 3;
+    document.getElementById(s.lbl).textContent = `${s.left} ←→ ${s.right}：3`;
   });
+  rating = 0; pendingPhotos = [];
+  document.querySelectorAll('.star').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.ftag').forEach(el => Object.values(FTAG_COLORS).forEach(c => el.classList.remove(c)));
+  renderPreview();
+}
 
-  function resetForm() {
-    ['f-name', 'f-region', 'f-memo'].forEach(id => document.getElementById(id).value = '');
-    document.getElementById('f-type').value = '';
-    document.getElementById('f-date').valueAsDate = new Date();
-    document.getElementById('f-sweet').value = 3;
-    document.getElementById('f-aroma').value = 3;
-    document.getElementById('sv-s').textContent = '3';
-    document.getElementById('sv-a').textContent = '3';
-    rating = 0;
-    document.querySelectorAll('.star').forEach(s => s.classList.remove('active'));
-    document.querySelectorAll('.ftag').forEach(s => s.classList.remove('on'));
-  }
-
-  // --- Render helpers ---
-  function starsHtml(n) {
-    return [1,2,3,4,5].map(i =>
-      `<span style="color:${i <= n ? '#c97b2e' : 'var(--border2)'};font-size:16px">★</span>`
+async function renderList() {
+  const w = document.getElementById('list-wrap');
+  if (!records.length) { w.innerHTML = '<div class="empty">まだ記録がありません。<br>最初の一杯を記録してみましょう！</div>'; return; }
+  w.innerHTML = '<div class="loading">読み込み中...</div>';
+  const cards = await Promise.all(records.map(async r => {
+    const thumbs = [];
+    for (const pid of (r.photoIds || []).slice(0, 4)) { const p = await dbGet('photos', pid); if (p) thumbs.push(p.dataUrl); }
+    return { r, thumbs };
+  }));
+  w.innerHTML = cards.map(({ r, thumbs }) => {
+    const scores = r.scores || {};
+    const scoreBars = SLIDERS.map(s => {
+      const v = scores[s.id] || 3;
+      return `<div class="rc-score"><div class="rc-score-bar"><div class="rc-score-fill" style="width:${Math.round(v/5*100)}%"></div></div><div class="rc-score-name">${s.name}</div></div>`;
+    }).join('');
+    const flavors = (r.flavors || []).map(f =>
+      typeof f === 'object'
+        ? `<span class="rc-ftag">${esc(f.text)}</span>`
+        : `<span class="rc-ftag">${esc(f)}</span>`
     ).join('');
-  }
-
-  function renderList() {
-    const w = document.getElementById('list-wrap');
-    if (!records.length) {
-      w.innerHTML = '<div class="empty">まだ記録がありません。<br>最初の一杯を記録してみましょう！</div>';
-      return;
-    }
-    w.innerHTML = records.map(r => `
-      <div class="record-card">
+    return `
+      <div class="record-card" data-id="${r.id}">
         <div class="rc-top">
-          <div>
-            <div class="rc-name">${escHtml(r.name)}</div>
-            <div class="rc-date">${r.date || ''}</div>
-          </div>
+          <div><div class="rc-name">${esc(r.name)}</div><div class="rc-date">${r.date || ''}</div></div>
           <div class="rc-stars">${starsHtml(r.rating)}</div>
         </div>
+        ${thumbs.length ? `<div class="rc-photos">${thumbs.map(d => `<div class="rc-photo"><img src="${d}" alt="" loading="lazy"></div>`).join('')}</div>` : ''}
         <div class="rc-badges">
-          ${r.type ? `<span class="badge b-type">${escHtml(r.type)}</span>` : ''}
-          ${r.region ? `<span class="badge b-region">${escHtml(r.region)}</span>` : ''}
+          ${r.type ? `<span class="badge b-type">${esc(r.type)}</span>` : ''}
+          ${r.region ? `<span class="badge b-region">${esc(r.region)}</span>` : ''}
         </div>
-        ${r.flavors && r.flavors.length ? `<div class="rc-flavors">${r.flavors.map(escHtml).join('　')}</div>` : ''}
-        ${r.memo ? `<div class="rc-note">"${escHtml(r.memo)}"</div>` : ''}
+        <div class="rc-scores">${scoreBars}</div>
+        ${flavors ? `<div class="rc-flavors">${flavors}</div>` : ''}
+        ${r.memo ? `<div class="rc-note">"${esc(r.memo)}"</div>` : ''}
       </div>
-    `).join('');
-  }
+    `;
+  }).join('');
+  w.querySelectorAll('.record-card').forEach(card => card.addEventListener('click', () => openDetail(parseInt(card.dataset.id))));
+}
 
-  function renderStats() {
-    const n = records.length;
-    document.getElementById('st-count').textContent = n;
-    if (!n) {
-      document.getElementById('st-avg').textContent = '—';
-      document.getElementById('st-types').textContent = '0';
-      document.getElementById('st-regions').textContent = '0';
-      return;
+async function openDetail(id) {
+  const r = records.find(x => x.id === id); if (!r) return;
+  document.getElementById('ov-title').textContent = r.name;
+  const photos = [];
+  for (const pid of (r.photoIds || [])) { const p = await dbGet('photos', pid); if (p) photos.push(p.dataUrl); }
+  const scores = r.scores || {};
+  const scoreBars = SLIDERS.map(s => {
+    const v = scores[s.id] || 3;
+    return `<div class="dscore-row"><span class="dscore-name">${s.name}</span><div class="dscore-bar-bg"><div class="dscore-bar-fill" style="width:${Math.round(v/5*100)}%"></div></div><span class="dscore-val">${v}</span></div>`;
+  }).join('');
+  const flavorHtml = (r.flavors || []).map(f => {
+    if (typeof f === 'object') {
+      const style = FTAG_DETAIL_STYLE[FTAG_COLORS[f.group]] || '';
+      return `<span class="detail-ftag" style="${style}">${esc(f.text)}</span>`;
     }
-    const rated = records.filter(r => r.rating > 0);
-    document.getElementById('st-avg').textContent = rated.length
-      ? (rated.reduce((s, r) => s + r.rating, 0) / rated.length).toFixed(1) : '—';
-    document.getElementById('st-types').textContent = new Set(records.map(r => r.type).filter(Boolean)).size;
-    document.getElementById('st-regions').textContent = new Set(records.map(r => r.region).filter(Boolean)).size;
+    return `<span class="detail-ftag" style="background:var(--bg2);color:var(--text2)">${esc(f)}</span>`;
+  }).join('');
 
-    const tc = {};
-    records.forEach(r => { if (r.type) tc[r.type] = (tc[r.type] || 0) + 1; });
-    const maxT = Math.max(...Object.values(tc), 1);
-    document.getElementById('type-chart').innerHTML = Object.entries(tc)
-      .sort((a, b) => b[1] - a[1])
-      .map(([k, v]) => `
-        <div class="bar-row">
-          <div class="bar-meta"><span>${escHtml(k)}</span><span>${v}本</span></div>
-          <div class="bar-bg"><div class="bar-fill" style="width:${Math.round(v/maxT*100)}%;background:#378ADD"></div></div>
-        </div>
-      `).join('') || '<p style="font-size:13px;color:var(--text3)">記録がありません</p>';
+  document.getElementById('ov-body').innerHTML = `
+    ${photos.length ? `<div class="detail-photos">${photos.map(d => `<div class="detail-photo" data-src="${d}"><img src="${d}" alt="" loading="lazy"></div>`).join('')}</div>` : ''}
+    <div class="detail-row"><span class="detail-label">飲んだ日</span><span class="detail-value">${r.date || '—'}</span></div>
+    ${r.type ? `<div class="detail-row"><span class="detail-label">種類</span><span class="detail-value">${esc(r.type)}</span></div>` : ''}
+    ${r.region ? `<div class="detail-row"><span class="detail-label">産地・蔵元</span><span class="detail-value">${esc(r.region)}</span></div>` : ''}
+    <div class="detail-row"><span class="detail-label">評価</span><span class="detail-value">${starsHtml(r.rating)}</span></div>
+    <div class="detail-scores"><div class="detail-scores-title">テイスティングスコア</div>${scoreBars}</div>
+    ${flavorHtml ? `<div class="detail-flavors"><div class="detail-flavors-title">風味の特徴</div><div class="detail-ftag-wrap">${flavorHtml}</div></div>` : ''}
+    ${r.memo ? `<div class="detail-note">${esc(r.memo)}</div>` : ''}
+    <button class="btn-delete" data-id="${r.id}">この記録を削除</button>
+  `;
+  document.querySelectorAll('.detail-photo').forEach(el => el.addEventListener('click', () => {
+    document.getElementById('lb-img').src = el.dataset.src;
+    document.getElementById('lightbox').classList.add('open');
+  }));
+  document.querySelector('.btn-delete').addEventListener('click', async () => {
+    if (!confirm('この記録を削除しますか？')) return;
+    for (const pid of (r.photoIds || [])) await dbDel('photos', pid);
+    await dbDel('records', id);
+    records = records.filter(x => x.id !== id);
+    closeOverlay(); renderList();
+  });
+  document.getElementById('overlay').classList.add('open');
+}
 
-    const fc = {};
-    records.forEach(r => (r.flavors || []).forEach(f => { fc[f] = (fc[f] || 0) + 1; }));
-    const maxF = Math.max(...Object.values(fc), 1);
-    document.getElementById('flavor-chart').innerHTML = Object.entries(fc)
-      .sort((a, b) => b[1] - a[1]).slice(0, 8)
-      .map(([k, v]) => `
-        <div class="bar-row">
-          <div class="bar-meta"><span>${escHtml(k)}</span><span>${v}回</span></div>
-          <div class="bar-bg"><div class="bar-fill" style="width:${Math.round(v/maxF*100)}%;background:#639922"></div></div>
-        </div>
-      `).join('') || '<p style="font-size:13px;color:var(--text3)">記録がありません</p>';
-  }
+function closeOverlay() { document.getElementById('overlay').classList.remove('open'); }
 
-  function escHtml(str) {
-    return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-  }
+function renderStats() {
+  const n = records.length;
+  document.getElementById('st-count').textContent = n;
+  if (!n) { ['st-avg','st-types','st-regions'].forEach(id => document.getElementById(id).textContent = id === 'st-avg' ? '—' : '0'); return; }
+  const rated = records.filter(r => r.rating > 0);
+  document.getElementById('st-avg').textContent = rated.length ? (rated.reduce((s,r)=>s+r.rating,0)/rated.length).toFixed(1) : '—';
+  document.getElementById('st-types').textContent = new Set(records.map(r=>r.type).filter(Boolean)).size;
+  document.getElementById('st-regions').textContent = new Set(records.map(r=>r.region).filter(Boolean)).size;
+
+  // Type chart
+  const tc = {}; records.forEach(r => { if(r.type) tc[r.type]=(tc[r.type]||0)+1; });
+  const maxT = Math.max(...Object.values(tc), 1);
+  document.getElementById('type-chart').innerHTML = Object.entries(tc).sort((a,b)=>b[1]-a[1]).map(([k,v]) =>
+    `<div class="bar-row"><div class="bar-meta"><span>${esc(k)}</span><span>${v}本</span></div><div class="bar-bg"><div class="bar-fill" style="width:${Math.round(v/maxT*100)}%;background:#378ADD"></div></div></div>`
+  ).join('') || '<p style="font-size:13px;color:var(--text3)">記録がありません</p>';
+
+  // Flavor chart
+  const fc = {};
+  records.forEach(r => (r.flavors||[]).forEach(f => {
+    const key = typeof f === 'object' ? f.text : f;
+    fc[key] = (fc[key]||0)+1;
+  }));
+  const maxF = Math.max(...Object.values(fc), 1);
+  document.getElementById('flavor-chart').innerHTML = Object.entries(fc).sort((a,b)=>b[1]-a[1]).slice(0,8).map(([k,v]) =>
+    `<div class="bar-row"><div class="bar-meta"><span>${esc(k)}</span><span>${v}回</span></div><div class="bar-bg"><div class="bar-fill" style="width:${Math.round(v/maxF*100)}%;background:#854F0B"></div></div></div>`
+  ).join('') || '<p style="font-size:13px;color:var(--text3)">記録がありません</p>';
+
+  // Average score chart
+  const avgScores = {};
+  SLIDERS.forEach(s => {
+    const vals = records.map(r => r.scores && r.scores[s.id]).filter(v => v != null);
+    avgScores[s.id] = vals.length ? vals.reduce((a,b)=>a+b,0)/vals.length : 0;
+  });
+  document.getElementById('score-chart').innerHTML = SLIDERS.map(s => {
+    const v = avgScores[s.id];
+    return `<div class="bar-row"><div class="bar-meta"><span>${s.name}</span><span>${v.toFixed(1)} / 5</span></div><div class="bar-bg"><div class="bar-fill" style="width:${Math.round(v/5*100)}%;background:var(--amber)"></div></div></div>`;
+  }).join('');
+}
+
+function starsHtml(n) { return [1,2,3,4,5].map(i=>`<span style="color:${i<=n?'#c97b2e':'var(--border2)'};font-size:16px">★</span>`).join(''); }
+function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+init();
 </script>
 </body>
 </html>
