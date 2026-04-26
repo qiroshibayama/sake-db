@@ -165,6 +165,12 @@
     .ftag.on-aroma  { background: var(--purple-bg); color: var(--purple-text); border-color: transparent; font-weight: 500; }
     .ftag.on-taste  { background: var(--teal-bg);   color: var(--teal-text);   border-color: transparent; font-weight: 500; }
     .ftag.on-finish { background: var(--green-bg);  color: var(--green-text);  border-color: transparent; font-weight: 500; }
+    /* ラジオ式タグ（香りタイプ・1択） */
+    .ftag-radio { font-size: 14px; padding: 8px 13px; border-radius: 999px; background: var(--bg2); color: var(--text2); border: 0.5px solid var(--border); cursor: pointer; -webkit-tap-highlight-color: transparent; user-select: none; display: inline-block; margin: 0 4px 6px 0; }
+    .ftag-radio.on-radio { background: var(--purple-bg); color: var(--purple-text); border-color: transparent; font-weight: 500; }
+    /* チェック式タグ（詳細・最大2つ） */
+    .ftag-check { font-size: 14px; padding: 8px 13px; border-radius: 999px; background: var(--bg2); color: var(--text2); border: 0.5px solid var(--border); cursor: pointer; -webkit-tap-highlight-color: transparent; user-select: none; display: inline-block; margin: 0 4px 6px 0; }
+    .ftag-check.on-check { background: var(--teal-bg); color: var(--teal-text); border-color: transparent; font-weight: 500; }
 
     /* Sliders */
     .slider-item { margin-bottom: 14px; }
@@ -174,16 +180,12 @@
     .slider-track { display: flex; align-items: center; gap: 8px; }
     .slider-track input[type=range] {
       flex: 1; -webkit-appearance: none; height: 44px; background: transparent;
-      padding: 0; border: none;
-      /* スクロール中は操作を無効化、タッチ開始時のみ有効にする */
-      touch-action: none; pointer-events: none;
+      padding: 0; border: none; touch-action: pan-y;
     }
-    .slider-track input[type=range].unlocked { pointer-events: auto; }
     .slider-track input[type=range]::-webkit-slider-runnable-track { height: 4px; background: var(--bg3); border-radius: 2px; }
     .slider-track input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 28px; height: 28px; border-radius: 50%; background: var(--text); margin-top: -12px; }
     .slider-end { font-size: 11px; color: var(--text3); white-space: nowrap; min-width: 34px; }
     .slider-end.right { text-align: right; }
-    .slider-tap-hint { font-size: 11px; color: var(--text3); text-align: center; margin-top: 2px; }
 
     .btn-save {
       width: 100%; padding: 17px; background: var(--text); color: var(--bg);
@@ -349,47 +351,94 @@
       </div>
     </div>
 
+    <!-- ① テイスティングスコア（甘辛・酸味・濃淡） -->
     <div class="field">
-      <label>風味の特徴</label>
-      <div class="ftag-group">
-        <div class="ftag-group-label">香り</div>
-        <div class="ftag-wrap">
-          <span class="ftag" data-group="aroma">吟醸香</span>
-          <span class="ftag" data-group="aroma">フルーティ</span>
-          <span class="ftag" data-group="aroma">花・華やか</span>
-          <span class="ftag" data-group="aroma">ハーブ・草</span>
-          <span class="ftag" data-group="aroma">木・樽</span>
-          <span class="ftag" data-group="aroma">熟成・ナッツ</span>
-          <span class="ftag" data-group="aroma">ほぼ無香</span>
+      <label>テイスティングスコア</label>
+      <div id="sliders"></div>
+    </div>
+
+    <!-- ② 香り -->
+    <div class="field">
+      <label>香り</label>
+
+      <div class="ftag-group-label">フルーティ強度</div>
+      <div class="slider-item">
+        <div class="slider-track">
+          <span class="slider-end">弱い</span>
+          <input type="range" id="f-aroma" min="1" max="5" value="3" step="1">
+          <span class="slider-end right">強い</span>
         </div>
       </div>
-      <div class="ftag-group">
-        <div class="ftag-group-label">味わい</div>
-        <div class="ftag-wrap">
-          <span class="ftag" data-group="taste">旨み豊か</span>
-          <span class="ftag" data-group="taste">ミネラル</span>
-          <span class="ftag" data-group="taste">乳酸・ヨーグルト</span>
-          <span class="ftag" data-group="taste">苦み</span>
-          <span class="ftag" data-group="taste">渋み</span>
-          <span class="ftag" data-group="taste">なめらか</span>
-          <span class="ftag" data-group="taste">発泡感</span>
-        </div>
+
+      <div class="ftag-group-label" style="margin-top:12px">香りタイプ</div>
+      <div class="ftag-wrap" id="aroma-main-tags" style="margin-bottom:10px">
+        <span class="ftag-radio" data-group="aroma-main" data-val="">未選択</span>
+        <span class="ftag-radio" data-group="aroma-main" data-val="フルーティ">フルーティ</span>
+        <span class="ftag-radio" data-group="aroma-main" data-val="フローラル">フローラル</span>
+        <span class="ftag-radio" data-group="aroma-main" data-val="穀物・米">穀物・米</span>
+        <span class="ftag-radio" data-group="aroma-main" data-val="乳酸・発酵">乳酸・発酵</span>
+        <span class="ftag-radio" data-group="aroma-main" data-val="熟成・重厚">熟成・重厚</span>
       </div>
-      <div class="ftag-group">
-        <div class="ftag-group-label">後味・余韻</div>
-        <div class="ftag-wrap">
-          <span class="ftag" data-group="finish">キレがいい</span>
-          <span class="ftag" data-group="finish">余韻が長い</span>
-          <span class="ftag" data-group="finish">ふくよか</span>
-          <span class="ftag" data-group="finish">後味すっきり</span>
-          <span class="ftag" data-group="finish">じわっと広がる</span>
+
+      <div id="aroma-sub-wrap" style="display:none">
+        <div class="ftag-group-label">詳細（最大2つ）</div>
+        <div class="ftag-wrap" id="aroma-sub-tags"></div>
+      </div>
+    </div>
+
+    <!-- ③ 余韻 -->
+    <div class="field">
+      <label>余韻</label>
+      <div id="finish-sliders">
+        <div class="slider-item">
+          <div class="slider-header"><span class="slider-name">長さ</span></div>
+          <div class="slider-track">
+            <span class="slider-end">短い</span>
+            <input type="range" id="f-finish-len" min="1" max="5" value="3" step="1">
+            <span class="slider-end right">長い</span>
+          </div>
+        </div>
+        <div class="slider-item">
+          <div class="slider-header"><span class="slider-name">キレ</span></div>
+          <div class="slider-track">
+            <span class="slider-end">まろやか</span>
+            <input type="range" id="f-finish-kire" min="1" max="5" value="3" step="1">
+            <span class="slider-end right">シャープ</span>
+          </div>
         </div>
       </div>
     </div>
 
+    <!-- ④ 味わい -->
     <div class="field">
-      <label>テイスティングスコア</label>
-      <div id="sliders"></div>
+      <label>味わいの特徴</label>
+      <div class="ftag-group-label" style="margin-bottom:8px">強度（0=なし）</div>
+      <div id="taste-sliders">
+        <div class="slider-item">
+          <div class="slider-header"><span class="slider-name">苦み</span><span class="slider-val-lbl" id="lbl-bitter">なし</span></div>
+          <div class="slider-track">
+            <span class="slider-end">なし</span>
+            <input type="range" id="f-bitter" min="0" max="3" value="0" step="1">
+            <span class="slider-end right">強い</span>
+          </div>
+        </div>
+        <div class="slider-item">
+          <div class="slider-header"><span class="slider-name">乳酸感</span><span class="slider-val-lbl" id="lbl-lactic">なし</span></div>
+          <div class="slider-track">
+            <span class="slider-end">なし</span>
+            <input type="range" id="f-lactic" min="0" max="3" value="0" step="1">
+            <span class="slider-end right">強い</span>
+          </div>
+        </div>
+        <div class="slider-item">
+          <div class="slider-header"><span class="slider-name">発泡感</span><span class="slider-val-lbl" id="lbl-fizz">なし</span></div>
+          <div class="slider-track">
+            <span class="slider-end">なし</span>
+            <input type="range" id="f-fizz" min="0" max="3" value="0" step="1">
+            <span class="slider-end right">強い</span>
+          </div>
+        </div>
+      </div>
     </div>
 
     <div class="field">
@@ -418,18 +467,25 @@
 <script>
 /* ── Constants ── */
 const SLIDERS = [
-  { id:'sweet',  name:'甘辛度',    left:'辛口',   right:'甘口'   },
-  { id:'acid',   name:'酸味',      left:'弱い',   right:'強い'   },
-  { id:'body',   name:'濃淡',      left:'淡麗',   right:'濃醇'   },
-  { id:'aroma',  name:'香りの強さ', left:'控えめ', right:'華やか' },
-  { id:'finish', name:'余韻',      left:'短い',   right:'長い'   },
+  { id:'sweet', name:'甘辛度', left:'辛口', right:'甘口' },
+  { id:'acid',  name:'酸味',   left:'弱い', right:'強い' },
+  { id:'body',  name:'濃淡',   left:'淡麗', right:'濃醇' },
 ];
-const FTAG_CLS = { aroma:'on-aroma', taste:'on-taste', finish:'on-finish' };
-const FTAG_STYLE = {
-  'on-aroma':  'background:var(--purple-bg);color:var(--purple-text)',
-  'on-taste':  'background:var(--teal-bg);color:var(--teal-text)',
-  'on-finish': 'background:var(--green-bg);color:var(--green-text)',
+
+const AROMA_SUB = {
+  'フルーティ':  ['りんご','洋梨','バナナ','メロン','柑橘','トロピカル'],
+  'フローラル':  ['白い花','華やか'],
+  '穀物・米':    ['炊いた米','麹','ナッツ'],
+  '乳酸・発酵':  ['ヨーグルト','クリーム'],
+  '熟成・重厚':  ['カラメル','はちみつ','ナッツ'],
 };
+
+const TASTE_SLIDERS = [
+  { id:'bitter', name:'苦み'  },
+  { id:'lactic', name:'乳酸感'},
+  { id:'fizz',   name:'発泡感'},
+];
+
 
 /* ── IndexedDB ── */
 const DB_NAME = 'sake_note_db', DB_VER = 1;
@@ -475,10 +531,7 @@ async function init() {
 function buildSliders() {
   document.getElementById('sliders').innerHTML = SLIDERS.map(s => `
     <div class="slider-item">
-      <div class="slider-header">
-        <span class="slider-name">${s.name}</span>
-        <span class="slider-val-lbl" id="lbl-${s.id}">${s.left} ─●─── ${s.right}</span>
-      </div>
+      <div class="slider-header"><span class="slider-name">${s.name}</span></div>
       <div class="slider-track">
         <span class="slider-end">${s.left}</span>
         <input type="range" id="f-${s.id}" min="1" max="5" value="3" step="1">
@@ -487,20 +540,39 @@ function buildSliders() {
     </div>
   `).join('');
 
-  SLIDERS.forEach(s => {
+  // 味わいスライダー ラベル更新
+  TASTE_SLIDERS.forEach(s => {
     const el = document.getElementById('f-' + s.id);
-    const update = () => {
-      const v = parseInt(el.value);
-      const bars = ['─','─','─','─','─'];
-      bars[v-1] = '●';
-      const left = bars.slice(0,v-1).join('');
-      const right = bars.slice(v).join('');
-      document.getElementById('lbl-' + s.id).textContent = `${s.left} ${left}●${right} ${s.right}`;
-    };
-    el.addEventListener('input', update);
-    update();
-    el.addEventListener('touchstart', () => el.classList.add('unlocked'), { passive: true });
-    el.addEventListener('blur', () => el.classList.remove('unlocked'));
+    const lbl = document.getElementById('lbl-' + s.id);
+    el.addEventListener('input', () => {
+      lbl.textContent = el.value === '0' ? 'なし' : ['','弱','中','強'][parseInt(el.value)];
+    });
+  });
+
+  // 香りタイプ（ラジオ式）
+  document.querySelectorAll('.ftag-radio').forEach(el => {
+    el.addEventListener('click', () => {
+      document.querySelectorAll('.ftag-radio[data-group="aroma-main"]').forEach(t => t.classList.remove('on-radio'));
+      el.classList.add('on-radio');
+      updateAromaSubTags(el.dataset.val);
+    });
+  });
+  const def = document.querySelector('.ftag-radio[data-val=""]');
+  if (def) def.classList.add('on-radio');
+}
+
+function updateAromaSubTags(mainVal) {
+  const wrap = document.getElementById('aroma-sub-wrap');
+  const subTags = document.getElementById('aroma-sub-tags');
+  if (!mainVal || !AROMA_SUB[mainVal]) { wrap.style.display = 'none'; subTags.innerHTML = ''; return; }
+  wrap.style.display = 'block';
+  subTags.innerHTML = AROMA_SUB[mainVal].map(t => `<span class="ftag-check">${t}</span>`).join('');
+  subTags.querySelectorAll('.ftag-check').forEach(el => {
+    el.addEventListener('click', () => {
+      const selected = subTags.querySelectorAll('.ftag-check.on-check');
+      if (el.classList.contains('on-check')) { el.classList.remove('on-check'); }
+      else if (selected.length < 2) { el.classList.add('on-check'); }
+    });
   });
 }
 
@@ -604,16 +676,27 @@ function openForm(rec) {
     rating = rec.rating || 0;
     document.querySelectorAll('.star').forEach((st,i) => st.classList.toggle('active', i < rating));
     const scores = rec.scores || {};
-    SLIDERS.forEach(s => {
-      const el = document.getElementById('f-' + s.id);
-      el.value = scores[s.id] || 3;
-      el.dispatchEvent(new Event('input'));
+    SLIDERS.forEach(s => { document.getElementById('f-' + s.id).value = scores[s.id] || 3; });
+    document.getElementById('f-aroma').value = scores.aroma || 3;
+    document.getElementById('f-finish-len').value  = scores.finishLen  || 3;
+    document.getElementById('f-finish-kire').value = scores.finishKire || 3;
+    TASTE_SLIDERS.forEach(s => {
+      const v = scores[s.id] || 0;
+      document.getElementById('f-' + s.id).value = v;
+      document.getElementById('lbl-' + s.id).textContent = v === 0 ? 'なし' : ['','弱','中','強'][v];
     });
-    document.querySelectorAll('.ftag').forEach(el => {
-      const cls = FTAG_CLS[el.dataset.group];
-      const match = (rec.flavors || []).some(f => (typeof f==='object'?f.text:f) === el.textContent);
-      if (match) el.classList.add(cls); else el.classList.remove(cls);
-    });
+    const flavors = rec.flavors || {};
+    const aromaMain = typeof flavors === 'object' && !Array.isArray(flavors) ? (flavors.aromaMain || '') : '';
+    const aromaSub  = typeof flavors === 'object' && !Array.isArray(flavors) ? (flavors.aromaSub  || []) : [];
+    document.querySelectorAll('.ftag-radio').forEach(el => el.classList.remove('on-radio'));
+    const mainEl = document.querySelector(`.ftag-radio[data-val="${aromaMain}"]`);
+    if (mainEl) mainEl.classList.add('on-radio'); else document.querySelector('.ftag-radio[data-val=""]')?.classList.add('on-radio');
+    updateAromaSubTags(aromaMain);
+    if (aromaSub.length) {
+      document.querySelectorAll('.ftag-check').forEach(el => {
+        if (aromaSub.includes(el.textContent)) el.classList.add('on-check');
+      });
+    }
     // Load existing photos into pendingPhotos
     loadRecordPhotos(rec);
   } else {
@@ -638,14 +721,21 @@ function resetForm() {
   ['f-name','f-region','f-memo'].forEach(id => document.getElementById(id).value = '');
   document.getElementById('f-type').value = '';
   document.getElementById('f-edit-id').value = '';
-  SLIDERS.forEach(s => {
-    const el = document.getElementById('f-' + s.id);
-    el.value = 3;
-    el.dispatchEvent(new Event('input'));
+  SLIDERS.forEach(s => { document.getElementById('f-' + s.id).value = 3; });
+  document.getElementById('f-aroma').value = 3;
+  document.getElementById('f-finish-len').value = 3;
+  document.getElementById('f-finish-kire').value = 3;
+  TASTE_SLIDERS.forEach(s => {
+    document.getElementById('f-' + s.id).value = 0;
+    document.getElementById('lbl-' + s.id).textContent = 'なし';
   });
+  // 香りタイプを未選択に戻す
+  document.querySelectorAll('.ftag-radio').forEach(el => el.classList.remove('on-radio'));
+  const def = document.querySelector('.ftag-radio[data-val=""]');
+  if (def) def.classList.add('on-radio');
+  updateAromaSubTags('');
   rating = 0; pendingPhotos = []; mainPhotoIdx = 0;
   document.querySelectorAll('.star').forEach(s => s.classList.remove('active'));
-  document.querySelectorAll('.ftag').forEach(el => Object.values(FTAG_CLS).forEach(c => el.classList.remove(c)));
   renderPreview();
 }
 
@@ -663,9 +753,14 @@ async function save() {
     }
     const scores = {};
     SLIDERS.forEach(s => { scores[s.id] = parseInt(document.getElementById('f-' + s.id).value); });
-    const flavors = [...document.querySelectorAll('.ftag')].filter(el =>
-      Object.values(FTAG_CLS).some(c => el.classList.contains(c))
-    ).map(el => ({ text:el.textContent, group:el.dataset.group }));
+    scores.aroma = parseInt(document.getElementById('f-aroma').value);
+    scores.finishLen  = parseInt(document.getElementById('f-finish-len').value);
+    scores.finishKire = parseInt(document.getElementById('f-finish-kire').value);
+    TASTE_SLIDERS.forEach(s => { scores[s.id] = parseInt(document.getElementById('f-' + s.id).value); });
+
+    const aromaMain = document.querySelector('.ftag-radio.on-radio')?.dataset.val || '';
+    const aromaSub  = [...document.querySelectorAll('.ftag-check.on-check')].map(el => el.textContent);
+    const flavors = { aromaMain, aromaSub };
 
     const editId = document.getElementById('f-edit-id').value;
     const recId = editId ? parseInt(editId) : Date.now();
@@ -752,27 +847,47 @@ async function openDetail(id) {
   for (const pid of (r.photoIds||[])) { const p = await dbGet('photos', pid); if (p) photos.push({ id:pid, url:p.dataUrl }); }
 
   const scores = r.scores || {};
-  const scoreBars = SLIDERS.map(s => {
-    const v = scores[s.id] || 3;
-    const pct = Math.round((v-1)/4*100);
-    return `
-      <div class="dscore-row">
-        <span class="dscore-name">${s.name}</span>
-        <span class="dscore-end">${s.left}</span>
-        <div class="dscore-bar-bg">
-          <div class="dscore-bar-marker" style="left:calc(${pct}% - 7px)"></div>
-        </div>
-        <span class="dscore-end">${s.right}</span>
-      </div>`;
+  const flavors = r.flavors || {};
+  const aromaMain = typeof flavors === 'object' && !Array.isArray(flavors) ? (flavors.aromaMain || '') : '';
+  const aromaSub  = typeof flavors === 'object' && !Array.isArray(flavors) ? (flavors.aromaSub  || []) : [];
+
+  const posBar = (v, min, max) => {
+    const pct = Math.round((v - min) / (max - min) * 100);
+    return `<div class="dscore-bar-bg"><div class="dscore-bar-marker" style="left:calc(${pct}% - 7px)"></div></div>`;
+  };
+
+  const scoreBars = [
+    ...SLIDERS.map(s => ({ name: s.name, left: s.left, right: s.right, v: scores[s.id] || 3, min:1, max:5 })),
+    { name:'香り強度', left:'弱い',     right:'強い',     v: scores.aroma      || 3, min:1, max:5 },
+    { name:'余韻の長さ', left:'短い',   right:'長い',     v: scores.finishLen  || 3, min:1, max:5 },
+    { name:'キレ',      left:'まろやか',right:'シャープ', v: scores.finishKire || 3, min:1, max:5 },
+  ].map(s => `
+    <div class="dscore-row">
+      <span class="dscore-name">${s.name}</span>
+      <span class="dscore-end">${s.left}</span>
+      ${posBar(s.v, s.min, s.max)}
+      <span class="dscore-end">${s.right}</span>
+    </div>`).join('');
+
+  const tasteRows = TASTE_SLIDERS.map(s => {
+    const v = scores[s.id] || 0;
+    if (v === 0) return '';
+    return `<div class="dscore-row">
+      <span class="dscore-name">${s.name}</span>
+      <span class="dscore-end">なし</span>
+      ${posBar(v, 0, 3)}
+      <span class="dscore-end">強い</span>
+    </div>`;
   }).join('');
 
-  const flavorHtml = (r.flavors||[]).map(f => {
-    if (typeof f==='object') {
-      const style = FTAG_STYLE[FTAG_CLS[f.group]] || '';
-      return `<span class="detail-ftag" style="${style}">${esc(f.text)}</span>`;
-    }
-    return `<span class="detail-ftag" style="background:var(--bg2);color:var(--text2)">${esc(f)}</span>`;
-  }).join('');
+  const aromaHtml = aromaMain ? `
+    <div class="detail-flavors">
+      <div class="detail-flavors-title">香りタイプ</div>
+      <div class="detail-ftag-wrap">
+        <span class="detail-ftag" style="background:var(--purple-bg);color:var(--purple-text)">${esc(aromaMain)}</span>
+        ${aromaSub.map(t => `<span class="detail-ftag" style="background:var(--bg2);color:var(--text2)">${esc(t)}</span>`).join('')}
+      </div>
+    </div>` : '';
 
   document.getElementById('ov-body').innerHTML = `
     ${photos.length ? `
@@ -783,8 +898,12 @@ async function openDetail(id) {
     ${r.type   ? `<div class="detail-row"><span class="detail-label">種類</span><span class="detail-value">${esc(r.type)}</span></div>` : ''}
     ${r.region ? `<div class="detail-row"><span class="detail-label">産地・蔵元</span><span class="detail-value">${esc(r.region)}</span></div>` : ''}
     <div class="detail-row"><span class="detail-label">評価</span><span class="detail-value">${starsHtml(r.rating,16)}</span></div>
-    <div class="detail-scores"><div class="detail-scores-title">テイスティングスコア</div>${scoreBars}</div>
-    ${flavorHtml ? `<div class="detail-flavors"><div class="detail-flavors-title">風味の特徴</div><div class="detail-ftag-wrap">${flavorHtml}</div></div>` : ''}
+    ${aromaHtml}
+    <div class="detail-scores">
+      <div class="detail-scores-title">テイスティングスコア</div>
+      ${scoreBars}
+      ${tasteRows}
+    </div>
     ${r.memo ? `<div class="detail-note">${esc(r.memo)}</div>` : ''}
     <div class="detail-actions">
       <button class="btn-edit" id="detail-edit-btn">編集</button>
@@ -831,42 +950,56 @@ function renderStats() {
     `<div class="bar-row"><div class="bar-meta"><span>${esc(k)}</span><span>${v}本</span></div><div class="bar-bg"><div class="bar-fill" style="width:${Math.round(v/maxT*100)}%;background:#378ADD"></div></div></div>`
   ).join('') || '<p style="font-size:13px;color:var(--text3)">記録がありません</p>';
 
+  // 香りタイプ集計
   const fc = {};
-  records.forEach(r => (r.flavors||[]).forEach(f => { const k=typeof f==='object'?f.text:f; fc[k]=(fc[k]||0)+1; }));
+  records.forEach(r => {
+    const fl = r.flavors;
+    if (!fl) return;
+    if (typeof fl === 'object' && !Array.isArray(fl)) {
+      if (fl.aromaMain) fc[fl.aromaMain] = (fc[fl.aromaMain]||0)+1;
+      (fl.aromaSub||[]).forEach(t => { fc[t] = (fc[t]||0)+1; });
+    } else if (Array.isArray(fl)) {
+      fl.forEach(f => { const k=typeof f==='object'?f.text:f; fc[k]=(fc[k]||0)+1; });
+    }
+  });
   const maxF = Math.max(...Object.values(fc),1);
   document.getElementById('flavor-chart').innerHTML = Object.entries(fc).sort((a,b)=>b[1]-a[1]).slice(0,8).map(([k,v])=>
     `<div class="bar-row"><div class="bar-meta"><span>${esc(k)}</span><span>${v}回</span></div><div class="bar-bg"><div class="bar-fill" style="width:${Math.round(v/maxF*100)}%;background:#854F0B"></div></div></div>`
   ).join('') || '<p style="font-size:13px;color:var(--text3)">記録がありません</p>';
 
+  // レーダー用軸（5軸）
+  const radarAxes = [
+    { id:'sweet',      name:'甘辛', left:'辛口', right:'甘口', min:1, max:5, def:3 },
+    { id:'acid',       name:'酸味', left:'弱',   right:'強',   min:1, max:5, def:3 },
+    { id:'body',       name:'濃淡', left:'淡',   right:'濃',   min:1, max:5, def:3 },
+    { id:'aroma',      name:'香り', left:'弱',   right:'強',   min:1, max:5, def:3 },
+    { id:'finishLen',  name:'余韻', left:'短',   right:'長',   min:1, max:5, def:3 },
+  ];
   const avgS = {};
-  SLIDERS.forEach(s => {
+  radarAxes.forEach(s => {
     const vals = records.map(r=>r.scores&&r.scores[s.id]).filter(v=>v!=null);
-    avgS[s.id] = vals.length ? vals.reduce((a,b)=>a+b,0)/vals.length : 3;
+    avgS[s.id] = vals.length ? vals.reduce((a,b)=>a+b,0)/vals.length : s.def;
   });
 
   // レーダーチャート（SVG）
   const rcx = 130, rcy = 130, rr = 90;
-  const rn = SLIDERS.length;
-  const rAngles = SLIDERS.map((_,i) => (Math.PI*2*i/rn) - Math.PI/2);
+  const rn = radarAxes.length;
+  const rAngles = radarAxes.map((_,i) => (Math.PI*2*i/rn) - Math.PI/2);
   const rXY = (angle, radius) => [rcx + radius*Math.cos(angle), rcy + radius*Math.sin(angle)];
 
-  // グリッド
   const rGridLines = [1,2,3,4,5].map(lv => {
     const pts = rAngles.map(a => rXY(a, rr*(lv/5))).map(([x,y])=>`${x},${y}`).join(' ');
     return `<polygon points="${pts}" fill="none" stroke="var(--border)" stroke-width="${lv===5?1:0.5}"/>`;
   }).join('');
 
-  // 軸線
   const rAxisLines = rAngles.map(a => {
     const [x,y] = rXY(a, rr);
     return `<line x1="${rcx}" y1="${rcy}" x2="${x}" y2="${y}" stroke="var(--border)" stroke-width="0.5"/>`;
   }).join('');
 
-  // データポリゴン
-  const rDataPoints = SLIDERS.map((s,i) => rXY(rAngles[i], rr*((avgS[s.id]||3)/5))).map(([x,y])=>`${x},${y}`).join(' ');
+  const rDataPoints = radarAxes.map((s,i) => rXY(rAngles[i], rr*((avgS[s.id]||3)/5))).map(([x,y])=>`${x},${y}`).join(' ');
 
-  // ラベル
-  const rLabels = SLIDERS.map((s,i) => {
+  const rLabels = radarAxes.map((s,i) => {
     const [x,y] = rXY(rAngles[i], rr+20);
     const anchor = x < rcx-5 ? 'end' : x > rcx+5 ? 'start' : 'middle';
     return `<text x="${x}" y="${y+4}" text-anchor="${anchor}" font-size="11" fill="var(--text2)">${s.name}</text>`;
@@ -876,16 +1009,16 @@ function renderStats() {
     <svg viewBox="0 0 260 260" style="width:100%;max-width:260px;display:block;margin:0 auto">
       ${rGridLines}${rAxisLines}
       <polygon points="${rDataPoints}" fill="rgba(201,123,46,0.18)" stroke="#c97b2e" stroke-width="1.5"/>
-      ${SLIDERS.map((s,i)=>{const[x,y]=rXY(rAngles[i],rr*((avgS[s.id]||3)/5));return`<circle cx="${x}" cy="${y}" r="4" fill="#c97b2e"/>`;}).join('')}
+      ${radarAxes.map((s,i)=>{const[x,y]=rXY(rAngles[i],rr*((avgS[s.id]||3)/5));return`<circle cx="${x}" cy="${y}" r="4" fill="#c97b2e"/>`;}).join('')}
       ${rLabels}
     </svg>
     <div style="margin-top:10px">
-      ${SLIDERS.map(s=>`
+      ${radarAxes.map(s=>`
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;font-size:12px">
-          <span style="color:var(--text2);width:72px;flex-shrink:0">${s.name}</span>
+          <span style="color:var(--text2);width:40px;flex-shrink:0">${s.name}</span>
           <span style="color:var(--text3);font-size:11px">${s.left}</span>
           <div style="flex:1;height:4px;background:var(--bg3);border-radius:2px;position:relative">
-            <div style="position:absolute;top:-3px;left:calc(${Math.round(((avgS[s.id]||3)-1)/4*100)}% - 5px);width:10px;height:10px;border-radius:50%;background:#c97b2e"></div>
+            <div style="position:absolute;top:-3px;left:calc(${Math.round(((avgS[s.id]||3)-s.min)/(s.max-s.min)*100)}% - 5px);width:10px;height:10px;border-radius:50%;background:#c97b2e"></div>
           </div>
           <span style="color:var(--text3);font-size:11px">${s.right}</span>
         </div>
