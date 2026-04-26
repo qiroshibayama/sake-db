@@ -126,10 +126,13 @@
     textarea { resize: none; height: 90px; font-family: inherit; line-height: 1.5; }
     .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 
-    .stars { display: flex; gap: 6px; padding: 4px 0; }
-    .star { font-size: 36px; cursor: pointer; color: var(--border2); -webkit-tap-highlight-color: transparent; transition: transform 0.1s; line-height: 1; }
-    .star.active { color: var(--amber); }
-    .star:active { transform: scale(0.82); }
+    .stars { display: flex; gap: 2px; padding: 4px 0; }
+    .star-wrap { position: relative; display: inline-flex; width: 36px; height: 36px; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+    .star-half, .star-full { position: absolute; top: 0; font-size: 32px; line-height: 36px; color: var(--border2); transition: color 0.1s; pointer-events: none; }
+    .star-half { left: 0; width: 50%; overflow: hidden; }
+    .star-full { left: 0; width: 100%; text-align: center; }
+    .star-half.active { color: var(--amber); }
+    .star-full.active { color: var(--amber); }
 
     /* Photos */
     .photo-upload-area {
@@ -289,24 +292,38 @@
     <!-- ② 統計 -->
     <div id="s-stats" class="screen">
       <div class="stats-wrap">
-        <div class="sec-title">統計</div>
+        <div class="sec-title">好みの傾向</div>
         <div class="stats-grid">
           <div class="stat-box"><div class="stat-n" id="st-count">0</div><div class="stat-l">記録数</div></div>
           <div class="stat-box"><div class="stat-n" id="st-avg">—</div><div class="stat-l">平均評価</div></div>
+          <div class="stat-box"><div class="stat-n" id="st-fav">0</div><div class="stat-l">お気に入り(4↑)</div></div>
           <div class="stat-box"><div class="stat-n" id="st-types">0</div><div class="stat-l">種類数</div></div>
-          <div class="stat-box"><div class="stat-n" id="st-regions">0</div><div class="stat-l">産地数</div></div>
         </div>
+
+        <div class="chart-card">
+          <div class="chart-title">好みマップ（rating 4以上）</div>
+          <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text3);margin-bottom:2px;padding:0 2px">
+            <span>辛口</span><span style="font-weight:500;color:var(--text2)">← 甘さ →</span><span>甘口</span>
+          </div>
+          <div id="pref-map" style="position:relative">
+            <p style="font-size:13px;color:var(--text3);padding:20px 0;text-align:center">rating 4以上の記録がありません</p>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px;margin-top:8px;flex-wrap:wrap">
+            <span style="font-size:11px;color:var(--text3)">酸の強さ：</span>
+            <span style="font-size:11px;display:flex;align-items:center;gap:4px"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#7cb96e"></span>弱</span>
+            <span style="font-size:11px;display:flex;align-items:center;gap:4px"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#e8c840"></span>中</span>
+            <span style="font-size:11px;display:flex;align-items:center;gap:4px"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#e05c3a"></span>強</span>
+          </div>
+        </div>
+
+        <div class="chart-card">
+          <div class="chart-title">気になった点の傾向</div>
+          <div id="ng-chart"><p style="font-size:13px;color:var(--text3)">記録がありません</p></div>
+        </div>
+
         <div class="chart-card">
           <div class="chart-title">種類別の記録数</div>
           <div id="type-chart"><p style="font-size:13px;color:var(--text3)">記録がありません</p></div>
-        </div>
-        <div class="chart-card">
-          <div class="chart-title">よく選んだ風味タグ</div>
-          <div id="flavor-chart"><p style="font-size:13px;color:var(--text3)">記録がありません</p></div>
-        </div>
-        <div class="chart-card">
-          <div class="chart-title">平均テイスティングスコア</div>
-          <div id="score-chart"><p style="font-size:13px;color:var(--text3)">記録がありません</p></div>
         </div>
       </div>
     </div>
@@ -368,10 +385,13 @@
     </div>
 
     <div class="field">
-      <label>総合評価</label>
+      <label>総合評価 <span id="rating-label" style="font-size:13px;color:var(--text2);font-weight:400">未評価</span></label>
       <div class="stars" id="stars">
-        <span class="star" data-v="1">★</span><span class="star" data-v="2">★</span>
-        <span class="star" data-v="3">★</span><span class="star" data-v="4">★</span><span class="star" data-v="5">★</span>
+        <span class="star-wrap" data-full="1"><span class="star-half" data-v="0.5">◐</span><span class="star-full" data-v="1">★</span></span>
+        <span class="star-wrap" data-full="2"><span class="star-half" data-v="1.5">◐</span><span class="star-full" data-v="2">★</span></span>
+        <span class="star-wrap" data-full="3"><span class="star-half" data-v="2.5">◐</span><span class="star-full" data-v="3">★</span></span>
+        <span class="star-wrap" data-full="4"><span class="star-half" data-v="3.5">◐</span><span class="star-full" data-v="4">★</span></span>
+        <span class="star-wrap" data-full="5"><span class="star-half" data-v="4.5">◐</span><span class="star-full" data-v="5">★</span></span>
       </div>
     </div>
 
@@ -683,6 +703,19 @@ function updateAromaSubTags(mainVal) {
   }
 }
 
+function updateStars(val) {
+  document.querySelectorAll('.star-wrap').forEach(wrap => {
+    const full = parseInt(wrap.dataset.full);
+    const halfEl = wrap.querySelector('.star-half');
+    const fullEl = wrap.querySelector('.star-full');
+    if (val >= full) { fullEl.classList.add('active'); halfEl.classList.remove('active'); }
+    else if (val >= full - 0.5) { halfEl.classList.add('active'); fullEl.classList.remove('active'); }
+    else { fullEl.classList.remove('active'); halfEl.classList.remove('active'); }
+  });
+  const lbl = document.getElementById('rating-label');
+  if (lbl) lbl.textContent = val > 0 ? `${val}` : '未評価';
+}
+
 function openTips(mainVal) {
   const tips = AROMA_TIPS[mainVal];
   if (!tips) return;
@@ -723,11 +756,16 @@ function setupEvents() {
     document.getElementById('ov-detail').classList.remove('open');
   });
 
-  // Stars
-  document.querySelectorAll('.star').forEach(s => s.addEventListener('click', () => {
-    rating = parseInt(s.dataset.v);
-    document.querySelectorAll('.star').forEach((st,i) => st.classList.toggle('active', i < rating));
-  }));
+  // Stars（0.5刻み）
+  document.querySelectorAll('.star-wrap').forEach(wrap => {
+    wrap.addEventListener('click', e => {
+      const rect = wrap.getBoundingClientRect();
+      const isLeft = (e.clientX - rect.left) < rect.width / 2;
+      const fullVal = parseInt(wrap.dataset.full);
+      rating = isLeft ? fullVal - 0.5 : fullVal;
+      updateStars(rating);
+    });
+  });
 
   // Flavor tags
   document.querySelectorAll('.ftag').forEach(el => el.addEventListener('click', () => {
@@ -839,7 +877,7 @@ function openForm(rec) {
     document.getElementById('f-date').value = rec.date || '';
     document.getElementById('f-memo').value = rec.memo || '';
     rating = rec.rating || 0;
-    document.querySelectorAll('.star').forEach((st,i) => st.classList.toggle('active', i < rating));
+    updateStars(rating);
     const scores = rec.scores || {};
     SLIDERS.forEach(s => { document.getElementById('f-' + s.id).value = scores[s.id] || 3; });
     document.getElementById('f-aroma').value = scores.aroma || 3;
@@ -919,7 +957,7 @@ function resetForm() {
   toggleBtn.classList.remove('has-selection');
   toggleBtn.querySelector('span').textContent = '気になった点（任意）';
   rating = 0; pendingPhotos = []; mainPhotoIdx = 0;
-  document.querySelectorAll('.star').forEach(s => s.classList.remove('active'));
+  updateStars(0);
   renderPreview();
 }
 
@@ -1125,104 +1163,126 @@ async function openDetail(id) {
 }
 
 /* ── Stats ── */
-function renderStats() {
+async function renderStats() {
   const n = records.length;
   document.getElementById('st-count').textContent = n;
+  const favRecs = records.filter(r => (r.rating||0) >= 4);
+  document.getElementById('st-fav').textContent = favRecs.length;
   if (!n) {
-    ['st-avg','st-types','st-regions'].forEach(id => document.getElementById(id).textContent = id==='st-avg'?'—':'0');
+    ['st-avg','st-types'].forEach(id => document.getElementById(id).textContent = id==='st-avg'?'—':'0');
     return;
   }
   const rated = records.filter(r => r.rating > 0);
   document.getElementById('st-avg').textContent = rated.length ? (rated.reduce((s,r)=>s+r.rating,0)/rated.length).toFixed(1) : '—';
   document.getElementById('st-types').textContent = new Set(records.map(r=>r.type).filter(Boolean)).size;
-  document.getElementById('st-regions').textContent = new Set(records.map(r=>r.region).filter(Boolean)).size;
 
+  // ── 好みマップ ──
+  const mapWrap = document.getElementById('pref-map');
+  if (!favRecs.length) {
+    mapWrap.innerHTML = '<p style="font-size:13px;color:var(--text3);padding:20px 0;text-align:center">rating 4以上の記録がありません</p>';
+  } else {
+    const PAD = 28, W = 300, H = 260, THUMB = 36;
+    const plotW = W - PAD*2, plotH = H - PAD*2;
+
+    // サムネイル読み込み
+    const items = await Promise.all(favRecs.map(async r => {
+      const pid = (r.photoIds||[])[r.mainPhotoIdx||0];
+      let url = null;
+      if (pid) { const p = await dbGet('photos', pid); if (p) url = p.dataUrl; }
+      return { r, url };
+    }));
+
+    const acidColor = acid => {
+      if (acid <= 2) return '#7cb96e';
+      if (acid <= 3) return '#e8c840';
+      return '#e05c3a';
+    };
+
+    const svgItems = items.map(({ r, url }) => {
+      const sx = r.scores || {};
+      const sweet = sx.sweet || 3;
+      const aroma = sx.aroma || 3;
+      const acid  = sx.acid  || 3;
+      const x = PAD + ((sweet - 1) / 4) * plotW;
+      const y = PAD + ((5 - aroma) / 4) * plotH;
+      const color = acidColor(acid);
+      const half = THUMB / 2;
+      const clipId = `cl${r.id}`;
+      return `
+        <defs>
+          <clipPath id="${clipId}">
+            <circle cx="${x}" cy="${y}" r="${half - 2}"/>
+          </clipPath>
+        </defs>
+        <circle cx="${x}" cy="${y}" r="${half}" fill="${color}" opacity="0.9"/>
+        ${url
+          ? `<image href="${url}" x="${x-half+2}" y="${y-half+2}" width="${THUMB-4}" height="${THUMB-4}" clip-path="url(#${clipId})" preserveAspectRatio="xMidYMid slice"/>`
+          : `<text x="${x}" y="${y+5}" text-anchor="middle" font-size="16">🍶</text>`}
+        <circle cx="${x}" cy="${y}" r="${half}" fill="none" stroke="${color}" stroke-width="2.5" class="map-dot" data-id="${r.id}" style="cursor:pointer"/>
+      `;
+    }).join('');
+
+    mapWrap.innerHTML = `
+      <div style="position:relative;overflow-x:auto">
+        <svg viewBox="0 0 ${W} ${H}" style="width:100%;max-width:${W}px;display:block">
+          <!-- グリッド -->
+          ${[1,2,3,4].map(i => {
+            const x = PAD + (i/4)*plotW;
+            const y = PAD + (i/4)*plotH;
+            return `<line x1="${x}" y1="${PAD}" x2="${x}" y2="${PAD+plotH}" stroke="var(--border)" stroke-width="0.5"/>
+                    <line x1="${PAD}" y1="${y}" x2="${PAD+plotW}" y2="${y}" stroke="var(--border)" stroke-width="0.5"/>`;
+          }).join('')}
+          <!-- 軸 -->
+          <line x1="${PAD}" y1="${PAD}" x2="${PAD}" y2="${PAD+plotH}" stroke="var(--border2)" stroke-width="0.5"/>
+          <line x1="${PAD}" y1="${PAD+plotH}" x2="${PAD+plotW}" y2="${PAD+plotH}" stroke="var(--border2)" stroke-width="0.5"/>
+          <!-- 軸ラベル -->
+          <text x="${PAD}" y="${H-6}" font-size="9" fill="var(--text3)" text-anchor="middle">辛口</text>
+          <text x="${PAD+plotW}" y="${H-6}" font-size="9" fill="var(--text3)" text-anchor="middle">甘口</text>
+          <text x="8" y="${PAD+plotH}" font-size="9" fill="var(--text3)" text-anchor="middle" transform="rotate(-90,8,${PAD+plotH/2})">弱</text>
+          <text x="8" y="${PAD}" font-size="9" fill="var(--text3)" text-anchor="middle" transform="rotate(-90,8,${PAD+plotH/2}) translate(0,-${plotH/2+plotH/2})">強</text>
+          <!-- Y軸ラベル修正 -->
+          <text x="10" y="${PAD+4}" font-size="9" fill="var(--text3)">強</text>
+          <text x="10" y="${PAD+plotH+4}" font-size="9" fill="var(--text3)">弱</text>
+          ${svgItems}
+        </svg>
+      </div>
+    `;
+
+    // マップのドットタップで詳細を開く
+    mapWrap.querySelectorAll('.map-dot').forEach(el => {
+      el.addEventListener('click', () => openDetail(parseInt(el.dataset.id)));
+    });
+  }
+
+  // ── NG傾向 ──
+  const ngCount = {};
+  const total = records.length;
+  records.forEach(r => (r.concerns||[]).forEach(c => { ngCount[c] = (ngCount[c]||0)+1; }));
+  document.getElementById('ng-chart').innerHTML = Object.keys(ngCount).length
+    ? Object.entries(ngCount).sort((a,b)=>b[1]-a[1]).slice(0,3).map(([k,v]) => {
+        const pct = Math.round(v/total*100);
+        return `<div class="bar-row">
+          <div class="bar-meta"><span>${esc(k)}</span><span>${pct}%（${v}件）</span></div>
+          <div class="bar-bg"><div class="bar-fill" style="width:${pct}%;background:var(--red-text)"></div></div>
+        </div>`;
+      }).join('')
+    : '<p style="font-size:13px;color:var(--text3)">記録がありません</p>';
+
+  // ── 種類別 ──
   const tc = {}; records.forEach(r => { if(r.type) tc[r.type]=(tc[r.type]||0)+1; });
   const maxT = Math.max(...Object.values(tc),1);
   document.getElementById('type-chart').innerHTML = Object.entries(tc).sort((a,b)=>b[1]-a[1]).map(([k,v])=>
     `<div class="bar-row"><div class="bar-meta"><span>${esc(k)}</span><span>${v}本</span></div><div class="bar-bg"><div class="bar-fill" style="width:${Math.round(v/maxT*100)}%;background:#378ADD"></div></div></div>`
   ).join('') || '<p style="font-size:13px;color:var(--text3)">記録がありません</p>';
-
-  // 香りタイプ集計
-  const fc = {};
-  records.forEach(r => {
-    const fl = r.flavors;
-    if (!fl) return;
-    if (typeof fl === 'object' && !Array.isArray(fl)) {
-      if (fl.aromaMain) fc[fl.aromaMain] = (fc[fl.aromaMain]||0)+1;
-      (fl.aromaSub||[]).forEach(t => { fc[t] = (fc[t]||0)+1; });
-    } else if (Array.isArray(fl)) {
-      fl.forEach(f => { const k=typeof f==='object'?f.text:f; fc[k]=(fc[k]||0)+1; });
-    }
-  });
-  const maxF = Math.max(...Object.values(fc),1);
-  document.getElementById('flavor-chart').innerHTML = Object.entries(fc).sort((a,b)=>b[1]-a[1]).slice(0,8).map(([k,v])=>
-    `<div class="bar-row"><div class="bar-meta"><span>${esc(k)}</span><span>${v}回</span></div><div class="bar-bg"><div class="bar-fill" style="width:${Math.round(v/maxF*100)}%;background:#854F0B"></div></div></div>`
-  ).join('') || '<p style="font-size:13px;color:var(--text3)">記録がありません</p>';
-
-  // レーダー用軸（5軸）
-  const radarAxes = [
-    { id:'sweet',      name:'甘辛', left:'辛口', right:'甘口', min:1, max:5, def:3 },
-    { id:'acid',       name:'酸味', left:'弱',   right:'強',   min:1, max:5, def:3 },
-    { id:'body',       name:'濃淡', left:'淡',   right:'濃',   min:1, max:5, def:3 },
-    { id:'aroma',      name:'香り', left:'弱',   right:'強',   min:1, max:5, def:3 },
-    { id:'finishLen',  name:'余韻', left:'短',   right:'長',   min:1, max:5, def:3 },
-  ];
-  const avgS = {};
-  radarAxes.forEach(s => {
-    const vals = records.map(r=>r.scores&&r.scores[s.id]).filter(v=>v!=null);
-    avgS[s.id] = vals.length ? vals.reduce((a,b)=>a+b,0)/vals.length : s.def;
-  });
-
-  // レーダーチャート（SVG）
-  const rcx = 130, rcy = 130, rr = 90;
-  const rn = radarAxes.length;
-  const rAngles = radarAxes.map((_,i) => (Math.PI*2*i/rn) - Math.PI/2);
-  const rXY = (angle, radius) => [rcx + radius*Math.cos(angle), rcy + radius*Math.sin(angle)];
-
-  const rGridLines = [1,2,3,4,5].map(lv => {
-    const pts = rAngles.map(a => rXY(a, rr*(lv/5))).map(([x,y])=>`${x},${y}`).join(' ');
-    return `<polygon points="${pts}" fill="none" stroke="var(--border)" stroke-width="${lv===5?1:0.5}"/>`;
-  }).join('');
-
-  const rAxisLines = rAngles.map(a => {
-    const [x,y] = rXY(a, rr);
-    return `<line x1="${rcx}" y1="${rcy}" x2="${x}" y2="${y}" stroke="var(--border)" stroke-width="0.5"/>`;
-  }).join('');
-
-  const rDataPoints = radarAxes.map((s,i) => rXY(rAngles[i], rr*((avgS[s.id]||3)/5))).map(([x,y])=>`${x},${y}`).join(' ');
-
-  const rLabels = radarAxes.map((s,i) => {
-    const [x,y] = rXY(rAngles[i], rr+20);
-    const anchor = x < rcx-5 ? 'end' : x > rcx+5 ? 'start' : 'middle';
-    return `<text x="${x}" y="${y+4}" text-anchor="${anchor}" font-size="11" fill="var(--text2)">${s.name}</text>`;
-  }).join('');
-
-  document.getElementById('score-chart').innerHTML = `
-    <svg viewBox="0 0 260 260" style="width:100%;max-width:260px;display:block;margin:0 auto">
-      ${rGridLines}${rAxisLines}
-      <polygon points="${rDataPoints}" fill="rgba(201,123,46,0.18)" stroke="#c97b2e" stroke-width="1.5"/>
-      ${radarAxes.map((s,i)=>{const[x,y]=rXY(rAngles[i],rr*((avgS[s.id]||3)/5));return`<circle cx="${x}" cy="${y}" r="4" fill="#c97b2e"/>`;}).join('')}
-      ${rLabels}
-    </svg>
-    <div style="margin-top:10px">
-      ${radarAxes.map(s=>`
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;font-size:12px">
-          <span style="color:var(--text2);width:40px;flex-shrink:0">${s.name}</span>
-          <span style="color:var(--text3);font-size:11px">${s.left}</span>
-          <div style="flex:1;height:4px;background:var(--bg3);border-radius:2px;position:relative">
-            <div style="position:absolute;top:-3px;left:calc(${Math.round(((avgS[s.id]||3)-s.min)/(s.max-s.min)*100)}% - 5px);width:10px;height:10px;border-radius:50%;background:#c97b2e"></div>
-          </div>
-          <span style="color:var(--text3);font-size:11px">${s.right}</span>
-        </div>
-      `).join('')}
-    </div>
-  `;
 }
 
 /* ── Helpers ── */
 function starsHtml(n, size=16) {
-  return [1,2,3,4,5].map(i=>`<span style="color:${i<=n?'#c97b2e':'var(--border2)'};font-size:${size}px">★</span>`).join('');
+  return [1,2,3,4,5].map(i => {
+    if (n >= i) return `<span style="color:var(--amber);font-size:${size}px">★</span>`;
+    if (n >= i - 0.5) return `<span style="color:var(--amber);font-size:${size}px">◐</span>`;
+    return `<span style="color:var(--border2);font-size:${size}px">★</span>`;
+  }).join('');
 }
 function esc(s) {
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
