@@ -1181,8 +1181,9 @@ async function renderStats() {
   if (!favRecs.length) {
     mapWrap.innerHTML = '<p style="font-size:13px;color:var(--text3);padding:20px 0;text-align:center">rating 4以上の記録がありません</p>';
   } else {
-    const PAD = 28, W = 300, H = 260, THUMB = 36;
-    const plotW = W - PAD*2, plotH = H - PAD*2;
+    const PAD = 36, W = 300, H = 280, THUMB = 34;
+    const plotW = W - PAD * 2, plotH = H - PAD * 2;
+    const cx = PAD + plotW / 2, cy = PAD + plotH / 2; // 中心（ニュートラル = 3）
 
     // サムネイル読み込み
     const items = await Promise.all(favRecs.map(async r => {
@@ -1198,13 +1199,17 @@ async function renderStats() {
       return '#e05c3a';
     };
 
+    // 値を座標に変換（1〜5 → PAD〜PAD+plotW、中心が3）
+    const toX = v => PAD + ((v - 1) / 4) * plotW;
+    const toY = v => PAD + ((5 - v) / 4) * plotH;
+
     const svgItems = items.map(({ r, url }) => {
       const sx = r.scores || {};
       const sweet = sx.sweet || 3;
       const aroma = sx.aroma || 3;
       const acid  = sx.acid  || 3;
-      const x = PAD + ((sweet - 1) / 4) * plotW;
-      const y = PAD + ((5 - aroma) / 4) * plotH;
+      const x = toX(sweet);
+      const y = toY(aroma);
       const color = acidColor(acid);
       const half = THUMB / 2;
       const clipId = `cl${r.id}`;
@@ -1214,41 +1219,55 @@ async function renderStats() {
             <circle cx="${x}" cy="${y}" r="${half - 2}"/>
           </clipPath>
         </defs>
-        <circle cx="${x}" cy="${y}" r="${half}" fill="${color}" opacity="0.9"/>
+        <circle cx="${x}" cy="${y}" r="${half}" fill="${color}" opacity="0.85"/>
         ${url
           ? `<image href="${url}" x="${x-half+2}" y="${y-half+2}" width="${THUMB-4}" height="${THUMB-4}" clip-path="url(#${clipId})" preserveAspectRatio="xMidYMid slice"/>`
-          : `<text x="${x}" y="${y+5}" text-anchor="middle" font-size="16">🍶</text>`}
+          : `<text x="${x}" y="${y+6}" text-anchor="middle" font-size="18">🍶</text>`}
         <circle cx="${x}" cy="${y}" r="${half}" fill="none" stroke="${color}" stroke-width="2.5" class="map-dot" data-id="${r.id}" style="cursor:pointer"/>
       `;
     }).join('');
 
     mapWrap.innerHTML = `
-      <div style="position:relative;overflow-x:auto">
+      <div style="overflow-x:auto">
         <svg viewBox="0 0 ${W} ${H}" style="width:100%;max-width:${W}px;display:block">
-          <!-- グリッド -->
-          ${[1,2,3,4].map(i => {
-            const x = PAD + (i/4)*plotW;
-            const y = PAD + (i/4)*plotH;
-            return `<line x1="${x}" y1="${PAD}" x2="${x}" y2="${PAD+plotH}" stroke="var(--border)" stroke-width="0.5"/>
-                    <line x1="${PAD}" y1="${y}" x2="${PAD+plotW}" y2="${y}" stroke="var(--border)" stroke-width="0.5"/>`;
+
+          <!-- 象限背景（薄く色分け） -->
+          <rect x="${PAD}" y="${PAD}" width="${plotW/2}" height="${plotH/2}" fill="rgba(201,123,46,0.04)"/>
+          <rect x="${cx}" y="${PAD}" width="${plotW/2}" height="${plotH/2}" fill="rgba(201,123,46,0.08)"/>
+          <rect x="${PAD}" y="${cy}" width="${plotW/2}" height="${plotH/2}" fill="rgba(0,0,0,0.02)"/>
+          <rect x="${cx}" y="${cy}" width="${plotW/2}" height="${plotH/2}" fill="rgba(0,0,0,0.03)"/>
+
+          <!-- 補助グリッド（薄い） -->
+          ${[1,2,4,5].map(i => {
+            const gx = toX(i), gy = toY(i);
+            return `<line x1="${gx}" y1="${PAD}" x2="${gx}" y2="${PAD+plotH}" stroke="var(--border)" stroke-width="0.5" stroke-dasharray="3,3"/>
+                    <line x1="${PAD}" y1="${gy}" x2="${PAD+plotW}" y2="${gy}" stroke="var(--border)" stroke-width="0.5" stroke-dasharray="3,3"/>`;
           }).join('')}
-          <!-- 軸 -->
-          <line x1="${PAD}" y1="${PAD}" x2="${PAD}" y2="${PAD+plotH}" stroke="var(--border2)" stroke-width="0.5"/>
-          <line x1="${PAD}" y1="${PAD+plotH}" x2="${PAD+plotW}" y2="${PAD+plotH}" stroke="var(--border2)" stroke-width="0.5"/>
-          <!-- 軸ラベル -->
-          <text x="${PAD}" y="${H-6}" font-size="9" fill="var(--text3)" text-anchor="middle">辛口</text>
-          <text x="${PAD+plotW}" y="${H-6}" font-size="9" fill="var(--text3)" text-anchor="middle">甘口</text>
-          <text x="8" y="${PAD+plotH}" font-size="9" fill="var(--text3)" text-anchor="middle" transform="rotate(-90,8,${PAD+plotH/2})">弱</text>
-          <text x="8" y="${PAD}" font-size="9" fill="var(--text3)" text-anchor="middle" transform="rotate(-90,8,${PAD+plotH/2}) translate(0,-${plotH/2+plotH/2})">強</text>
-          <!-- Y軸ラベル修正 -->
-          <text x="10" y="${PAD+4}" font-size="9" fill="var(--text3)">強</text>
-          <text x="10" y="${PAD+plotH+4}" font-size="9" fill="var(--text3)">弱</text>
+
+          <!-- 中央軸（強調） -->
+          <line x1="${cx}" y1="${PAD}" x2="${cx}" y2="${PAD+plotH}" stroke="var(--border2)" stroke-width="1"/>
+          <line x1="${PAD}" y1="${cy}" x2="${PAD+plotW}" y2="${cy}" stroke="var(--border2)" stroke-width="1"/>
+
+          <!-- 外枠 -->
+          <rect x="${PAD}" y="${PAD}" width="${plotW}" height="${plotH}" fill="none" stroke="var(--border2)" stroke-width="0.5"/>
+
+          <!-- 軸端ラベル -->
+          <text x="${cx}" y="${PAD - 6}" text-anchor="middle" font-size="10" fill="var(--text2)" font-weight="500">香り強</text>
+          <text x="${cx}" y="${PAD+plotH+14}" text-anchor="middle" font-size="10" fill="var(--text2)" font-weight="500">香り弱</text>
+          <text x="${PAD - 4}" y="${cy+4}" text-anchor="end" font-size="10" fill="var(--text2)" font-weight="500">辛口</text>
+          <text x="${PAD+plotW+4}" y="${cy+4}" text-anchor="start" font-size="10" fill="var(--text2)" font-weight="500">甘口</text>
+
+          <!-- 象限ラベル（薄く） -->
+          <text x="${PAD+8}" y="${PAD+14}" font-size="9" fill="var(--text3)">辛×香り強</text>
+          <text x="${cx+6}" y="${PAD+14}" font-size="9" fill="var(--text3)">甘×香り強</text>
+          <text x="${PAD+8}" y="${PAD+plotH-6}" font-size="9" fill="var(--text3)">辛×香り弱</text>
+          <text x="${cx+6}" y="${PAD+plotH-6}" font-size="9" fill="var(--text3)">甘×香り弱</text>
+
           ${svgItems}
         </svg>
       </div>
     `;
 
-    // マップのドットタップで詳細を開く
     mapWrap.querySelectorAll('.map-dot').forEach(el => {
       el.addEventListener('click', () => openDetail(parseInt(el.dataset.id)));
     });
