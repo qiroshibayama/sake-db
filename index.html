@@ -308,6 +308,18 @@
   </div>
   <div class="overlay-body">
     <input type="hidden" id="f-edit-id">
+
+    <div class="field">
+      <label>写真（複数枚可・先頭をメイン表示）</label>
+      <input type="file" id="f-photos" accept="image/*" multiple>
+      <div class="photo-upload-area" id="upload-area">
+        <div class="photo-upload-icon">📷</div>
+        <div class="photo-upload-text">タップして撮影・アルバムから選択</div>
+        <div class="photo-upload-sub">★でメイン設定 / タップで拡大確認</div>
+      </div>
+      <div class="photo-grid" id="photo-preview"></div>
+    </div>
+
     <div class="field">
       <label>酒の名前 *</label>
       <input type="text" id="f-name" placeholder="例：獺祭 純米大吟醸" autocomplete="off">
@@ -330,17 +342,6 @@
     <div class="field">
       <label>産地・蔵元</label>
       <input type="text" id="f-region" placeholder="例：山口県 / 旭酒造" autocomplete="off">
-    </div>
-
-    <div class="field">
-      <label>写真（複数枚可・先頭をメイン表示）</label>
-      <input type="file" id="f-photos" accept="image/*" multiple>
-      <div class="photo-upload-area" id="upload-area">
-        <div class="photo-upload-icon">📷</div>
-        <div class="photo-upload-text">タップして撮影・アルバムから選択</div>
-        <div class="photo-upload-sub">★マークをタップしてメイン画像を設定</div>
-      </div>
-      <div class="photo-grid" id="photo-preview"></div>
     </div>
 
     <div class="field">
@@ -628,11 +629,18 @@ function setupEvents() {
 
 /* ── Photo handling ── */
 function handlePhotos(e) {
-  [...e.target.files].forEach(file => {
+  const files = [...e.target.files]; // 選択順をそのまま保持
+  let loaded = 0;
+  const newPhotos = new Array(files.length);
+  files.forEach((file, idx) => {
     const reader = new FileReader();
     reader.onload = ev => {
-      pendingPhotos.push({ id:'p_'+Date.now()+'_'+Math.random().toString(36).slice(2), dataUrl:ev.target.result, isNew:true });
-      renderPreview();
+      newPhotos[idx] = { id:'p_'+Date.now()+'_'+Math.random().toString(36).slice(2), dataUrl:ev.target.result, isNew:true };
+      loaded++;
+      if (loaded === files.length) {
+        pendingPhotos.push(...newPhotos);
+        renderPreview();
+      }
     };
     reader.readAsDataURL(file);
   });
@@ -643,7 +651,7 @@ function renderPreview() {
   const grid = document.getElementById('photo-preview');
   grid.innerHTML = pendingPhotos.map((p, i) => `
     <div class="photo-thumb">
-      <img src="${p.dataUrl}" alt="">
+      <img src="${p.dataUrl}" alt="" data-i="${i}" class="thumb-img">
       ${i === mainPhotoIdx ? '<div class="photo-main-badge">メイン</div>' : ''}
       <div class="photo-actions">
         <button class="photo-btn photo-btn-main${i===mainPhotoIdx?' is-main':''}" data-i="${i}">★</button>
@@ -651,10 +659,17 @@ function renderPreview() {
       </div>
     </div>
   `).join('');
-  grid.querySelectorAll('.photo-btn-main').forEach(btn => btn.addEventListener('click', () => {
+  // サムネイルタップでライトボックス表示
+  grid.querySelectorAll('.thumb-img').forEach(img => img.addEventListener('click', () => {
+    document.getElementById('lb-img').src = img.src;
+    document.getElementById('lightbox').classList.add('open');
+  }));
+  grid.querySelectorAll('.photo-btn-main').forEach(btn => btn.addEventListener('click', e => {
+    e.stopPropagation();
     mainPhotoIdx = parseInt(btn.dataset.i); renderPreview();
   }));
-  grid.querySelectorAll('.photo-btn-del').forEach(btn => btn.addEventListener('click', () => {
+  grid.querySelectorAll('.photo-btn-del').forEach(btn => btn.addEventListener('click', e => {
+    e.stopPropagation();
     const i = parseInt(btn.dataset.i);
     pendingPhotos.splice(i, 1);
     if (mainPhotoIdx >= pendingPhotos.length) mainPhotoIdx = Math.max(0, pendingPhotos.length - 1);
