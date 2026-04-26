@@ -21,6 +21,7 @@
       --teal-bg: #E1F5EE; --teal-text: #085041;
       --purple-bg: #EEEDFE; --purple-text: #3C3489;
       --red-bg: #FCEBEB; --red-text: #A32D2D;
+      --nav-h: 60px;
     }
     @media (prefers-color-scheme: dark) {
       :root {
@@ -35,17 +36,21 @@
       }
     }
     html, body {
-      height: 100%; background: var(--bg); color: var(--text);
+      height: 100%; background: var(--bg2); color: var(--text);
       font-family: -apple-system, 'Hiragino Sans', 'Noto Sans JP', sans-serif;
       font-size: 16px; -webkit-font-smoothing: antialiased; overscroll-behavior: none;
     }
-    .app { max-width: 480px; margin: 0 auto; min-height: 100%; display: flex; flex-direction: column; }
-    .header { padding: 16px 16px 0; flex-shrink: 0; }
-    .header-title { font-size: 20px; font-weight: 600; color: var(--text); }
-    .header-sub { font-size: 13px; color: var(--text3); margin-top: 2px; }
+
+    /* ── Layout ── */
+    .app { max-width: 480px; margin: 0 auto; height: 100%; display: flex; flex-direction: column; background: var(--bg); }
+
+    /* ── Fixed bottom nav ── */
     .nav {
-      display: flex; border-top: 0.5px solid var(--border); background: var(--bg);
-      flex-shrink: 0; padding-bottom: env(safe-area-inset-bottom, 0px);
+      position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+      width: 100%; max-width: 480px;
+      display: flex; border-top: 0.5px solid var(--border);
+      background: var(--bg); z-index: 50;
+      padding-bottom: env(safe-area-inset-bottom, 0px);
     }
     .nav-btn {
       flex: 1; display: flex; flex-direction: column; align-items: center;
@@ -55,12 +60,59 @@
     .nav-icon { font-size: 22px; line-height: 1; }
     .nav-label { font-size: 10px; color: var(--text3); }
     .nav-btn.active .nav-label { color: var(--text); font-weight: 600; }
-    .screens { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; }
-    .screen { display: none; padding: 0 16px 32px; }
-    .screen.active { display: block; }
-    .sec-title { font-size: 15px; font-weight: 600; color: var(--text); margin: 20px 0 14px; }
 
-    /* Form */
+    /* ── Screens ── */
+    .screens { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding-bottom: calc(var(--nav-h) + env(safe-area-inset-bottom, 0px)); }
+    .screen { display: none; }
+    .screen.active { display: block; }
+
+    /* ── List (TOP) ── */
+    .list-header { padding: 16px 16px 0; display: flex; justify-content: space-between; align-items: flex-end; }
+    .list-header-title { font-size: 20px; font-weight: 600; color: var(--text); }
+    .list-header-sub { font-size: 13px; color: var(--text3); }
+    .btn-add-float {
+      position: fixed; bottom: calc(var(--nav-h) + env(safe-area-inset-bottom,0px) + 16px);
+      right: max(16px, calc(50vw - 240px + 16px));
+      width: 52px; height: 52px; border-radius: 50%;
+      background: var(--text); color: var(--bg);
+      border: none; font-size: 26px; line-height: 52px; text-align: center;
+      cursor: pointer; z-index: 40; -webkit-tap-highlight-color: transparent;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.18);
+    }
+
+    /* Card grid */
+    .card-grid { padding: 12px 12px 0; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .grid-card {
+      background: var(--bg); border: 0.5px solid var(--border);
+      border-radius: var(--radius-lg); overflow: hidden; cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .grid-card-img { width: 100%; aspect-ratio: 1; background: var(--bg2); overflow: hidden; }
+    .grid-card-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .grid-card-img-placeholder { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 32px; }
+    .grid-card-body { padding: 9px 10px 10px; }
+    .grid-card-name { font-size: 13px; font-weight: 600; color: var(--text); line-height: 1.3; margin-bottom: 4px; }
+    .grid-card-meta { font-size: 11px; color: var(--text3); margin-bottom: 5px; }
+    .grid-card-stars { font-size: 12px; }
+    .grid-card-badge { display: inline-block; font-size: 10px; padding: 2px 7px; border-radius: 999px; margin-top: 4px; }
+
+    .empty { text-align: center; padding: 60px 16px; color: var(--text3); font-size: 14px; line-height: 2.2; }
+    .loading { text-align: center; padding: 40px; color: var(--text3); font-size: 14px; }
+
+    /* ── Form (overlay) ── */
+    .overlay {
+      display: none; position: fixed; inset: 0; z-index: 100;
+      background: var(--bg); overflow-y: auto; -webkit-overflow-scrolling: touch;
+    }
+    .overlay.open { display: block; }
+    .overlay-header {
+      display: flex; align-items: center; gap: 12px; padding: 14px 16px;
+      border-bottom: 0.5px solid var(--border); position: sticky; top: 0; background: var(--bg); z-index: 1;
+    }
+    .btn-back { background: none; border: none; font-size: 16px; color: var(--text2); cursor: pointer; padding: 6px 10px 6px 0; -webkit-tap-highlight-color: transparent; white-space: nowrap; }
+    .overlay-title { font-size: 17px; font-weight: 600; color: var(--text); flex: 1; }
+    .overlay-body { padding: 16px 16px 40px; }
+
     .field { margin-bottom: 18px; }
     .field label { display: block; font-size: 13px; color: var(--text2); margin-bottom: 7px; font-weight: 500; }
     input[type=text], input[type=date], select, textarea {
@@ -74,45 +126,12 @@
     textarea { resize: none; height: 90px; font-family: inherit; line-height: 1.5; }
     .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 
-    /* Stars */
     .stars { display: flex; gap: 6px; padding: 4px 0; }
     .star { font-size: 36px; cursor: pointer; color: var(--border2); -webkit-tap-highlight-color: transparent; transition: transform 0.1s; line-height: 1; }
     .star.active { color: var(--amber); }
     .star:active { transform: scale(0.82); }
 
-    /* Flavor tags */
-    .ftag-group { margin-bottom: 12px; }
-    .ftag-group-label {
-      font-size: 11px; font-weight: 600; color: var(--text3);
-      letter-spacing: 0.05em; margin-bottom: 8px; text-transform: uppercase;
-    }
-    .ftag-wrap { display: flex; flex-wrap: wrap; gap: 7px; }
-    .ftag {
-      font-size: 14px; padding: 8px 13px; border-radius: 999px; background: var(--bg2);
-      color: var(--text2); border: 0.5px solid var(--border); cursor: pointer;
-      -webkit-tap-highlight-color: transparent; transition: all 0.15s; user-select: none;
-    }
-    .ftag.on-aroma  { background: var(--purple-bg); color: var(--purple-text); border-color: transparent; font-weight: 500; }
-    .ftag.on-taste  { background: var(--teal-bg);   color: var(--teal-text);   border-color: transparent; font-weight: 500; }
-    .ftag.on-finish { background: var(--green-bg);  color: var(--green-text);  border-color: transparent; font-weight: 500; }
-
-    /* Sliders */
-    .slider-item { margin-bottom: 14px; }
-    .slider-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 4px; }
-    .slider-name { font-size: 13px; color: var(--text2); font-weight: 500; }
-    .slider-val { font-size: 13px; font-weight: 600; color: var(--text); min-width: 60px; text-align: right; }
-    .slider-track { display: flex; align-items: center; gap: 8px; }
-    .slider-track input[type=range] {
-      flex: 1; -webkit-appearance: none; height: 44px; background: transparent; padding: 0; border: none;
-    }
-    .slider-track input[type=range]::-webkit-slider-runnable-track { height: 4px; background: var(--bg3); border-radius: 2px; }
-    .slider-track input[type=range]::-webkit-slider-thumb {
-      -webkit-appearance: none; width: 26px; height: 26px; border-radius: 50%; background: var(--text); margin-top: -11px;
-    }
-    .slider-end { font-size: 11px; color: var(--text3); white-space: nowrap; min-width: 36px; }
-    .slider-end.right { text-align: right; }
-
-    /* Photo */
+    /* Photos */
     .photo-upload-area {
       border: 1.5px dashed var(--border2); border-radius: var(--radius-lg);
       padding: 20px; text-align: center; cursor: pointer;
@@ -123,15 +142,44 @@
     .photo-upload-text { font-size: 14px; color: var(--text2); }
     .photo-upload-sub { font-size: 12px; color: var(--text3); margin-top: 4px; }
     input[type=file] { display: none; }
+
     .photo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
     .photo-thumb { position: relative; aspect-ratio: 1; border-radius: var(--radius); overflow: hidden; background: var(--bg2); }
     .photo-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
-    .photo-del {
-      position: absolute; top: 4px; right: 4px; width: 24px; height: 24px;
-      border-radius: 50%; background: rgba(0,0,0,0.55); color: #fff;
-      border: none; font-size: 16px; line-height: 24px; text-align: center;
-      cursor: pointer; -webkit-tap-highlight-color: transparent; padding: 0;
+    .photo-actions { position: absolute; bottom: 0; left: 0; right: 0; display: flex; }
+    .photo-btn { flex: 1; padding: 5px 2px; font-size: 10px; border: none; cursor: pointer; -webkit-tap-highlight-color: transparent; text-align: center; }
+    .photo-btn-main { background: rgba(201,123,46,0.88); color: #fff; }
+    .photo-btn-main.is-main { background: rgba(201,123,46,1); font-weight: 700; }
+    .photo-btn-del { background: rgba(0,0,0,0.52); color: #fff; }
+    .photo-main-badge {
+      position: absolute; top: 4px; left: 4px;
+      background: var(--amber); color: #fff; font-size: 9px; font-weight: 700;
+      padding: 2px 6px; border-radius: 999px;
     }
+
+    /* Flavor tags */
+    .ftag-group { margin-bottom: 12px; }
+    .ftag-group-label { font-size: 11px; font-weight: 600; color: var(--text3); letter-spacing: 0.05em; margin-bottom: 8px; }
+    .ftag-wrap { display: flex; flex-wrap: wrap; gap: 7px; }
+    .ftag { font-size: 14px; padding: 8px 13px; border-radius: 999px; background: var(--bg2); color: var(--text2); border: 0.5px solid var(--border); cursor: pointer; -webkit-tap-highlight-color: transparent; transition: all 0.15s; user-select: none; }
+    .ftag.on-aroma  { background: var(--purple-bg); color: var(--purple-text); border-color: transparent; font-weight: 500; }
+    .ftag.on-taste  { background: var(--teal-bg);   color: var(--teal-text);   border-color: transparent; font-weight: 500; }
+    .ftag.on-finish { background: var(--green-bg);  color: var(--green-text);  border-color: transparent; font-weight: 500; }
+
+    /* Sliders — touch-action: pan-y prevents accidental slider drag on scroll */
+    .slider-item { margin-bottom: 14px; }
+    .slider-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 2px; }
+    .slider-name { font-size: 13px; color: var(--text2); font-weight: 500; }
+    .slider-val-lbl { font-size: 12px; color: var(--text); font-weight: 600; }
+    .slider-track { display: flex; align-items: center; gap: 8px; }
+    .slider-track input[type=range] {
+      flex: 1; -webkit-appearance: none; height: 44px; background: transparent;
+      padding: 0; border: none; touch-action: none; /* prevent scroll conflict */
+    }
+    .slider-track input[type=range]::-webkit-slider-runnable-track { height: 4px; background: var(--bg3); border-radius: 2px; }
+    .slider-track input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 28px; height: 28px; border-radius: 50%; background: var(--text); margin-top: -12px; }
+    .slider-end { font-size: 11px; color: var(--text3); white-space: nowrap; min-width: 34px; }
+    .slider-end.right { text-align: right; }
 
     .btn-save {
       width: 100%; padding: 17px; background: var(--text); color: var(--bg);
@@ -141,78 +189,41 @@
     .btn-save:active { opacity: 0.75; }
     .btn-save:disabled { opacity: 0.5; }
 
-    /* List */
-    .record-card {
-      background: var(--bg); border: 0.5px solid var(--border);
-      border-radius: var(--radius-lg); padding: 16px; margin-bottom: 12px;
-      cursor: pointer; -webkit-tap-highlight-color: transparent;
-    }
-    .rc-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
-    .rc-name { font-size: 17px; font-weight: 600; color: var(--text); }
-    .rc-date { font-size: 12px; color: var(--text3); margin-top: 3px; }
-    .rc-stars { font-size: 16px; white-space: nowrap; flex-shrink: 0; }
-    .rc-photos { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 10px; }
-    .rc-photo { aspect-ratio: 1; border-radius: 8px; overflow: hidden; background: var(--bg2); }
-    .rc-photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
-    .rc-badges { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
-    .badge { font-size: 12px; padding: 4px 10px; border-radius: 999px; font-weight: 500; }
-    .b-type { background: var(--blue-bg); color: var(--blue-text); }
-    .b-region { background: var(--green-bg); color: var(--green-text); }
-    .rc-flavors { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
-    .rc-ftag { font-size: 12px; padding: 3px 9px; border-radius: 999px; background: var(--bg2); color: var(--text2); }
-    .rc-note { font-size: 13px; color: var(--text3); margin-top: 6px; font-style: italic; line-height: 1.5; }
-    .empty { text-align: center; padding: 60px 0; color: var(--text3); font-size: 14px; line-height: 2.2; }
-    .loading { text-align: center; padding: 40px; color: var(--text3); font-size: 14px; }
-
-    /* Radar-like scores on list */
-    .rc-scores { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
-    .rc-score { font-size: 11px; color: var(--text3); display: flex; flex-direction: column; align-items: center; gap: 3px; min-width: 36px; }
-    .rc-score-bar { width: 36px; height: 4px; background: var(--bg3); border-radius: 2px; overflow: hidden; }
-    .rc-score-fill { height: 4px; border-radius: 2px; background: var(--amber); }
-    .rc-score-name { font-size: 10px; color: var(--text3); }
-
-    /* Detail */
-    .overlay {
-      display: none; position: fixed; inset: 0; z-index: 100;
-      background: var(--bg); overflow-y: auto; -webkit-overflow-scrolling: touch;
-    }
-    .overlay.open { display: block; }
-    .overlay-header {
-      display: flex; align-items: center; gap: 12px; padding: 16px;
-      border-bottom: 0.5px solid var(--border); position: sticky; top: 0; background: var(--bg); z-index: 1;
-    }
-    .btn-back { background: none; border: none; font-size: 16px; color: var(--text2); cursor: pointer; padding: 6px 10px 6px 0; -webkit-tap-highlight-color: transparent; }
-    .overlay-title { font-size: 17px; font-weight: 600; color: var(--text); }
-    .overlay-body { padding: 16px; }
-    .detail-photos { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 16px; }
-    .detail-photo { aspect-ratio: 1; border-radius: var(--radius); overflow: hidden; background: var(--bg2); cursor: pointer; }
-    .detail-photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    /* ── Detail overlay ── */
+    .detail-photos-scroll { display: flex; gap: 8px; overflow-x: auto; padding: 0 0 8px; margin-bottom: 12px; scrollbar-width: none; }
+    .detail-photos-scroll::-webkit-scrollbar { display: none; }
+    .detail-photo-wrap { flex-shrink: 0; width: 180px; height: 180px; border-radius: var(--radius); overflow: hidden; background: var(--bg2); cursor: pointer; position: relative; }
+    .detail-photo-wrap img { width: 100%; height: 100%; object-fit: cover; display: block; }
     .detail-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 0.5px solid var(--border); }
     .detail-label { font-size: 13px; color: var(--text3); }
     .detail-value { font-size: 14px; color: var(--text); font-weight: 500; text-align: right; max-width: 65%; }
-
-    /* Score bars in detail */
     .detail-scores { padding: 14px 0; border-bottom: 0.5px solid var(--border); }
     .detail-scores-title { font-size: 13px; color: var(--text3); margin-bottom: 12px; }
     .dscore-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
-    .dscore-name { font-size: 13px; color: var(--text2); width: 72px; flex-shrink: 0; }
+    .dscore-name { font-size: 13px; color: var(--text2); width: 76px; flex-shrink: 0; }
     .dscore-bar-bg { flex: 1; height: 6px; background: var(--bg3); border-radius: 3px; overflow: hidden; }
-    .dscore-bar-fill { height: 6px; border-radius: 3px; background: var(--amber); transition: width 0.4s; }
-    .dscore-val { font-size: 13px; font-weight: 600; color: var(--text); min-width: 12px; }
-
+    .dscore-bar-fill { height: 6px; border-radius: 3px; background: var(--amber); }
+    .dscore-val { font-size: 13px; font-weight: 600; color: var(--text); min-width: 14px; }
     .detail-flavors { padding: 12px 0; border-bottom: 0.5px solid var(--border); }
     .detail-flavors-title { font-size: 13px; color: var(--text3); margin-bottom: 8px; }
     .detail-ftag-wrap { display: flex; flex-wrap: wrap; gap: 6px; }
     .detail-ftag { font-size: 13px; padding: 5px 11px; border-radius: 999px; font-weight: 500; }
-
     .detail-note { padding: 14px 0; font-size: 14px; color: var(--text2); line-height: 1.7; border-bottom: 0.5px solid var(--border); }
+    .detail-actions { display: flex; gap: 10px; margin-top: 24px; }
+    .btn-edit {
+      flex: 1; padding: 15px; background: var(--bg2); color: var(--text);
+      border: 0.5px solid var(--border); border-radius: var(--radius-lg); font-size: 15px; font-weight: 600;
+      cursor: pointer; -webkit-tap-highlight-color: transparent; text-align: center;
+    }
     .btn-delete {
-      width: 100%; margin-top: 24px; padding: 15px; background: var(--red-bg); color: var(--red-text);
+      flex: 1; padding: 15px; background: var(--red-bg); color: var(--red-text);
       border: none; border-radius: var(--radius-lg); font-size: 15px; font-weight: 600;
       cursor: pointer; -webkit-tap-highlight-color: transparent;
     }
 
-    /* Stats */
+    /* ── Stats ── */
+    .stats-wrap { padding: 16px 16px 0; }
+    .sec-title { font-size: 15px; font-weight: 600; color: var(--text); margin: 4px 0 14px; }
     .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
     .stat-box { background: var(--bg2); border-radius: var(--radius); padding: 16px; text-align: center; }
     .stat-n { font-size: 30px; font-weight: 600; color: var(--text); }
@@ -224,7 +235,7 @@
     .bar-bg { background: var(--bg2); border-radius: 4px; height: 10px; overflow: hidden; }
     .bar-fill { height: 10px; border-radius: 4px; }
 
-    /* Lightbox */
+    /* ── Lightbox ── */
     .lightbox { display: none; position: fixed; inset: 0; z-index: 200; background: rgba(0,0,0,0.92); align-items: center; justify-content: center; }
     .lightbox.open { display: flex; }
     .lightbox img { max-width: 100%; max-height: 90vh; object-fit: contain; }
@@ -233,207 +244,162 @@
 </head>
 <body>
 <div class="app">
-  <div class="header">
-    <div class="header-title">🍶 日本酒ノート</div>
-    <div class="header-sub">飲んだお酒を記録しよう</div>
-  </div>
-
   <div class="screens" id="screens">
-    <!-- 記録 -->
-    <div id="s-add" class="screen active">
-      <div class="sec-title">新しく記録する</div>
 
-      <div class="field">
-        <label>酒の名前 *</label>
-        <input type="text" id="f-name" placeholder="例：獺祭 純米大吟醸" autocomplete="off">
-      </div>
-      <div class="grid2">
-        <div class="field">
-          <label>種類</label>
-          <select id="f-type">
-            <option value="">選択...</option>
-            <option>純米大吟醸</option><option>大吟醸</option><option>純米吟醸</option>
-            <option>純米酒</option><option>吟醸酒</option><option>本醸造</option>
-            <option>にごり酒</option><option>スパークリング</option><option>古酒</option><option>その他</option>
-          </select>
-        </div>
-        <div class="field">
-          <label>飲んだ日</label>
-          <input type="date" id="f-date">
+    <!-- ① 一覧 (TOP) -->
+    <div id="s-list" class="screen active">
+      <div class="list-header">
+        <div>
+          <div class="list-header-title">🍶 日本酒ノート</div>
+          <div class="list-header-sub" id="list-sub">読み込み中...</div>
         </div>
       </div>
-      <div class="field">
-        <label>産地・蔵元</label>
-        <input type="text" id="f-region" placeholder="例：山口県 / 旭酒造" autocomplete="off">
-      </div>
-
-      <div class="field">
-        <label>写真（複数枚可）</label>
-        <input type="file" id="f-photos" accept="image/*" multiple>
-        <div class="photo-upload-area" id="upload-area">
-          <div class="photo-upload-icon">📷</div>
-          <div class="photo-upload-text">タップして撮影・アルバムから選択</div>
-          <div class="photo-upload-sub">ラベル・お猪口など何枚でも</div>
-        </div>
-        <div class="photo-grid" id="photo-preview"></div>
-      </div>
-
-      <div class="field">
-        <label>総合評価</label>
-        <div class="stars" id="stars">
-          <span class="star" data-v="1">★</span><span class="star" data-v="2">★</span>
-          <span class="star" data-v="3">★</span><span class="star" data-v="4">★</span><span class="star" data-v="5">★</span>
-        </div>
-      </div>
-
-      <div class="field">
-        <label>風味の特徴</label>
-        <div class="ftag-group">
-          <div class="ftag-group-label">香り</div>
-          <div class="ftag-wrap" data-group="aroma">
-            <span class="ftag" data-group="aroma">吟醸香</span>
-            <span class="ftag" data-group="aroma">フルーティ</span>
-            <span class="ftag" data-group="aroma">花・華やか</span>
-            <span class="ftag" data-group="aroma">ハーブ・草</span>
-            <span class="ftag" data-group="aroma">木・樽</span>
-            <span class="ftag" data-group="aroma">熟成・ナッツ</span>
-            <span class="ftag" data-group="aroma">ほぼ無香</span>
-          </div>
-        </div>
-        <div class="ftag-group">
-          <div class="ftag-group-label">味わい</div>
-          <div class="ftag-wrap" data-group="taste">
-            <span class="ftag" data-group="taste">旨み豊か</span>
-            <span class="ftag" data-group="taste">ミネラル</span>
-            <span class="ftag" data-group="taste">乳酸・ヨーグルト</span>
-            <span class="ftag" data-group="taste">苦み</span>
-            <span class="ftag" data-group="taste">渋み</span>
-            <span class="ftag" data-group="taste">なめらか</span>
-            <span class="ftag" data-group="taste">発泡感</span>
-          </div>
-        </div>
-        <div class="ftag-group">
-          <div class="ftag-group-label">後味・余韻</div>
-          <div class="ftag-wrap" data-group="finish">
-            <span class="ftag" data-group="finish">キレがいい</span>
-            <span class="ftag" data-group="finish">余韻が長い</span>
-            <span class="ftag" data-group="finish">ふくよか</span>
-            <span class="ftag" data-group="finish">後味すっきり</span>
-            <span class="ftag" data-group="finish">じわっと広がる</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="field">
-        <label>テイスティングスコア</label>
-        <div id="sliders">
-          <div class="slider-item">
-            <div class="slider-header">
-              <span class="slider-name">甘辛度</span>
-              <span class="slider-val" id="lbl-sweet">甘口 ←→ 辛口：3</span>
-            </div>
-            <div class="slider-track">
-              <span class="slider-end">甘口</span>
-              <input type="range" id="f-sweet" min="1" max="5" value="3" step="1">
-              <span class="slider-end right">辛口</span>
-            </div>
-          </div>
-          <div class="slider-item">
-            <div class="slider-header">
-              <span class="slider-name">酸味</span>
-              <span class="slider-val" id="lbl-acid">弱い ←→ 強い：3</span>
-            </div>
-            <div class="slider-track">
-              <span class="slider-end">弱い</span>
-              <input type="range" id="f-acid" min="1" max="5" value="3" step="1">
-              <span class="slider-end right">強い</span>
-            </div>
-          </div>
-          <div class="slider-item">
-            <div class="slider-header">
-              <span class="slider-name">濃淡</span>
-              <span class="slider-val" id="lbl-body">淡麗 ←→ 濃醇：3</span>
-            </div>
-            <div class="slider-track">
-              <span class="slider-end">淡麗</span>
-              <input type="range" id="f-body" min="1" max="5" value="3" step="1">
-              <span class="slider-end right">濃醇</span>
-            </div>
-          </div>
-          <div class="slider-item">
-            <div class="slider-header">
-              <span class="slider-name">香りの強さ</span>
-              <span class="slider-val" id="lbl-aroma">控えめ ←→ 華やか：3</span>
-            </div>
-            <div class="slider-track">
-              <span class="slider-end">控えめ</span>
-              <input type="range" id="f-aroma" min="1" max="5" value="3" step="1">
-              <span class="slider-end right">華やか</span>
-            </div>
-          </div>
-          <div class="slider-item">
-            <div class="slider-header">
-              <span class="slider-name">余韻</span>
-              <span class="slider-val" id="lbl-finish">短い ←→ 長い：3</span>
-            </div>
-            <div class="slider-track">
-              <span class="slider-end">短い</span>
-              <input type="range" id="f-finish" min="1" max="5" value="3" step="1">
-              <span class="slider-end right">長い</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="field">
-        <label>メモ・感想</label>
-        <textarea id="f-memo" placeholder="どこで飲んだか、合わせた料理、感想など..."></textarea>
-      </div>
-      <button class="btn-save" id="btn-save">記録する</button>
-      <div style="height:16px"></div>
+      <div id="card-grid-wrap"></div>
     </div>
 
-    <!-- 一覧 -->
-    <div id="s-list" class="screen">
-      <div class="sec-title">記録一覧</div>
-      <div id="list-wrap"></div>
-    </div>
-
-    <!-- 統計 -->
+    <!-- ② 統計 -->
     <div id="s-stats" class="screen">
-      <div class="sec-title">統計</div>
-      <div class="stats-grid">
-        <div class="stat-box"><div class="stat-n" id="st-count">0</div><div class="stat-l">記録数</div></div>
-        <div class="stat-box"><div class="stat-n" id="st-avg">—</div><div class="stat-l">平均評価</div></div>
-        <div class="stat-box"><div class="stat-n" id="st-types">0</div><div class="stat-l">種類数</div></div>
-        <div class="stat-box"><div class="stat-n" id="st-regions">0</div><div class="stat-l">産地数</div></div>
-      </div>
-      <div class="chart-card">
-        <div class="chart-title">種類別の記録数</div>
-        <div id="type-chart"><p style="font-size:13px;color:var(--text3)">記録がありません</p></div>
-      </div>
-      <div class="chart-card">
-        <div class="chart-title">よく選んだ風味タグ</div>
-        <div id="flavor-chart"><p style="font-size:13px;color:var(--text3)">記録がありません</p></div>
-      </div>
-      <div class="chart-card">
-        <div class="chart-title">平均テイスティングスコア</div>
-        <div id="score-chart"><p style="font-size:13px;color:var(--text3)">記録がありません</p></div>
+      <div class="stats-wrap">
+        <div class="sec-title">統計</div>
+        <div class="stats-grid">
+          <div class="stat-box"><div class="stat-n" id="st-count">0</div><div class="stat-l">記録数</div></div>
+          <div class="stat-box"><div class="stat-n" id="st-avg">—</div><div class="stat-l">平均評価</div></div>
+          <div class="stat-box"><div class="stat-n" id="st-types">0</div><div class="stat-l">種類数</div></div>
+          <div class="stat-box"><div class="stat-n" id="st-regions">0</div><div class="stat-l">産地数</div></div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-title">種類別の記録数</div>
+          <div id="type-chart"><p style="font-size:13px;color:var(--text3)">記録がありません</p></div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-title">よく選んだ風味タグ</div>
+          <div id="flavor-chart"><p style="font-size:13px;color:var(--text3)">記録がありません</p></div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-title">平均テイスティングスコア</div>
+          <div id="score-chart"><p style="font-size:13px;color:var(--text3)">記録がありません</p></div>
+        </div>
       </div>
     </div>
+
   </div>
 
+  <!-- Fixed bottom nav -->
   <nav class="nav">
-    <button class="nav-btn active" data-screen="add"><span class="nav-icon">✏️</span><span class="nav-label">記録</span></button>
-    <button class="nav-btn" data-screen="list"><span class="nav-icon">📋</span><span class="nav-label">一覧</span></button>
+    <button class="nav-btn active" data-screen="list"><span class="nav-icon">🍶</span><span class="nav-label">一覧</span></button>
     <button class="nav-btn" data-screen="stats"><span class="nav-icon">📊</span><span class="nav-label">統計</span></button>
   </nav>
 </div>
 
-<!-- Detail -->
-<div class="overlay" id="overlay">
+<!-- Float add button -->
+<button class="btn-add-float" id="btn-add-float" title="新しく記録">＋</button>
+
+<!-- ── 記録フォーム overlay ── -->
+<div class="overlay" id="ov-form">
   <div class="overlay-header">
-    <button class="btn-back" id="btn-back">← 戻る</button>
+    <button class="btn-back" id="form-back">← 戻る</button>
+    <div class="overlay-title" id="form-title">新しく記録する</div>
+  </div>
+  <div class="overlay-body">
+    <input type="hidden" id="f-edit-id">
+    <div class="field">
+      <label>酒の名前 *</label>
+      <input type="text" id="f-name" placeholder="例：獺祭 純米大吟醸" autocomplete="off">
+    </div>
+    <div class="grid2">
+      <div class="field">
+        <label>種類</label>
+        <select id="f-type">
+          <option value="">選択...</option>
+          <option>純米大吟醸</option><option>大吟醸</option><option>純米吟醸</option>
+          <option>純米酒</option><option>吟醸酒</option><option>本醸造</option>
+          <option>にごり酒</option><option>スパークリング</option><option>古酒</option><option>その他</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>飲んだ日</label>
+        <input type="date" id="f-date">
+      </div>
+    </div>
+    <div class="field">
+      <label>産地・蔵元</label>
+      <input type="text" id="f-region" placeholder="例：山口県 / 旭酒造" autocomplete="off">
+    </div>
+
+    <div class="field">
+      <label>写真（複数枚可・先頭をメイン表示）</label>
+      <input type="file" id="f-photos" accept="image/*" multiple>
+      <div class="photo-upload-area" id="upload-area">
+        <div class="photo-upload-icon">📷</div>
+        <div class="photo-upload-text">タップして撮影・アルバムから選択</div>
+        <div class="photo-upload-sub">★マークをタップしてメイン画像を設定</div>
+      </div>
+      <div class="photo-grid" id="photo-preview"></div>
+    </div>
+
+    <div class="field">
+      <label>総合評価</label>
+      <div class="stars" id="stars">
+        <span class="star" data-v="1">★</span><span class="star" data-v="2">★</span>
+        <span class="star" data-v="3">★</span><span class="star" data-v="4">★</span><span class="star" data-v="5">★</span>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>風味の特徴</label>
+      <div class="ftag-group">
+        <div class="ftag-group-label">香り</div>
+        <div class="ftag-wrap">
+          <span class="ftag" data-group="aroma">吟醸香</span>
+          <span class="ftag" data-group="aroma">フルーティ</span>
+          <span class="ftag" data-group="aroma">花・華やか</span>
+          <span class="ftag" data-group="aroma">ハーブ・草</span>
+          <span class="ftag" data-group="aroma">木・樽</span>
+          <span class="ftag" data-group="aroma">熟成・ナッツ</span>
+          <span class="ftag" data-group="aroma">ほぼ無香</span>
+        </div>
+      </div>
+      <div class="ftag-group">
+        <div class="ftag-group-label">味わい</div>
+        <div class="ftag-wrap">
+          <span class="ftag" data-group="taste">旨み豊か</span>
+          <span class="ftag" data-group="taste">ミネラル</span>
+          <span class="ftag" data-group="taste">乳酸・ヨーグルト</span>
+          <span class="ftag" data-group="taste">苦み</span>
+          <span class="ftag" data-group="taste">渋み</span>
+          <span class="ftag" data-group="taste">なめらか</span>
+          <span class="ftag" data-group="taste">発泡感</span>
+        </div>
+      </div>
+      <div class="ftag-group">
+        <div class="ftag-group-label">後味・余韻</div>
+        <div class="ftag-wrap">
+          <span class="ftag" data-group="finish">キレがいい</span>
+          <span class="ftag" data-group="finish">余韻が長い</span>
+          <span class="ftag" data-group="finish">ふくよか</span>
+          <span class="ftag" data-group="finish">後味すっきり</span>
+          <span class="ftag" data-group="finish">じわっと広がる</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>テイスティングスコア</label>
+      <div id="sliders"></div>
+    </div>
+
+    <div class="field">
+      <label>メモ・感想</label>
+      <textarea id="f-memo" placeholder="どこで飲んだか、合わせた料理、感想など..."></textarea>
+    </div>
+    <button class="btn-save" id="btn-save">記録する</button>
+  </div>
+</div>
+
+<!-- ── 詳細 overlay ── -->
+<div class="overlay" id="ov-detail">
+  <div class="overlay-header">
+    <button class="btn-back" id="detail-back">← 戻る</button>
     <div class="overlay-title" id="ov-title"></div>
   </div>
   <div class="overlay-body" id="ov-body"></div>
@@ -446,47 +412,49 @@
 </div>
 
 <script>
+/* ── Constants ── */
 const SLIDERS = [
-  { id: 'sweet',  lbl: 'lbl-sweet',  name: '甘辛度',    left: '甘口',  right: '辛口'  },
-  { id: 'acid',   lbl: 'lbl-acid',   name: '酸味',      left: '弱い',  right: '強い'  },
-  { id: 'body',   lbl: 'lbl-body',   name: '濃淡',      left: '淡麗',  right: '濃醇'  },
-  { id: 'aroma',  lbl: 'lbl-aroma',  name: '香りの強さ', left: '控えめ', right: '華やか' },
-  { id: 'finish', lbl: 'lbl-finish', name: '余韻',      left: '短い',  right: '長い'  },
+  { id:'sweet',  name:'甘辛度',    left:'甘口',   right:'辛口'   },
+  { id:'acid',   name:'酸味',      left:'弱い',   right:'強い'   },
+  { id:'body',   name:'濃淡',      left:'淡麗',   right:'濃醇'   },
+  { id:'aroma',  name:'香りの強さ', left:'控えめ', right:'華やか' },
+  { id:'finish', name:'余韻',      left:'短い',   right:'長い'   },
 ];
-
-const FTAG_COLORS = { aroma: 'on-aroma', taste: 'on-taste', finish: 'on-finish' };
-const FTAG_DETAIL_STYLE = {
+const FTAG_CLS = { aroma:'on-aroma', taste:'on-taste', finish:'on-finish' };
+const FTAG_STYLE = {
   'on-aroma':  'background:var(--purple-bg);color:var(--purple-text)',
   'on-taste':  'background:var(--teal-bg);color:var(--teal-text)',
   'on-finish': 'background:var(--green-bg);color:var(--green-text)',
 };
 
+/* ── IndexedDB ── */
 const DB_NAME = 'sake_note_db', DB_VER = 1;
-let db, records = [], rating = 0, pendingPhotos = [];
+let db, records = [], rating = 0, pendingPhotos = [], mainPhotoIdx = 0;
 
 function openDB() {
   return new Promise((res, rej) => {
     const r = indexedDB.open(DB_NAME, DB_VER);
     r.onupgradeneeded = e => {
       const d = e.target.result;
-      if (!d.objectStoreNames.contains('records')) d.createObjectStore('records', { keyPath: 'id' });
-      if (!d.objectStoreNames.contains('photos'))  d.createObjectStore('photos',  { keyPath: 'id' });
+      if (!d.objectStoreNames.contains('records')) d.createObjectStore('records', { keyPath:'id' });
+      if (!d.objectStoreNames.contains('photos'))  d.createObjectStore('photos',  { keyPath:'id' });
     };
-    r.onsuccess = e => { db = e.target.result; res(db); };
+    r.onsuccess = e => { db = e.target.result; res(); };
     r.onerror = () => rej(r.error);
   });
 }
-function tx(store, mode, fn) {
+function idbTx(store, mode, fn) {
   return new Promise((res, rej) => {
     const t = db.transaction(store, mode), s = t.objectStore(store), r = fn(s);
     r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error);
   });
 }
-const dbPut    = (store, val) => tx(store, 'readwrite', s => s.put(val));
-const dbGetAll = store        => tx(store, 'readonly',  s => s.getAll());
-const dbGet    = (store, key) => tx(store, 'readonly',  s => s.get(key));
-const dbDel    = (store, key) => tx(store, 'readwrite', s => s.delete(key));
+const dbPut    = (store, val) => idbTx(store,'readwrite', s => s.put(val));
+const dbGetAll = store        => idbTx(store,'readonly',  s => s.getAll());
+const dbGet    = (store, key) => idbTx(store,'readonly',  s => s.get(key));
+const dbDel    = (store, key) => idbTx(store,'readwrite', s => s.delete(key));
 
+/* ── Init ── */
 async function init() {
   await openDB();
   try {
@@ -494,38 +462,37 @@ async function init() {
     if (old.length) { for (const r of old) await dbPut('records', r); localStorage.removeItem('sake_note_v1'); }
   } catch(e) {}
   records = await dbGetAll('records');
-  records.sort((a, b) => b.id - a.id);
-  setupUI();
+  records.sort((a,b) => b.id - a.id);
+  buildSliders();
+  setupEvents();
+  renderList();
 }
 
-function setupUI() {
-  document.getElementById('f-date').valueAsDate = new Date();
-
-  // Stars
-  document.querySelectorAll('.star').forEach(s => s.addEventListener('click', () => {
-    rating = parseInt(s.dataset.v);
-    document.querySelectorAll('.star').forEach((st, i) => st.classList.toggle('active', i < rating));
-  }));
-
-  // Flavor tags
-  document.querySelectorAll('.ftag').forEach(el => el.addEventListener('click', () => {
-    const g = el.dataset.group;
-    const cls = FTAG_COLORS[g];
-    if (el.classList.contains(cls)) { el.classList.remove(cls); }
-    else { el.classList.add(cls); }
-  }));
-
-  // Sliders
+/* ── Build sliders ── */
+function buildSliders() {
+  document.getElementById('sliders').innerHTML = SLIDERS.map(s => `
+    <div class="slider-item">
+      <div class="slider-header">
+        <span class="slider-name">${s.name}</span>
+        <span class="slider-val-lbl" id="lbl-${s.id}">${s.left} ←→ ${s.right}：3</span>
+      </div>
+      <div class="slider-track">
+        <span class="slider-end">${s.left}</span>
+        <input type="range" id="f-${s.id}" min="1" max="5" value="3" step="1">
+        <span class="slider-end right">${s.right}</span>
+      </div>
+    </div>
+  `).join('');
   SLIDERS.forEach(s => {
     const el = document.getElementById('f-' + s.id);
-    const update = () => { document.getElementById(s.lbl).textContent = `${s.left} ←→ ${s.right}：${el.value}`; };
-    el.addEventListener('input', update);
+    el.addEventListener('input', () => {
+      document.getElementById('lbl-' + s.id).textContent = `${s.left} ←→ ${s.right}：${el.value}`;
+    });
   });
+}
 
-  // Photos
-  document.getElementById('upload-area').addEventListener('click', () => document.getElementById('f-photos').click());
-  document.getElementById('f-photos').addEventListener('change', handlePhotos);
-
+/* ── Events ── */
+function setupEvents() {
   // Nav
   document.querySelectorAll('.nav-btn').forEach(btn => btn.addEventListener('click', () => {
     const id = btn.dataset.screen;
@@ -534,21 +501,52 @@ function setupUI() {
     btn.classList.add('active');
     document.getElementById('s-' + id).classList.add('active');
     document.getElementById('screens').scrollTop = 0;
-    if (id === 'list') renderList();
     if (id === 'stats') renderStats();
   }));
 
+  // Float add
+  document.getElementById('btn-add-float').addEventListener('click', () => openForm(null));
+
+  // Form back
+  document.getElementById('form-back').addEventListener('click', () => {
+    document.getElementById('ov-form').classList.remove('open');
+  });
+
+  // Detail back
+  document.getElementById('detail-back').addEventListener('click', () => {
+    document.getElementById('ov-detail').classList.remove('open');
+  });
+
+  // Stars
+  document.querySelectorAll('.star').forEach(s => s.addEventListener('click', () => {
+    rating = parseInt(s.dataset.v);
+    document.querySelectorAll('.star').forEach((st,i) => st.classList.toggle('active', i < rating));
+  }));
+
+  // Flavor tags
+  document.querySelectorAll('.ftag').forEach(el => el.addEventListener('click', () => {
+    const cls = FTAG_CLS[el.dataset.group];
+    el.classList.toggle(cls);
+  }));
+
+  // Photo upload
+  document.getElementById('upload-area').addEventListener('click', () => document.getElementById('f-photos').click());
+  document.getElementById('f-photos').addEventListener('change', handlePhotos);
+
+  // Save
   document.getElementById('btn-save').addEventListener('click', save);
-  document.getElementById('btn-back').addEventListener('click', closeOverlay);
+
+  // Lightbox
   document.getElementById('lb-close').addEventListener('click', () => document.getElementById('lightbox').classList.remove('open'));
   document.getElementById('lightbox').addEventListener('click', e => { if (e.target === e.currentTarget) e.currentTarget.classList.remove('open'); });
 }
 
+/* ── Photo handling ── */
 function handlePhotos(e) {
   [...e.target.files].forEach(file => {
     const reader = new FileReader();
     reader.onload = ev => {
-      pendingPhotos.push({ id: 'p_' + Date.now() + '_' + Math.random().toString(36).slice(2), dataUrl: ev.target.result });
+      pendingPhotos.push({ id:'p_'+Date.now()+'_'+Math.random().toString(36).slice(2), dataUrl:ev.target.result, isNew:true });
       renderPreview();
     };
     reader.readAsDataURL(file);
@@ -559,13 +557,86 @@ function handlePhotos(e) {
 function renderPreview() {
   const grid = document.getElementById('photo-preview');
   grid.innerHTML = pendingPhotos.map((p, i) => `
-    <div class="photo-thumb"><img src="${p.dataUrl}" alt=""><button class="photo-del" data-i="${i}">×</button></div>
+    <div class="photo-thumb">
+      <img src="${p.dataUrl}" alt="">
+      ${i === mainPhotoIdx ? '<div class="photo-main-badge">メイン</div>' : ''}
+      <div class="photo-actions">
+        <button class="photo-btn photo-btn-main${i===mainPhotoIdx?' is-main':''}" data-i="${i}">★</button>
+        <button class="photo-btn photo-btn-del" data-i="${i}">✕</button>
+      </div>
+    </div>
   `).join('');
-  grid.querySelectorAll('.photo-del').forEach(btn => btn.addEventListener('click', () => {
-    pendingPhotos.splice(parseInt(btn.dataset.i), 1); renderPreview();
+  grid.querySelectorAll('.photo-btn-main').forEach(btn => btn.addEventListener('click', () => {
+    mainPhotoIdx = parseInt(btn.dataset.i); renderPreview();
+  }));
+  grid.querySelectorAll('.photo-btn-del').forEach(btn => btn.addEventListener('click', () => {
+    const i = parseInt(btn.dataset.i);
+    pendingPhotos.splice(i, 1);
+    if (mainPhotoIdx >= pendingPhotos.length) mainPhotoIdx = Math.max(0, pendingPhotos.length - 1);
+    renderPreview();
   }));
 }
 
+/* ── Open form (new or edit) ── */
+function openForm(rec) {
+  resetForm();
+  if (rec) {
+    document.getElementById('form-title').textContent = '編集';
+    document.getElementById('f-edit-id').value = rec.id;
+    document.getElementById('f-name').value = rec.name || '';
+    document.getElementById('f-type').value = rec.type || '';
+    document.getElementById('f-region').value = rec.region || '';
+    document.getElementById('f-date').value = rec.date || '';
+    document.getElementById('f-memo').value = rec.memo || '';
+    rating = rec.rating || 0;
+    document.querySelectorAll('.star').forEach((st,i) => st.classList.toggle('active', i < rating));
+    const scores = rec.scores || {};
+    SLIDERS.forEach(s => {
+      const el = document.getElementById('f-' + s.id);
+      el.value = scores[s.id] || 3;
+      document.getElementById('lbl-' + s.id).textContent = `${s.left} ←→ ${s.right}：${el.value}`;
+    });
+    document.querySelectorAll('.ftag').forEach(el => {
+      const cls = FTAG_CLS[el.dataset.group];
+      const match = (rec.flavors || []).some(f => (typeof f==='object'?f.text:f) === el.textContent);
+      if (match) el.classList.add(cls); else el.classList.remove(cls);
+    });
+    // Load existing photos into pendingPhotos
+    loadRecordPhotos(rec);
+  } else {
+    document.getElementById('form-title').textContent = '新しく記録する';
+    document.getElementById('f-edit-id').value = '';
+    document.getElementById('f-date').valueAsDate = new Date();
+  }
+  document.getElementById('ov-form').classList.add('open');
+}
+
+async function loadRecordPhotos(rec) {
+  pendingPhotos = [];
+  mainPhotoIdx = rec.mainPhotoIdx || 0;
+  for (const pid of (rec.photoIds || [])) {
+    const p = await dbGet('photos', pid);
+    if (p) pendingPhotos.push({ id: p.id, dataUrl: p.dataUrl, isNew: false });
+  }
+  renderPreview();
+}
+
+function resetForm() {
+  ['f-name','f-region','f-memo'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('f-type').value = '';
+  document.getElementById('f-edit-id').value = '';
+  SLIDERS.forEach(s => {
+    const el = document.getElementById('f-' + s.id);
+    el.value = 3;
+    document.getElementById('lbl-' + s.id).textContent = `${s.left} ←→ ${s.right}：3`;
+  });
+  rating = 0; pendingPhotos = []; mainPhotoIdx = 0;
+  document.querySelectorAll('.star').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.ftag').forEach(el => Object.values(FTAG_CLS).forEach(c => el.classList.remove(c)));
+  renderPreview();
+}
+
+/* ── Save (new or update) ── */
 async function save() {
   const name = document.getElementById('f-name').value.trim();
   if (!name) { alert('酒の名前を入力してください'); return; }
@@ -573,172 +644,196 @@ async function save() {
   btn.textContent = '保存中...'; btn.disabled = true;
   try {
     const photoIds = [];
-    for (const p of pendingPhotos) { await dbPut('photos', p); photoIds.push(p.id); }
-
+    for (const p of pendingPhotos) {
+      if (p.isNew) await dbPut('photos', { id:p.id, dataUrl:p.dataUrl });
+      photoIds.push(p.id);
+    }
     const scores = {};
     SLIDERS.forEach(s => { scores[s.id] = parseInt(document.getElementById('f-' + s.id).value); });
-
     const flavors = [...document.querySelectorAll('.ftag')].filter(el =>
-      Object.values(FTAG_COLORS).some(c => el.classList.contains(c))
-    ).map(el => ({ text: el.textContent, group: el.dataset.group }));
+      Object.values(FTAG_CLS).some(c => el.classList.contains(c))
+    ).map(el => ({ text:el.textContent, group:el.dataset.group }));
+
+    const editId = document.getElementById('f-edit-id').value;
+    const recId = editId ? parseInt(editId) : Date.now();
+
+    // If editing, delete removed photos
+    if (editId) {
+      const old = records.find(r => r.id === recId);
+      if (old) {
+        const removed = (old.photoIds||[]).filter(pid => !photoIds.includes(pid));
+        for (const pid of removed) await dbDel('photos', pid);
+      }
+    }
 
     const rec = {
-      id: Date.now(), name,
+      id: recId, name,
       type: document.getElementById('f-type').value,
       region: document.getElementById('f-region').value.trim(),
       date: document.getElementById('f-date').value,
       rating, scores, flavors,
       memo: document.getElementById('f-memo').value.trim(),
-      photoIds
+      photoIds, mainPhotoIdx
     };
     await dbPut('records', rec);
-    records.unshift(rec);
-    resetForm();
-    alert('記録しました！');
+    if (editId) {
+      const idx = records.findIndex(r => r.id === recId);
+      if (idx >= 0) records[idx] = rec; else records.unshift(rec);
+    } else {
+      records.unshift(rec);
+    }
+    document.getElementById('ov-form').classList.remove('open');
+    renderList();
   } catch(e) { alert('保存に失敗しました'); }
   finally { btn.textContent = '記録する'; btn.disabled = false; }
 }
 
-function resetForm() {
-  ['f-name','f-region','f-memo'].forEach(id => document.getElementById(id).value = '');
-  document.getElementById('f-type').value = '';
-  document.getElementById('f-date').valueAsDate = new Date();
-  SLIDERS.forEach(s => {
-    document.getElementById('f-' + s.id).value = 3;
-    document.getElementById(s.lbl).textContent = `${s.left} ←→ ${s.right}：3`;
-  });
-  rating = 0; pendingPhotos = [];
-  document.querySelectorAll('.star').forEach(s => s.classList.remove('active'));
-  document.querySelectorAll('.ftag').forEach(el => Object.values(FTAG_COLORS).forEach(c => el.classList.remove(c)));
-  renderPreview();
-}
-
+/* ── List (TOP grid) ── */
 async function renderList() {
-  const w = document.getElementById('list-wrap');
-  if (!records.length) { w.innerHTML = '<div class="empty">まだ記録がありません。<br>最初の一杯を記録してみましょう！</div>'; return; }
-  w.innerHTML = '<div class="loading">読み込み中...</div>';
-  const cards = await Promise.all(records.map(async r => {
-    const thumbs = [];
-    for (const pid of (r.photoIds || []).slice(0, 4)) { const p = await dbGet('photos', pid); if (p) thumbs.push(p.dataUrl); }
-    return { r, thumbs };
+  const wrap = document.getElementById('card-grid-wrap');
+  const sub = document.getElementById('list-sub');
+  if (!records.length) {
+    sub.textContent = '記録がありません';
+    wrap.innerHTML = '<div class="empty">最初の一杯を記録してみましょう！<br>右下の ＋ からどうぞ</div>';
+    return;
+  }
+  sub.textContent = `${records.length}本を記録中`;
+  wrap.innerHTML = '<div class="loading">読み込み中...</div>';
+
+  const items = await Promise.all(records.map(async r => {
+    const mainIdx = r.mainPhotoIdx || 0;
+    const pid = (r.photoIds || [])[mainIdx];
+    let mainUrl = null;
+    if (pid) { const p = await dbGet('photos', pid); if (p) mainUrl = p.dataUrl; }
+    return { r, mainUrl };
   }));
-  w.innerHTML = cards.map(({ r, thumbs }) => {
-    const scores = r.scores || {};
-    const scoreBars = SLIDERS.map(s => {
-      const v = scores[s.id] || 3;
-      return `<div class="rc-score"><div class="rc-score-bar"><div class="rc-score-fill" style="width:${Math.round(v/5*100)}%"></div></div><div class="rc-score-name">${s.name}</div></div>`;
-    }).join('');
-    const flavors = (r.flavors || []).map(f =>
-      typeof f === 'object'
-        ? `<span class="rc-ftag">${esc(f.text)}</span>`
-        : `<span class="rc-ftag">${esc(f)}</span>`
-    ).join('');
-    return `
-      <div class="record-card" data-id="${r.id}">
-        <div class="rc-top">
-          <div><div class="rc-name">${esc(r.name)}</div><div class="rc-date">${r.date || ''}</div></div>
-          <div class="rc-stars">${starsHtml(r.rating)}</div>
-        </div>
-        ${thumbs.length ? `<div class="rc-photos">${thumbs.map(d => `<div class="rc-photo"><img src="${d}" alt="" loading="lazy"></div>`).join('')}</div>` : ''}
-        <div class="rc-badges">
-          ${r.type ? `<span class="badge b-type">${esc(r.type)}</span>` : ''}
-          ${r.region ? `<span class="badge b-region">${esc(r.region)}</span>` : ''}
-        </div>
-        <div class="rc-scores">${scoreBars}</div>
-        ${flavors ? `<div class="rc-flavors">${flavors}</div>` : ''}
-        ${r.memo ? `<div class="rc-note">"${esc(r.memo)}"</div>` : ''}
+
+  const grid = document.createElement('div');
+  grid.className = 'card-grid';
+  grid.innerHTML = items.map(({ r, mainUrl }) => `
+    <div class="grid-card" data-id="${r.id}">
+      <div class="grid-card-img">
+        ${mainUrl
+          ? `<img src="${mainUrl}" alt="" loading="lazy">`
+          : `<div class="grid-card-img-placeholder">🍶</div>`}
       </div>
-    `;
-  }).join('');
-  w.querySelectorAll('.record-card').forEach(card => card.addEventListener('click', () => openDetail(parseInt(card.dataset.id))));
+      <div class="grid-card-body">
+        <div class="grid-card-name">${esc(r.name)}</div>
+        <div class="grid-card-meta">${r.date || ''}</div>
+        <div class="grid-card-stars">${starsHtml(r.rating, 12)}</div>
+        ${r.type ? `<div class="grid-card-badge b-type">${esc(r.type)}</div>` : ''}
+      </div>
+    </div>
+  `).join('');
+  wrap.innerHTML = '';
+  wrap.appendChild(grid);
+  grid.querySelectorAll('.grid-card').forEach(card => card.addEventListener('click', () => openDetail(parseInt(card.dataset.id))));
 }
 
+/* ── Detail ── */
 async function openDetail(id) {
   const r = records.find(x => x.id === id); if (!r) return;
   document.getElementById('ov-title').textContent = r.name;
+
   const photos = [];
-  for (const pid of (r.photoIds || [])) { const p = await dbGet('photos', pid); if (p) photos.push(p.dataUrl); }
+  for (const pid of (r.photoIds||[])) { const p = await dbGet('photos', pid); if (p) photos.push({ id:pid, url:p.dataUrl }); }
+
   const scores = r.scores || {};
   const scoreBars = SLIDERS.map(s => {
     const v = scores[s.id] || 3;
     return `<div class="dscore-row"><span class="dscore-name">${s.name}</span><div class="dscore-bar-bg"><div class="dscore-bar-fill" style="width:${Math.round(v/5*100)}%"></div></div><span class="dscore-val">${v}</span></div>`;
   }).join('');
-  const flavorHtml = (r.flavors || []).map(f => {
-    if (typeof f === 'object') {
-      const style = FTAG_DETAIL_STYLE[FTAG_COLORS[f.group]] || '';
+
+  const flavorHtml = (r.flavors||[]).map(f => {
+    if (typeof f==='object') {
+      const style = FTAG_STYLE[FTAG_CLS[f.group]] || '';
       return `<span class="detail-ftag" style="${style}">${esc(f.text)}</span>`;
     }
     return `<span class="detail-ftag" style="background:var(--bg2);color:var(--text2)">${esc(f)}</span>`;
   }).join('');
 
   document.getElementById('ov-body').innerHTML = `
-    ${photos.length ? `<div class="detail-photos">${photos.map(d => `<div class="detail-photo" data-src="${d}"><img src="${d}" alt="" loading="lazy"></div>`).join('')}</div>` : ''}
-    <div class="detail-row"><span class="detail-label">飲んだ日</span><span class="detail-value">${r.date || '—'}</span></div>
-    ${r.type ? `<div class="detail-row"><span class="detail-label">種類</span><span class="detail-value">${esc(r.type)}</span></div>` : ''}
+    ${photos.length ? `
+      <div class="detail-photos-scroll">
+        ${photos.map(p => `<div class="detail-photo-wrap" data-src="${p.url}"><img src="${p.url}" alt="" loading="lazy"></div>`).join('')}
+      </div>` : ''}
+    <div class="detail-row"><span class="detail-label">飲んだ日</span><span class="detail-value">${r.date||'—'}</span></div>
+    ${r.type   ? `<div class="detail-row"><span class="detail-label">種類</span><span class="detail-value">${esc(r.type)}</span></div>` : ''}
     ${r.region ? `<div class="detail-row"><span class="detail-label">産地・蔵元</span><span class="detail-value">${esc(r.region)}</span></div>` : ''}
-    <div class="detail-row"><span class="detail-label">評価</span><span class="detail-value">${starsHtml(r.rating)}</span></div>
+    <div class="detail-row"><span class="detail-label">評価</span><span class="detail-value">${starsHtml(r.rating,16)}</span></div>
     <div class="detail-scores"><div class="detail-scores-title">テイスティングスコア</div>${scoreBars}</div>
     ${flavorHtml ? `<div class="detail-flavors"><div class="detail-flavors-title">風味の特徴</div><div class="detail-ftag-wrap">${flavorHtml}</div></div>` : ''}
     ${r.memo ? `<div class="detail-note">${esc(r.memo)}</div>` : ''}
-    <button class="btn-delete" data-id="${r.id}">この記録を削除</button>
+    <div class="detail-actions">
+      <button class="btn-edit" id="detail-edit-btn">編集</button>
+      <button class="btn-delete" id="detail-del-btn">削除</button>
+    </div>
   `;
-  document.querySelectorAll('.detail-photo').forEach(el => el.addEventListener('click', () => {
+
+  document.querySelectorAll('.detail-photo-wrap').forEach(el => el.addEventListener('click', () => {
     document.getElementById('lb-img').src = el.dataset.src;
     document.getElementById('lightbox').classList.add('open');
   }));
-  document.querySelector('.btn-delete').addEventListener('click', async () => {
+  document.getElementById('detail-edit-btn').addEventListener('click', () => {
+    document.getElementById('ov-detail').classList.remove('open');
+    openForm(r);
+  });
+  document.getElementById('detail-del-btn').addEventListener('click', async () => {
     if (!confirm('この記録を削除しますか？')) return;
-    for (const pid of (r.photoIds || [])) await dbDel('photos', pid);
+    for (const pid of (r.photoIds||[])) await dbDel('photos', pid);
     await dbDel('records', id);
     records = records.filter(x => x.id !== id);
-    closeOverlay(); renderList();
+    document.getElementById('ov-detail').classList.remove('open');
+    renderList();
   });
-  document.getElementById('overlay').classList.add('open');
+
+  document.getElementById('ov-detail').classList.add('open');
 }
 
-function closeOverlay() { document.getElementById('overlay').classList.remove('open'); }
-
+/* ── Stats ── */
 function renderStats() {
   const n = records.length;
   document.getElementById('st-count').textContent = n;
-  if (!n) { ['st-avg','st-types','st-regions'].forEach(id => document.getElementById(id).textContent = id === 'st-avg' ? '—' : '0'); return; }
+  if (!n) {
+    ['st-avg','st-types','st-regions'].forEach(id => document.getElementById(id).textContent = id==='st-avg'?'—':'0');
+    return;
+  }
   const rated = records.filter(r => r.rating > 0);
   document.getElementById('st-avg').textContent = rated.length ? (rated.reduce((s,r)=>s+r.rating,0)/rated.length).toFixed(1) : '—';
   document.getElementById('st-types').textContent = new Set(records.map(r=>r.type).filter(Boolean)).size;
   document.getElementById('st-regions').textContent = new Set(records.map(r=>r.region).filter(Boolean)).size;
 
-  // Type chart
   const tc = {}; records.forEach(r => { if(r.type) tc[r.type]=(tc[r.type]||0)+1; });
-  const maxT = Math.max(...Object.values(tc), 1);
-  document.getElementById('type-chart').innerHTML = Object.entries(tc).sort((a,b)=>b[1]-a[1]).map(([k,v]) =>
+  const maxT = Math.max(...Object.values(tc),1);
+  document.getElementById('type-chart').innerHTML = Object.entries(tc).sort((a,b)=>b[1]-a[1]).map(([k,v])=>
     `<div class="bar-row"><div class="bar-meta"><span>${esc(k)}</span><span>${v}本</span></div><div class="bar-bg"><div class="bar-fill" style="width:${Math.round(v/maxT*100)}%;background:#378ADD"></div></div></div>`
   ).join('') || '<p style="font-size:13px;color:var(--text3)">記録がありません</p>';
 
-  // Flavor chart
   const fc = {};
-  records.forEach(r => (r.flavors||[]).forEach(f => {
-    const key = typeof f === 'object' ? f.text : f;
-    fc[key] = (fc[key]||0)+1;
-  }));
-  const maxF = Math.max(...Object.values(fc), 1);
-  document.getElementById('flavor-chart').innerHTML = Object.entries(fc).sort((a,b)=>b[1]-a[1]).slice(0,8).map(([k,v]) =>
+  records.forEach(r => (r.flavors||[]).forEach(f => { const k=typeof f==='object'?f.text:f; fc[k]=(fc[k]||0)+1; }));
+  const maxF = Math.max(...Object.values(fc),1);
+  document.getElementById('flavor-chart').innerHTML = Object.entries(fc).sort((a,b)=>b[1]-a[1]).slice(0,8).map(([k,v])=>
     `<div class="bar-row"><div class="bar-meta"><span>${esc(k)}</span><span>${v}回</span></div><div class="bar-bg"><div class="bar-fill" style="width:${Math.round(v/maxF*100)}%;background:#854F0B"></div></div></div>`
   ).join('') || '<p style="font-size:13px;color:var(--text3)">記録がありません</p>';
 
-  // Average score chart
-  const avgScores = {};
+  const avgS = {};
   SLIDERS.forEach(s => {
-    const vals = records.map(r => r.scores && r.scores[s.id]).filter(v => v != null);
-    avgScores[s.id] = vals.length ? vals.reduce((a,b)=>a+b,0)/vals.length : 0;
+    const vals = records.map(r=>r.scores&&r.scores[s.id]).filter(v=>v!=null);
+    avgS[s.id] = vals.length ? vals.reduce((a,b)=>a+b,0)/vals.length : 0;
   });
   document.getElementById('score-chart').innerHTML = SLIDERS.map(s => {
-    const v = avgScores[s.id];
+    const v = avgS[s.id];
     return `<div class="bar-row"><div class="bar-meta"><span>${s.name}</span><span>${v.toFixed(1)} / 5</span></div><div class="bar-bg"><div class="bar-fill" style="width:${Math.round(v/5*100)}%;background:var(--amber)"></div></div></div>`;
   }).join('');
 }
 
-function starsHtml(n) { return [1,2,3,4,5].map(i=>`<span style="color:${i<=n?'#c97b2e':'var(--border2)'};font-size:16px">★</span>`).join(''); }
-function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+/* ── Helpers ── */
+function starsHtml(n, size=16) {
+  return [1,2,3,4,5].map(i=>`<span style="color:${i<=n?'#c97b2e':'var(--border2)'};font-size:${size}px">★</span>`).join('');
+}
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
 
 init();
 </script>
