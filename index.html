@@ -246,6 +246,21 @@
     .lightbox.open { display: flex; }
     .lightbox img { max-width: 100%; max-height: 90vh; object-fit: contain; }
     .lightbox-close { position: absolute; top: 16px; right: 16px; background: rgba(255,255,255,0.2); border: none; color: #fff; width: 38px; height: 38px; border-radius: 50%; font-size: 22px; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+
+    /* ── TIPS ── */
+    .tips-btn { background: none; border: none; color: var(--blue-text); font-size: 16px; cursor: pointer; padding: 0 2px; -webkit-tap-highlight-color: transparent; line-height: 1; }
+    .tips-overlay { display: none; position: fixed; inset: 0; z-index: 200; background: rgba(0,0,0,0.5); align-items: flex-end; justify-content: center; }
+    .tips-overlay.open { display: flex; }
+    .tips-sheet { background: var(--bg); border-radius: var(--radius-lg) var(--radius-lg) 0 0; width: 100%; max-width: 480px; max-height: 80vh; display: flex; flex-direction: column; padding-bottom: env(safe-area-inset-bottom, 0px); }
+    .tips-header { display: flex; align-items: center; justify-content: space-between; padding: 16px 16px 12px; border-bottom: 0.5px solid var(--border); flex-shrink: 0; }
+    .tips-title { font-size: 15px; font-weight: 600; color: var(--text); }
+    .tips-close { background: none; border: none; font-size: 22px; color: var(--text2); cursor: pointer; padding: 0 4px; -webkit-tap-highlight-color: transparent; }
+    .tips-body { overflow-y: auto; padding: 14px 16px 24px; -webkit-overflow-scrolling: touch; }
+    .tips-item { margin-bottom: 16px; padding-bottom: 16px; border-bottom: 0.5px solid var(--border); }
+    .tips-item:last-child { border-bottom: none; margin-bottom: 0; }
+    .tips-tag { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+    .tips-desc { font-size: 13px; color: var(--text2); line-height: 1.6; margin-bottom: 6px; }
+    .tips-hint { font-size: 12px; color: var(--blue-text); background: var(--blue-bg); padding: 4px 10px; border-radius: 999px; display: inline-block; }
   </style>
 </head>
 <body>
@@ -382,7 +397,10 @@
       </div>
 
       <div id="aroma-sub-wrap" style="display:none">
-        <div class="ftag-group-label">詳細（最大2つ）</div>
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px">
+          <span class="ftag-group-label" style="margin-bottom:0">詳細（最大2つ）</span>
+          <button class="tips-btn" id="tips-btn" type="button">ⓘ</button>
+        </div>
         <div class="ftag-wrap" id="aroma-sub-tags"></div>
       </div>
     </div>
@@ -465,6 +483,17 @@
   <img id="lb-img" src="" alt="">
 </div>
 
+<!-- TIPS overlay -->
+<div class="tips-overlay" id="tips-overlay">
+  <div class="tips-sheet">
+    <div class="tips-header">
+      <div class="tips-title" id="tips-title"></div>
+      <button class="tips-close" id="tips-close">×</button>
+    </div>
+    <div class="tips-body" id="tips-body"></div>
+  </div>
+</div>
+
 <script>
 /* ── Constants ── */
 const SLIDERS = [
@@ -476,9 +505,39 @@ const SLIDERS = [
 const AROMA_SUB = {
   'フルーティ':  ['りんご','洋梨','バナナ','メロン','柑橘','トロピカル'],
   'フローラル':  ['白い花','華やか'],
-  '穀物・米':    ['炊いた米','麹','ナッツ'],
+  '穀物・米':    ['炊いた米','蒸米','麹','ナッツ'],
   '乳酸・発酵':  ['ヨーグルト','クリーム'],
   '熟成・重厚':  ['カラメル','はちみつ','ナッツ'],
+};
+
+const AROMA_TIPS = {
+  'フルーティ': [
+    { tag:'りんご',     desc:'シャープでみずみずしいりんごの香り。',         hint:'スッキリしたフルーツ感ならこれ' },
+    { tag:'洋梨',       desc:'やわらかく甘い、少しクリーミーな果実感。',     hint:'まろやかなフルーツ感ならこれ' },
+    { tag:'バナナ',     desc:'甘くやや重めの果実香。吟醸に多い。',           hint:'甘くてねっとりした感じならこれ' },
+    { tag:'メロン',     desc:'華やかで甘い、ふくよかな果実感。',             hint:'甘みが強くリッチな印象ならこれ' },
+    { tag:'柑橘',       desc:'爽やかで軽い酸味を伴う果実香。',               hint:'ほのかな酸味と爽快感ならこれ' },
+    { tag:'トロピカル', desc:'パイナップル・マンゴー系の南国フルーツ感。',   hint:'エキゾチックで甘い香りならこれ' },
+  ],
+  'フローラル': [
+    { tag:'白い花',     desc:'ジャスミン・スズランのような清楚な花の香り。', hint:'上品でやさしい花の印象ならこれ' },
+    { tag:'華やか',     desc:'バラやユリのような存在感のある花の香り。',     hint:'はっきりした花の香りを感じたらこれ' },
+  ],
+  '穀物・米': [
+    { tag:'炊いた米',   desc:'ふっくら温かみのある、ごはんの湯気の香り。',  hint:'白いご飯っぽいと感じたらこれ' },
+    { tag:'蒸米',       desc:'ドライで素朴な、炊く前に近い米の香り。',      hint:'炊いた米より軽くて硬い印象ならこれ' },
+    { tag:'麹',         desc:'甘酒のような発酵由来のやさしい甘い香り。',    hint:'甘酒っぽさを感じたらこれ' },
+    { tag:'ナッツ',     desc:'軽くローストしたような穏やかな香ばしさ。',    hint:'少し香ばしいと感じたらこれ' },
+  ],
+  '乳酸・発酵': [
+    { tag:'ヨーグルト', desc:'爽やかな酸味と乳製品のまろやかさ。',          hint:'酸っぱさとクリーミーさを感じたらこれ' },
+    { tag:'クリーム',   desc:'まろやかでやさしいミルク系の香り。',          hint:'酸味より乳のまろやかさが勝ればこれ' },
+  ],
+  '熟成・重厚': [
+    { tag:'カラメル',   desc:'焦がした砂糖のような甘くほろ苦い香り。',      hint:'甘くて少し焦げた印象ならこれ' },
+    { tag:'はちみつ',   desc:'濃厚でとろりとした甘い香り。',                hint:'甘さが重くとろみを感じたらこれ' },
+    { tag:'ナッツ',     desc:'アーモンド系の穏やかな香ばしさとコク。',      hint:'香ばしくてコクがある印象ならこれ' },
+  ],
 };
 
 const TASTE_SLIDERS = [
@@ -565,6 +624,7 @@ function buildSliders() {
 function updateAromaSubTags(mainVal) {
   const wrap = document.getElementById('aroma-sub-wrap');
   const subTags = document.getElementById('aroma-sub-tags');
+  const tipsBtn = document.getElementById('tips-btn');
   if (!mainVal || !AROMA_SUB[mainVal]) { wrap.style.display = 'none'; subTags.innerHTML = ''; return; }
   wrap.style.display = 'block';
   subTags.innerHTML = AROMA_SUB[mainVal].map(t => `<span class="ftag-check">${t}</span>`).join('');
@@ -575,6 +635,25 @@ function updateAromaSubTags(mainVal) {
       else if (selected.length < 2) { el.classList.add('on-check'); }
     });
   });
+  // iボタンのイベントを付け替え
+  if (tipsBtn) {
+    tipsBtn.onclick = () => openTips(mainVal);
+    tipsBtn.style.display = AROMA_TIPS[mainVal] ? 'inline' : 'none';
+  }
+}
+
+function openTips(mainVal) {
+  const tips = AROMA_TIPS[mainVal];
+  if (!tips) return;
+  document.getElementById('tips-title').textContent = mainVal + ' チートシート';
+  document.getElementById('tips-body').innerHTML = tips.map(t => `
+    <div class="tips-item">
+      <div class="tips-tag">■ ${t.tag}</div>
+      <div class="tips-desc">${t.desc}</div>
+      <span class="tips-hint">💡 ${t.hint}</span>
+    </div>
+  `).join('');
+  document.getElementById('tips-overlay').classList.add('open');
 }
 
 /* ── Events ── */
@@ -625,6 +704,10 @@ function setupEvents() {
   // Lightbox
   document.getElementById('lb-close').addEventListener('click', () => document.getElementById('lightbox').classList.remove('open'));
   document.getElementById('lightbox').addEventListener('click', e => { if (e.target === e.currentTarget) e.currentTarget.classList.remove('open'); });
+
+  // TIPS overlay
+  document.getElementById('tips-close').addEventListener('click', () => document.getElementById('tips-overlay').classList.remove('open'));
+  document.getElementById('tips-overlay').addEventListener('click', e => { if (e.target === e.currentTarget) e.currentTarget.classList.remove('open'); });
 }
 
 /* ── Photo handling ── */
