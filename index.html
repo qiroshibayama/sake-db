@@ -126,13 +126,15 @@
     textarea { resize: none; height: 90px; font-family: inherit; line-height: 1.5; }
     .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 
-    .stars { display: flex; gap: 2px; padding: 4px 0; }
-    .star-wrap { position: relative; display: inline-flex; width: 36px; height: 36px; cursor: pointer; -webkit-tap-highlight-color: transparent; }
-    .star-half, .star-full { position: absolute; top: 0; font-size: 32px; line-height: 36px; color: var(--border2); transition: color 0.1s; pointer-events: none; }
-    .star-half { left: 0; width: 50%; overflow: hidden; }
-    .star-full { left: 0; width: 100%; text-align: center; }
-    .star-half.active { color: var(--amber); }
-    .star-full.active { color: var(--amber); }
+    .stars { display: flex; gap: 4px; padding: 4px 0; }
+    .star-wrap { position: relative; display: inline-flex; width: 38px; height: 38px; cursor: pointer; -webkit-tap-highlight-color: transparent; flex-shrink: 0; }
+    .star-svg { position: absolute; top: 0; left: 0; width: 38px; height: 38px; pointer-events: none; transition: opacity 0.1s; }
+    .star-svg-half { position: absolute; top: 0; left: 0; width: 38px; height: 38px; pointer-events: none; opacity: 0; }
+    .star-svg-full { opacity: 1; }
+    .star-wrap.s-half .star-svg-half { opacity: 1; }
+    .star-wrap.s-half .star-svg-full { opacity: 0; }
+    .star-wrap.s-empty .star-svg-full { opacity: 0.18; }
+    .star-wrap.s-empty .star-svg-half { opacity: 0; }
 
     /* Photos */
     .photo-upload-area {
@@ -370,7 +372,7 @@
         <select id="f-type">
           <option value="">選択...</option>
           <option>純米大吟醸</option><option>大吟醸</option><option>純米吟醸</option>
-          <option>純米酒</option><option>吟醸酒</option><option>本醸造</option>
+          <option>特別純米</option><option>純米酒</option><option>吟醸酒</option><option>本醸造</option>
           <option>にごり酒</option><option>スパークリング</option><option>古酒</option><option>その他</option>
         </select>
       </div>
@@ -387,11 +389,11 @@
     <div class="field">
       <label>総合評価 <span id="rating-label" style="font-size:13px;color:var(--text2);font-weight:400">未評価</span></label>
       <div class="stars" id="stars">
-        <span class="star-wrap" data-full="1"><span class="star-half" data-v="0.5">◐</span><span class="star-full" data-v="1">★</span></span>
-        <span class="star-wrap" data-full="2"><span class="star-half" data-v="1.5">◐</span><span class="star-full" data-v="2">★</span></span>
-        <span class="star-wrap" data-full="3"><span class="star-half" data-v="2.5">◐</span><span class="star-full" data-v="3">★</span></span>
-        <span class="star-wrap" data-full="4"><span class="star-half" data-v="3.5">◐</span><span class="star-full" data-v="4">★</span></span>
-        <span class="star-wrap" data-full="5"><span class="star-half" data-v="4.5">◐</span><span class="star-full" data-v="5">★</span></span>
+        <span class="star-wrap s-empty" data-full="1"></span>
+        <span class="star-wrap s-empty" data-full="2"></span>
+        <span class="star-wrap s-empty" data-full="3"></span>
+        <span class="star-wrap s-empty" data-full="4"></span>
+        <span class="star-wrap s-empty" data-full="5"></span>
       </div>
     </div>
 
@@ -555,8 +557,34 @@
   </div>
 </div>
 
+<!-- 象限リスト overlay -->
+<div class="tips-overlay" id="ov-quadrant">
+  <div class="tips-sheet">
+    <div class="tips-header">
+      <div class="tips-title" id="ov-quad-title"></div>
+      <button class="tips-close" id="ov-quad-close">×</button>
+    </div>
+    <div class="tips-body" id="ov-quad-body"></div>
+  </div>
+</div>
+
 <script>
 /* ── Constants ── */
+const STAR_FULL_PATH = 'm19.555 23.411-6.664-3.285c-.163-.082-.355-.13-.559-.13-.235 0-.455.064-.643.175l.006-.003-6.416 3.75c-.086.05-.19.079-.3.079-.336 0-.609-.273-.609-.609 0-.033.003-.064.007-.096v.003l.994-7.542c.007-.049.011-.105.011-.162 0-.364-.155-.691-.403-.92l-.001-.001-4.571-4.247c-.248-.231-.402-.56-.402-.924 0-.625.454-1.144 1.05-1.246l.007-.001 5.987-1.108c.421-.078.765-.355.935-.727l.003-.008 2.491-5.663c.204-.444.646-.746 1.157-.746.48 0 .897.266 1.114.659l.003.007 2.881 5.471c.197.365.558.62.981.666h.006l6.045.681c.647.061 1.149.601 1.149 1.259 0 .332-.128.635-.338.86l.001-.001-4.27 4.562c-.211.224-.341.527-.341.86 0 .088.009.173.026.256l-.001-.008 1.52 7.453c.009.04.015.086.015.134 0 .337-.273.61-.61.61-.095 0-.185-.022-.265-.061l.004.002z';
+const STAR_HALF_PATH = 'M11.9997 1C11.6059 1 11.2487 1.2312 11.0874 1.59053L8.27041 7.86702L1.43062 8.60661C1.03903 8.64895 0.708778 8.91721 0.587066 9.2918C0.465355 9.66639 0.574861 10.0775 0.866772 10.342L5.96556 14.9606L4.55534 21.6942C4.4746 22.0797 4.62768 22.4767 4.94632 22.7082C5.26497 22.9397 5.68983 22.9626 6.03151 22.7667L11.9997 19.3447V1Z';
+const AMBER = '#c97b2e';
+const STAR_EMPTY_OPACITY = '0.18';
+
+function makeStar(size=38) {
+  return `
+    <svg class="star-svg star-svg-full" viewBox="0 0 24 24" width="${size}" height="${size}" xmlns="http://www.w3.org/2000/svg">
+      <path d="${STAR_FULL_PATH}" fill="${AMBER}"/>
+    </svg>
+    <svg class="star-svg star-svg-half" viewBox="0 0 24 24" width="${size}" height="${size}" xmlns="http://www.w3.org/2000/svg">
+      <path d="${STAR_HALF_PATH}" fill="${AMBER}"/>
+    </svg>`;
+}
+
 const SLIDERS = [
   { id:'sweet', name:'甘辛度', left:'辛口', right:'甘口' },
   { id:'acid',  name:'酸味',   left:'弱い', right:'強い' },
@@ -564,7 +592,7 @@ const SLIDERS = [
 ];
 
 const AROMA_SUB = {
-  'フルーティ':  ['りんご','洋梨','バナナ','メロン','柑橘','トロピカル'],
+  'フルーティ':  ['りんご','洋梨','バナナ','メロン','柑橘','トロピカル','マスカット','白桃'],
   'フローラル':  ['白い花','華やか'],
   '穀物・米':    ['炊いた米','蒸米','麹','ナッツ'],
   '乳酸・発酵':  ['ヨーグルト','クリーム'],
@@ -644,6 +672,8 @@ async function init() {
   } catch(e) {}
   records = await dbGetAll('records');
   records.sort((a,b) => b.id - a.id);
+  // star-wrapにSVGを挿入
+  document.querySelectorAll('.star-wrap').forEach(wrap => { wrap.innerHTML = makeStar(38); });
   buildSliders();
   setupEvents();
   renderList();
@@ -706,11 +736,10 @@ function updateAromaSubTags(mainVal) {
 function updateStars(val) {
   document.querySelectorAll('.star-wrap').forEach(wrap => {
     const full = parseInt(wrap.dataset.full);
-    const halfEl = wrap.querySelector('.star-half');
-    const fullEl = wrap.querySelector('.star-full');
-    if (val >= full) { fullEl.classList.add('active'); halfEl.classList.remove('active'); }
-    else if (val >= full - 0.5) { halfEl.classList.add('active'); fullEl.classList.remove('active'); }
-    else { fullEl.classList.remove('active'); halfEl.classList.remove('active'); }
+    wrap.classList.remove('s-full','s-half','s-empty');
+    if (val >= full)          wrap.classList.add('s-full');
+    else if (val >= full-0.5) wrap.classList.add('s-half');
+    else                      wrap.classList.add('s-empty');
   });
   const lbl = document.getElementById('rating-label');
   if (lbl) lbl.textContent = val > 0 ? `${val}` : '未評価';
@@ -787,6 +816,10 @@ function setupEvents() {
   // TIPS overlay
   document.getElementById('tips-close').addEventListener('click', () => document.getElementById('tips-overlay').classList.remove('open'));
   document.getElementById('tips-overlay').addEventListener('click', e => { if (e.target === e.currentTarget) e.currentTarget.classList.remove('open'); });
+
+  // 象限リストoverlay
+  document.getElementById('ov-quad-close').addEventListener('click', () => document.getElementById('ov-quadrant').classList.remove('open'));
+  document.getElementById('ov-quadrant').addEventListener('click', e => { if (e.target === e.currentTarget) e.currentTarget.classList.remove('open'); });
 
   // 気になった点トグル
   document.getElementById('concerns-toggle').addEventListener('click', () => {
@@ -1183,9 +1216,8 @@ async function renderStats() {
   } else {
     const PAD = 36, W = 300, H = 280, THUMB = 34;
     const plotW = W - PAD * 2, plotH = H - PAD * 2;
-    const cx = PAD + plotW / 2, cy = PAD + plotH / 2; // 中心（ニュートラル = 3）
+    const cx = PAD + plotW / 2, cy = PAD + plotH / 2;
 
-    // サムネイル読み込み
     const items = await Promise.all(favRecs.map(async r => {
       const pid = (r.photoIds||[])[r.mainPhotoIdx||0];
       let url = null;
@@ -1199,26 +1231,32 @@ async function renderStats() {
       return '#e05c3a';
     };
 
-    // 値を座標に変換（1〜5 → PAD〜PAD+plotW、中心が3）
     const toX = v => PAD + ((v - 1) / 4) * plotW;
     const toY = v => PAD + ((5 - v) / 4) * plotH;
+
+    // ジッター：同一座標の点を少しずらす
+    const seen = {};
+    const jitter = (x, y) => {
+      const key = `${Math.round(x)}_${Math.round(y)}`;
+      seen[key] = (seen[key] || 0);
+      const idx = seen[key]++;
+      if (idx === 0) return [x, y];
+      const angle = (idx - 1) * (Math.PI * 2 / 6) + Math.PI / 4;
+      const dist = Math.ceil(idx / 6) * (THUMB + 4);
+      return [x + Math.cos(angle) * dist, y + Math.sin(angle) * dist];
+    };
 
     const svgItems = items.map(({ r, url }) => {
       const sx = r.scores || {};
       const sweet = sx.sweet || 3;
       const aroma = sx.aroma || 3;
       const acid  = sx.acid  || 3;
-      const x = toX(sweet);
-      const y = toY(aroma);
+      const [x, y] = jitter(toX(sweet), toY(aroma));
       const color = acidColor(acid);
       const half = THUMB / 2;
       const clipId = `cl${r.id}`;
       return `
-        <defs>
-          <clipPath id="${clipId}">
-            <circle cx="${x}" cy="${y}" r="${half - 2}"/>
-          </clipPath>
-        </defs>
+        <defs><clipPath id="${clipId}"><circle cx="${x}" cy="${y}" r="${half - 2}"/></clipPath></defs>
         <circle cx="${x}" cy="${y}" r="${half}" fill="${color}" opacity="0.85"/>
         ${url
           ? `<image href="${url}" x="${x-half+2}" y="${y-half+2}" width="${THUMB-4}" height="${THUMB-4}" clip-path="url(#${clipId})" preserveAspectRatio="xMidYMid slice"/>`
@@ -1227,49 +1265,71 @@ async function renderStats() {
       `;
     }).join('');
 
+    // 四象限の定義（タップ領域）
+    const quadrants = [
+      { id:'q-tl', label:'辛×香り強', x:PAD,  y:PAD,  w:plotW/2, h:plotH/2, sweet:[1,3], aroma:[3,5] },
+      { id:'q-tr', label:'甘×香り強', x:cx,   y:PAD,  w:plotW/2, h:plotH/2, sweet:[3,5], aroma:[3,5] },
+      { id:'q-bl', label:'辛×香り弱', x:PAD,  y:cy,   w:plotW/2, h:plotH/2, sweet:[1,3], aroma:[1,3] },
+      { id:'q-br', label:'甘×香り弱', x:cx,   y:cy,   w:plotW/2, h:plotH/2, sweet:[3,5], aroma:[1,3] },
+    ];
+
+    const quadRects = quadrants.map(q => `
+      <rect id="${q.id}" x="${q.x}" y="${q.y}" width="${q.w}" height="${q.h}"
+        fill="transparent" style="cursor:pointer"
+        data-label="${q.label}" data-sweet="${q.sweet}" data-aroma="${q.aroma}"/>
+    `).join('');
+
     mapWrap.innerHTML = `
       <div style="overflow-x:auto">
         <svg viewBox="0 0 ${W} ${H}" style="width:100%;max-width:${W}px;display:block">
-
-          <!-- 象限背景（薄く色分け） -->
           <rect x="${PAD}" y="${PAD}" width="${plotW/2}" height="${plotH/2}" fill="rgba(201,123,46,0.04)"/>
-          <rect x="${cx}" y="${PAD}" width="${plotW/2}" height="${plotH/2}" fill="rgba(201,123,46,0.08)"/>
-          <rect x="${PAD}" y="${cy}" width="${plotW/2}" height="${plotH/2}" fill="rgba(0,0,0,0.02)"/>
-          <rect x="${cx}" y="${cy}" width="${plotW/2}" height="${plotH/2}" fill="rgba(0,0,0,0.03)"/>
-
-          <!-- 補助グリッド（薄い） -->
+          <rect x="${cx}"  y="${PAD}" width="${plotW/2}" height="${plotH/2}" fill="rgba(201,123,46,0.08)"/>
+          <rect x="${PAD}" y="${cy}"  width="${plotW/2}" height="${plotH/2}" fill="rgba(0,0,0,0.02)"/>
+          <rect x="${cx}"  y="${cy}"  width="${plotW/2}" height="${plotH/2}" fill="rgba(0,0,0,0.03)"/>
           ${[1,2,4,5].map(i => {
             const gx = toX(i), gy = toY(i);
             return `<line x1="${gx}" y1="${PAD}" x2="${gx}" y2="${PAD+plotH}" stroke="var(--border)" stroke-width="0.5" stroke-dasharray="3,3"/>
                     <line x1="${PAD}" y1="${gy}" x2="${PAD+plotW}" y2="${gy}" stroke="var(--border)" stroke-width="0.5" stroke-dasharray="3,3"/>`;
           }).join('')}
-
-          <!-- 中央軸（強調） -->
           <line x1="${cx}" y1="${PAD}" x2="${cx}" y2="${PAD+plotH}" stroke="var(--border2)" stroke-width="1"/>
           <line x1="${PAD}" y1="${cy}" x2="${PAD+plotW}" y2="${cy}" stroke="var(--border2)" stroke-width="1"/>
-
-          <!-- 外枠 -->
           <rect x="${PAD}" y="${PAD}" width="${plotW}" height="${plotH}" fill="none" stroke="var(--border2)" stroke-width="0.5"/>
-
-          <!-- 軸端ラベル -->
-          <text x="${cx}" y="${PAD - 6}" text-anchor="middle" font-size="10" fill="var(--text2)" font-weight="500">香り強</text>
+          <text x="${cx}" y="${PAD-6}" text-anchor="middle" font-size="10" fill="var(--text2)" font-weight="500">香り強</text>
           <text x="${cx}" y="${PAD+plotH+14}" text-anchor="middle" font-size="10" fill="var(--text2)" font-weight="500">香り弱</text>
-          <text x="${PAD - 4}" y="${cy+4}" text-anchor="end" font-size="10" fill="var(--text2)" font-weight="500">辛口</text>
+          <text x="${PAD-4}" y="${cy+4}" text-anchor="end" font-size="10" fill="var(--text2)" font-weight="500">辛口</text>
           <text x="${PAD+plotW+4}" y="${cy+4}" text-anchor="start" font-size="10" fill="var(--text2)" font-weight="500">甘口</text>
-
-          <!-- 象限ラベル（薄く） -->
-          <text x="${PAD+8}" y="${PAD+14}" font-size="9" fill="var(--text3)">辛×香り強</text>
-          <text x="${cx+6}" y="${PAD+14}" font-size="9" fill="var(--text3)">甘×香り強</text>
-          <text x="${PAD+8}" y="${PAD+plotH-6}" font-size="9" fill="var(--text3)">辛×香り弱</text>
-          <text x="${cx+6}" y="${PAD+plotH-6}" font-size="9" fill="var(--text3)">甘×香り弱</text>
-
+          <text x="${PAD+6}" y="${PAD+13}" font-size="9" fill="var(--text3)">辛×香り強</text>
+          <text x="${cx+6}" y="${PAD+13}" font-size="9" fill="var(--text3)">甘×香り強</text>
+          <text x="${PAD+6}" y="${PAD+plotH-5}" font-size="9" fill="var(--text3)">辛×香り弱</text>
+          <text x="${cx+6}" y="${PAD+plotH-5}" font-size="9" fill="var(--text3)">甘×香り弱</text>
+          ${quadRects}
           ${svgItems}
         </svg>
       </div>
     `;
 
+    // ドットタップ → 詳細
     mapWrap.querySelectorAll('.map-dot').forEach(el => {
-      el.addEventListener('click', () => openDetail(parseInt(el.dataset.id)));
+      el.addEventListener('click', e => {
+        e.stopPropagation();
+        openDetail(parseInt(el.dataset.id));
+      });
+    });
+
+    // 象限タップ → エリアリスト表示
+    quadrants.forEach(q => {
+      const el = mapWrap.querySelector(`#${q.id}`);
+      if (!el) return;
+      el.addEventListener('click', () => {
+        const [sMin, sMax] = q.sweet;
+        const [aMin, aMax] = q.aroma;
+        const hits = favRecs.filter(r => {
+          const sx = r.scores || {};
+          const sv = sx.sweet || 3, av = sx.aroma || 3;
+          return sv >= sMin && sv <= sMax && av >= aMin && av <= aMax;
+        });
+        showQuadrantList(q.label, hits);
+      });
     });
   }
 
@@ -1296,11 +1356,36 @@ async function renderStats() {
 }
 
 /* ── Helpers ── */
-function starsHtml(n, size=16) {
+function showQuadrantList(label, recs) {
+  const ov = document.getElementById('ov-quadrant');
+  document.getElementById('ov-quad-title').textContent = label + `（${recs.length}本）`;
+  document.getElementById('ov-quad-body').innerHTML = recs.length
+    ? recs.map(r => `
+        <div class="record-card" data-id="${r.id}" style="margin-bottom:10px">
+          <div class="rc-top">
+            <div><div class="rc-name">${esc(r.name)}</div><div class="rc-date">${r.date||''}</div></div>
+            <div class="rc-stars">${starsHtml(r.rating,14)}</div>
+          </div>
+          <div class="rc-badges">
+            ${r.type?`<span class="badge b-type">${esc(r.type)}</span>`:''}
+            ${r.region?`<span class="badge b-region">${esc(r.region)}</span>`:''}
+          </div>
+        </div>`).join('')
+    : '<p style="font-size:13px;color:var(--text3);padding:20px 0;text-align:center">このエリアに記録がありません</p>';
+  ov.classList.add('open');
+  ov.querySelectorAll('.record-card').forEach(card => {
+    card.addEventListener('click', () => {
+      ov.classList.remove('open');
+      openDetail(parseInt(card.dataset.id));
+    });
+  });
+}
+
+function starsHtml(n, size=18) {
   return [1,2,3,4,5].map(i => {
-    if (n >= i) return `<span style="color:var(--amber);font-size:${size}px">★</span>`;
-    if (n >= i - 0.5) return `<span style="color:var(--amber);font-size:${size}px">◐</span>`;
-    return `<span style="color:var(--border2);font-size:${size}px">★</span>`;
+    if (n >= i) return `<svg viewBox="0 0 24 24" width="${size}" height="${size}" style="display:inline-block;vertical-align:middle" xmlns="http://www.w3.org/2000/svg"><path d="${STAR_FULL_PATH}" fill="${AMBER}"/></svg>`;
+    if (n >= i-0.5) return `<svg viewBox="0 0 24 24" width="${size}" height="${size}" style="display:inline-block;vertical-align:middle" xmlns="http://www.w3.org/2000/svg"><path d="${STAR_HALF_PATH}" fill="${AMBER}"/></svg>`;
+    return `<svg viewBox="0 0 24 24" width="${size}" height="${size}" style="display:inline-block;vertical-align:middle;opacity:${STAR_EMPTY_OPACITY}" xmlns="http://www.w3.org/2000/svg"><path d="${STAR_FULL_PATH}" fill="${AMBER}"/></svg>`;
   }).join('');
 }
 function esc(s) {
