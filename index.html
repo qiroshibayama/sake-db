@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#ffffff">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="日本酒ノート">
+  <title>日本酒ノート</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #ffffff;
+      --bg2: #f5f5f0;
+      --bg3: #eeeee8;
+      --text: #1a1a1a;
+      --text2: #666660;
+      --text3: #aaaaaa;
+      --border: rgba(0,0,0,0.12);
+      --border2: rgba(0,0,0,0.22);
+      --radius: 10px;
+      --radius-lg: 14px;
+      --amber: #c97b2e;
+      --blue: #185FA5;
+      --blue-bg: #E6F1FB;
+      --blue-text: #0C447C;
+      --green: #3B6D11;
+      --green-bg: #EAF3DE;
+      --green-text: #27500A;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #1c1c1e;
+        --bg2: #2c2c2e;
+        --bg3: #3a3a3c;
+        --text: #f2f2f7;
+        --text2: #aeaeb2;
+        --text3: #636366;
+        --border: rgba(255,255,255,0.12);
+        --border2: rgba(255,255,255,0.22);
+        --blue-bg: #0c2d4a;
+        --blue-text: #85B7EB;
+        --green-bg: #1a2e0a;
+        --green-text: #97C459;
+      }
+    }
+
+    html, body {
+      height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, 'Hiragino Sans', 'Noto Sans JP', sans-serif;
+      font-size: 16px;
+      -webkit-font-smoothing: antialiased;
+      overscroll-behavior: none;
+    }
+
+    .app {
+      max-width: 480px;
+      margin: 0 auto;
+      min-height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Header */
+    .header {
+      padding: 16px 16px 0;
+      flex-shrink: 0;
+    }
+    .header-title { font-size: 20px; font-weight: 600; color: var(--text); }
+    .header-sub { font-size: 13px; color: var(--text3); margin-top: 2px; }
+
+    /* Bottom nav */
+    .nav {
+      display: flex;
+      border-top: 0.5px solid var(--border);
+      background: var(--bg);
+      flex-shrink: 0;
+      padding-bottom: env(safe-area-inset-bottom, 0px);
+    }
+    .nav-btn {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 10px 0 8px;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .nav-icon { font-size: 22px; line-height: 1; }
+    .nav-label { font-size: 10px; color: var(--text3); }
+    .nav-btn.active .nav-label { color: var(--text); font-weight: 600; }
+
+    /* Screens */
+    .screens { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+    .screen { display: none; padding: 0 16px 32px; }
+    .screen.active { display: block; }
+
+    .sec-title { font-size: 15px; font-weight: 600; color: var(--text); margin: 20px 0 14px; }
+
+    /* Form */
+    .field { margin-bottom: 18px; }
+    .field label {
+      display: block;
+      font-size: 13px;
+      color: var(--text2);
+      margin-bottom: 7px;
+      font-weight: 500;
+    }
+    input[type=text], input[type=date], select, textarea {
+      width: 100%;
+      padding: 13px 12px;
+      font-size: 16px;
+      background: var(--bg2);
+      border: 0.5px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--text);
+      -webkit-appearance: none;
+      outline: none;
+    }
+    input[type=text]:focus, input[type=date]:focus, select:focus, textarea:focus {
+      border-color: var(--border2);
+      background: var(--bg);
+    }
+    textarea {
+      resize: none;
+      height: 90px;
+      font-family: inherit;
+      line-height: 1.5;
+    }
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+    /* Stars */
+    .stars { display: flex; gap: 6px; padding: 4px 0; }
+    .star {
+      font-size: 36px;
+      cursor: pointer;
+      color: var(--border2);
+      -webkit-tap-highlight-color: transparent;
+      transition: transform 0.1s;
+      line-height: 1;
+    }
+    .star.active { color: var(--amber); }
+    .star:active { transform: scale(0.82); }
+
+    /* Flavor tags */
+    .ftag-wrap { display: flex; flex-wrap: wrap; gap: 8px; }
+    .ftag {
+      font-size: 14px;
+      padding: 9px 14px;
+      border-radius: 999px;
+      background: var(--bg2);
+      color: var(--text2);
+      border: 0.5px solid var(--border);
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      transition: all 0.15s;
+      user-select: none;
+    }
+    .ftag.on {
+      background: var(--blue-bg);
+      color: var(--blue-text);
+      border-color: transparent;
+      font-weight: 500;
+    }
+
+    /* Sliders */
+    .slider-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 6px 0;
+    }
+    .slider-wrap input[type=range] {
+      flex: 1;
+      -webkit-appearance: none;
+      height: 44px;
+      background: transparent;
+      padding: 0;
+      border: none;
+    }
+    .slider-wrap input[type=range]::-webkit-slider-runnable-track {
+      height: 4px;
+      background: var(--bg3);
+      border-radius: 2px;
+    }
+    .slider-wrap input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: var(--text);
+      margin-top: -11px;
+    }
+    .slider-end { font-size: 12px; color: var(--text3); white-space: nowrap; }
+    .slider-val {
+      font-size: 16px;
+      font-weight: 600;
+      min-width: 22px;
+      text-align: center;
+      color: var(--text);
+    }
+
+    /* Save button */
+    .btn-save {
+      width: 100%;
+      padding: 17px;
+      background: var(--text);
+      color: var(--bg);
+      border: none;
+      border-radius: var(--radius-lg);
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 8px;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .btn-save:active { opacity: 0.75; transform: scale(0.98); }
+
+    /* List */
+    .record-card {
+      background: var(--bg);
+      border: 0.5px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 16px;
+      margin-bottom: 12px;
+    }
+    .rc-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+    .rc-name { font-size: 17px; font-weight: 600; color: var(--text); }
+    .rc-date { font-size: 12px; color: var(--text3); margin-top: 3px; }
+    .rc-stars { font-size: 16px; white-space: nowrap; flex-shrink: 0; }
+    .rc-badges { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
+    .badge { font-size: 12px; padding: 4px 10px; border-radius: 999px; font-weight: 500; }
+    .b-type { background: var(--blue-bg); color: var(--blue-text); }
+    .b-region { background: var(--green-bg); color: var(--green-text); }
+    .rc-flavors { font-size: 13px; color: var(--text2); margin-top: 8px; line-height: 1.6; }
+    .rc-note { font-size: 13px; color: var(--text3); margin-top: 6px; font-style: italic; line-height: 1.5; }
+
+    .empty {
+      text-align: center;
+      padding: 60px 0;
+      color: var(--text3);
+      font-size: 14px;
+      line-height: 2.2;
+    }
+
+    /* Stats */
+    .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+    .stat-box {
+      background: var(--bg2);
+      border-radius: var(--radius);
+      padding: 16px;
+      text-align: center;
+    }
+    .stat-n { font-size: 30px; font-weight: 600; color: var(--text); }
+    .stat-l { font-size: 12px; color: var(--text2); margin-top: 4px; }
+    .chart-card {
+      background: var(--bg);
+      border: 0.5px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 16px;
+      margin-bottom: 12px;
+    }
+    .chart-title { font-size: 14px; font-weight: 600; margin-bottom: 14px; color: var(--text); }
+    .bar-row { margin-bottom: 12px; }
+    .bar-meta { display: flex; justify-content: space-between; font-size: 13px; color: var(--text2); margin-bottom: 5px; }
+    .bar-bg { background: var(--bg2); border-radius: 4px; height: 10px; overflow: hidden; }
+    .bar-fill { height: 10px; border-radius: 4px; }
+  </style>
+</head>
+<body>
+<div class="app">
+  <div class="header">
+    <div class="header-title">🍶 日本酒ノート</div>
+    <div class="header-sub">飲んだお酒を記録しよう</div>
+  </div>
+
+  <div class="screens" id="screens">
+
+    <!-- 記録画面 -->
+    <div id="s-add" class="screen active">
+      <div class="sec-title">新しく記録する</div>
+
+      <div class="field">
+        <label>酒の名前 *</label>
+        <input type="text" id="f-name" placeholder="例：獺祭 純米大吟醸" autocomplete="off">
+      </div>
+
+      <div class="grid2">
+        <div class="field">
+          <label>種類</label>
+          <select id="f-type">
+            <option value="">選択...</option>
+            <option>純米大吟醸</option>
+            <option>大吟醸</option>
+            <option>純米吟醸</option>
+            <option>純米酒</option>
+            <option>吟醸酒</option>
+            <option>本醸造</option>
+            <option>にごり酒</option>
+            <option>スパークリング</option>
+            <option>古酒</option>
+            <option>その他</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>飲んだ日</label>
+          <input type="date" id="f-date">
+        </div>
+      </div>
+
+      <div class="field">
+        <label>産地・蔵元</label>
+        <input type="text" id="f-region" placeholder="例：山口県 / 旭酒造" autocomplete="off">
+      </div>
+
+      <div class="field">
+        <label>総合評価</label>
+        <div class="stars" id="stars">
+          <span class="star" data-v="1">★</span>
+          <span class="star" data-v="2">★</span>
+          <span class="star" data-v="3">★</span>
+          <span class="star" data-v="4">★</span>
+          <span class="star" data-v="5">★</span>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>風味の特徴（タップで選択）</label>
+        <div class="ftag-wrap" id="ftags">
+          <span class="ftag">フルーティ</span>
+          <span class="ftag">甘口</span>
+          <span class="ftag">辛口</span>
+          <span class="ftag">すっきり</span>
+          <span class="ftag">コク深い</span>
+          <span class="ftag">香り高い</span>
+          <span class="ftag">旨み強い</span>
+          <span class="ftag">なめらか</span>
+          <span class="ftag">酸味</span>
+          <span class="ftag">キレがある</span>
+          <span class="ftag">熟成感</span>
+          <span class="ftag">後味すっきり</span>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>甘辛度</label>
+        <div class="slider-wrap">
+          <span class="slider-end">甘口</span>
+          <input type="range" id="f-sweet" min="1" max="5" value="3" step="1">
+          <span class="slider-end">辛口</span>
+          <span class="slider-val" id="sv-s">3</span>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>香りの強さ</label>
+        <div class="slider-wrap">
+          <span class="slider-end">控えめ</span>
+          <input type="range" id="f-aroma" min="1" max="5" value="3" step="1">
+          <span class="slider-end">華やか</span>
+          <span class="slider-val" id="sv-a">3</span>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>メモ・感想</label>
+        <textarea id="f-memo" placeholder="どこで飲んだか、合わせた料理、感想など..."></textarea>
+      </div>
+
+      <button class="btn-save" id="btn-save">記録する</button>
+    </div>
+
+    <!-- 一覧画面 -->
+    <div id="s-list" class="screen">
+      <div class="sec-title">記録一覧</div>
+      <div id="list-wrap"></div>
+    </div>
+
+    <!-- 統計画面 -->
+    <div id="s-stats" class="screen">
+      <div class="sec-title">統計</div>
+      <div class="stats-grid">
+        <div class="stat-box"><div class="stat-n" id="st-count">0</div><div class="stat-l">記録数</div></div>
+        <div class="stat-box"><div class="stat-n" id="st-avg">—</div><div class="stat-l">平均評価</div></div>
+        <div class="stat-box"><div class="stat-n" id="st-types">0</div><div class="stat-l">種類数</div></div>
+        <div class="stat-box"><div class="stat-n" id="st-regions">0</div><div class="stat-l">産地数</div></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">種類別の記録数</div>
+        <div id="type-chart"><p style="font-size:13px;color:var(--text3)">記録がありません</p></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">よく選んだ風味</div>
+        <div id="flavor-chart"><p style="font-size:13px;color:var(--text3)">記録がありません</p></div>
+      </div>
+    </div>
+
+  </div><!-- /screens -->
+
+  <nav class="nav">
+    <button class="nav-btn active" data-screen="add">
+      <span class="nav-icon">✏️</span>
+      <span class="nav-label">記録</span>
+    </button>
+    <button class="nav-btn" data-screen="list">
+      <span class="nav-icon">📋</span>
+      <span class="nav-label">一覧</span>
+    </button>
+    <button class="nav-btn" data-screen="stats">
+      <span class="nav-icon">📊</span>
+      <span class="nav-label">統計</span>
+    </button>
+  </nav>
+</div>
+
+<script>
+  // --- State ---
+  let records = [];
+  let rating = 0;
+
+  try { records = JSON.parse(localStorage.getItem('sake_note_v1') || '[]'); } catch(e) {}
+
+  // --- Init ---
+  document.getElementById('f-date').valueAsDate = new Date();
+
+  document.querySelectorAll('.ftag').forEach(el => {
+    el.addEventListener('click', () => el.classList.toggle('on'));
+  });
+
+  document.querySelectorAll('.star').forEach(s => {
+    s.addEventListener('click', () => {
+      rating = parseInt(s.dataset.v);
+      document.querySelectorAll('.star').forEach((st, i) => st.classList.toggle('active', i < rating));
+    });
+  });
+
+  document.getElementById('f-sweet').addEventListener('input', function() {
+    document.getElementById('sv-s').textContent = this.value;
+  });
+  document.getElementById('f-aroma').addEventListener('input', function() {
+    document.getElementById('sv-a').textContent = this.value;
+  });
+
+  // --- Nav ---
+  document.querySelectorAll('.nav-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const id = btn.dataset.screen;
+      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('s-' + id).classList.add('active');
+      document.getElementById('screens').scrollTop = 0;
+      if (id === 'list') renderList();
+      if (id === 'stats') renderStats();
+    });
+  });
+
+  // --- Save ---
+  document.getElementById('btn-save').addEventListener('click', () => {
+    const name = document.getElementById('f-name').value.trim();
+    if (!name) { alert('酒の名前を入力してください'); return; }
+    const flavors = [...document.querySelectorAll('.ftag.on')].map(el => el.textContent);
+    const rec = {
+      id: Date.now(),
+      name,
+      type: document.getElementById('f-type').value,
+      region: document.getElementById('f-region').value.trim(),
+      date: document.getElementById('f-date').value,
+      rating,
+      sweet: parseInt(document.getElementById('f-sweet').value),
+      aroma: parseInt(document.getElementById('f-aroma').value),
+      flavors,
+      memo: document.getElementById('f-memo').value.trim()
+    };
+    records.unshift(rec);
+    try { localStorage.setItem('sake_note_v1', JSON.stringify(records)); } catch(e) {}
+    resetForm();
+    alert('記録しました！');
+  });
+
+  function resetForm() {
+    ['f-name', 'f-region', 'f-memo'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('f-type').value = '';
+    document.getElementById('f-date').valueAsDate = new Date();
+    document.getElementById('f-sweet').value = 3;
+    document.getElementById('f-aroma').value = 3;
+    document.getElementById('sv-s').textContent = '3';
+    document.getElementById('sv-a').textContent = '3';
+    rating = 0;
+    document.querySelectorAll('.star').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.ftag').forEach(s => s.classList.remove('on'));
+  }
+
+  // --- Render helpers ---
+  function starsHtml(n) {
+    return [1,2,3,4,5].map(i =>
+      `<span style="color:${i <= n ? '#c97b2e' : 'var(--border2)'};font-size:16px">★</span>`
+    ).join('');
+  }
+
+  function renderList() {
+    const w = document.getElementById('list-wrap');
+    if (!records.length) {
+      w.innerHTML = '<div class="empty">まだ記録がありません。<br>最初の一杯を記録してみましょう！</div>';
+      return;
+    }
+    w.innerHTML = records.map(r => `
+      <div class="record-card">
+        <div class="rc-top">
+          <div>
+            <div class="rc-name">${escHtml(r.name)}</div>
+            <div class="rc-date">${r.date || ''}</div>
+          </div>
+          <div class="rc-stars">${starsHtml(r.rating)}</div>
+        </div>
+        <div class="rc-badges">
+          ${r.type ? `<span class="badge b-type">${escHtml(r.type)}</span>` : ''}
+          ${r.region ? `<span class="badge b-region">${escHtml(r.region)}</span>` : ''}
+        </div>
+        ${r.flavors && r.flavors.length ? `<div class="rc-flavors">${r.flavors.map(escHtml).join('　')}</div>` : ''}
+        ${r.memo ? `<div class="rc-note">"${escHtml(r.memo)}"</div>` : ''}
+      </div>
+    `).join('');
+  }
+
+  function renderStats() {
+    const n = records.length;
+    document.getElementById('st-count').textContent = n;
+    if (!n) {
+      document.getElementById('st-avg').textContent = '—';
+      document.getElementById('st-types').textContent = '0';
+      document.getElementById('st-regions').textContent = '0';
+      return;
+    }
+    const rated = records.filter(r => r.rating > 0);
+    document.getElementById('st-avg').textContent = rated.length
+      ? (rated.reduce((s, r) => s + r.rating, 0) / rated.length).toFixed(1) : '—';
+    document.getElementById('st-types').textContent = new Set(records.map(r => r.type).filter(Boolean)).size;
+    document.getElementById('st-regions').textContent = new Set(records.map(r => r.region).filter(Boolean)).size;
+
+    const tc = {};
+    records.forEach(r => { if (r.type) tc[r.type] = (tc[r.type] || 0) + 1; });
+    const maxT = Math.max(...Object.values(tc), 1);
+    document.getElementById('type-chart').innerHTML = Object.entries(tc)
+      .sort((a, b) => b[1] - a[1])
+      .map(([k, v]) => `
+        <div class="bar-row">
+          <div class="bar-meta"><span>${escHtml(k)}</span><span>${v}本</span></div>
+          <div class="bar-bg"><div class="bar-fill" style="width:${Math.round(v/maxT*100)}%;background:#378ADD"></div></div>
+        </div>
+      `).join('') || '<p style="font-size:13px;color:var(--text3)">記録がありません</p>';
+
+    const fc = {};
+    records.forEach(r => (r.flavors || []).forEach(f => { fc[f] = (fc[f] || 0) + 1; }));
+    const maxF = Math.max(...Object.values(fc), 1);
+    document.getElementById('flavor-chart').innerHTML = Object.entries(fc)
+      .sort((a, b) => b[1] - a[1]).slice(0, 8)
+      .map(([k, v]) => `
+        <div class="bar-row">
+          <div class="bar-meta"><span>${escHtml(k)}</span><span>${v}回</span></div>
+          <div class="bar-bg"><div class="bar-fill" style="width:${Math.round(v/maxF*100)}%;background:#639922"></div></div>
+        </div>
+      `).join('') || '<p style="font-size:13px;color:var(--text3)">記録がありません</p>';
+  }
+
+  function escHtml(str) {
+    return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+</script>
+</body>
+</html>
