@@ -83,11 +83,13 @@
       display: flex; align-items: center; justify-content: space-between; gap: 8px;
       padding: 16px 24px 16px 28px;
     }
-    .list-search-bar input {
-      flex: 1; min-width: 0; border: none; background: none; outline: none; padding: 0;
+    .list-search-bar input[type="text"] {
+      flex: 1; min-width: 0; width: auto; height: auto;
+      border: none; background: none; outline: none; padding: 0; border-radius: 0;
       font-family: 'Zen Maru Gothic', sans-serif; font-weight: 500;
-      font-size: 16px; color: var(--grey900);
+      font-size: 16px; color: var(--grey900); -webkit-appearance: none;
     }
+    .list-search-bar input[type="text"]:focus { border: none; background: none; }
     .list-search-bar input::placeholder { color: var(--grey600); opacity: 1; }
     .list-search-icon { flex-shrink: 0; width: 24px; height: 24px; display: block; }
     /* Hero stats */
