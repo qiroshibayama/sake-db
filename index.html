@@ -310,6 +310,7 @@
     .photo-btn { flex: 1; padding: 5px 2px; font-size: 10px; border: none; cursor: pointer; -webkit-tap-highlight-color: transparent; text-align: center; }
     .photo-btn-main { background: rgba(201,123,46,0.88); color: #fff; }
     .photo-btn-main.is-main { background: rgba(201,123,46,1); font-weight: 700; }
+    .photo-btn-crop { background: rgba(74,44,103,0.85); color: #fff; }
     .photo-btn-del { background: rgba(0,0,0,0.52); color: #fff; }
     .photo-main-badge {
       position: absolute; top: 4px; left: 4px;
@@ -406,6 +407,32 @@
     .lightbox.open { display: flex; }
     .lightbox img { max-width: 100%; max-height: 90vh; object-fit: contain; }
     .lightbox-close { position: absolute; top: 16px; right: 16px; background: rgba(255,255,255,0.2); border: none; color: #fff; width: 38px; height: 38px; border-radius: 50%; font-size: 22px; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+
+    /* ── Crop modal (3:4) ── */
+    .crop-overlay { display: none; position: fixed; inset: 0; z-index: 210; background: #111; flex-direction: column; }
+    .crop-overlay.open { display: flex; }
+    .crop-stage { flex: 1; display: flex; align-items: center; justify-content: center; padding: 16px; min-height: 0; }
+    .crop-frame {
+      position: relative; overflow: hidden; background: #000;
+      touch-action: none; -webkit-tap-highlight-color: transparent;
+      box-shadow: 0 0 0 9999px rgba(0,0,0,0.55);
+    }
+    .crop-frame img { position: absolute; left: 0; top: 0; user-select: none; -webkit-user-drag: none; will-change: transform; }
+    .crop-grid { position: absolute; inset: 0; pointer-events: none;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.35) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.35) 1px, transparent 1px);
+      background-size: 100% 33.333%, 33.333% 100%;
+      background-position: 0 33.333%, 33.333% 0;
+      border: 1px solid rgba(255,255,255,0.6);
+    }
+    .crop-zoom { display: flex; align-items: center; gap: 12px; padding: 0 28px 8px; }
+    .crop-zoom-ico { color: #fff; font-size: 18px; width: 18px; text-align: center; }
+    .crop-zoom input[type=range] { flex: 1; accent-color: #d4ee8b; }
+    .crop-controls { display: flex; gap: 10px; padding: 12px 16px calc(16px + env(safe-area-inset-bottom,0px)); }
+    .crop-btn { flex: 1; padding: 15px; border-radius: 12px; font-size: 15px; font-weight: 600; cursor: pointer; -webkit-tap-highlight-color: transparent; border: none; }
+    .crop-cancel { background: #333; color: #eee; }
+    .crop-apply { background: #d4ee8b; color: #21231c; }
 
     /* ── TIPS ── */
     .tips-btn { background: none; border: none; color: var(--blue-text); font-size: 16px; cursor: pointer; padding: 0 2px; -webkit-tap-highlight-color: transparent; line-height: 1; }
@@ -739,6 +766,25 @@
   <img id="lb-img" src="" alt="">
 </div>
 
+<!-- 3:4 crop modal -->
+<div class="crop-overlay" id="crop-overlay">
+  <div class="crop-stage">
+    <div class="crop-frame" id="crop-frame">
+      <img id="crop-img" src="" alt="" draggable="false">
+      <div class="crop-grid"></div>
+    </div>
+  </div>
+  <div class="crop-zoom">
+    <span class="crop-zoom-ico">－</span>
+    <input type="range" id="crop-zoom" min="1" max="3" step="0.01" value="1">
+    <span class="crop-zoom-ico">＋</span>
+  </div>
+  <div class="crop-controls">
+    <button class="crop-btn crop-cancel" id="crop-cancel">キャンセル</button>
+    <button class="crop-btn crop-apply" id="crop-apply">この範囲で切り抜く</button>
+  </div>
+</div>
+
 <!-- TIPS overlay -->
 <div class="tips-overlay" id="tips-overlay">
   <div class="tips-sheet">
@@ -869,6 +915,7 @@ async function init() {
   document.querySelectorAll('.star-wrap').forEach(wrap => { wrap.innerHTML = makeStar(38); });
   buildSliders();
   setupEvents();
+  setupCrop();
   renderList();
 }
 
@@ -1084,6 +1131,7 @@ function renderPreview() {
       ${i === mainPhotoIdx ? '<div class="photo-main-badge">メイン</div>' : ''}
       <div class="photo-actions">
         <button class="photo-btn photo-btn-main${i===mainPhotoIdx?' is-main':''}" data-i="${i}">★</button>
+        <button class="photo-btn photo-btn-crop" data-i="${i}" title="トリミング">⛶</button>
         <button class="photo-btn photo-btn-del" data-i="${i}">✕</button>
       </div>
     </div>
@@ -1097,6 +1145,10 @@ function renderPreview() {
     e.stopPropagation();
     mainPhotoIdx = parseInt(btn.dataset.i); renderPreview();
   }));
+  grid.querySelectorAll('.photo-btn-crop').forEach(btn => btn.addEventListener('click', e => {
+    e.stopPropagation();
+    openCrop(parseInt(btn.dataset.i));
+  }));
   grid.querySelectorAll('.photo-btn-del').forEach(btn => btn.addEventListener('click', e => {
     e.stopPropagation();
     const i = parseInt(btn.dataset.i);
@@ -1104,6 +1156,117 @@ function renderPreview() {
     if (mainPhotoIdx >= pendingPhotos.length) mainPhotoIdx = Math.max(0, pendingPhotos.length - 1);
     renderPreview();
   }));
+}
+
+/* ── 3:4 crop ── */
+const cropState = { i: -1, nw: 0, nh: 0, base: 1, scale: 1, ox: 0, oy: 0, fw: 0, fh: 0 };
+function cropClamp() {
+  const dw = cropState.nw * cropState.base * cropState.scale;
+  const dh = cropState.nh * cropState.base * cropState.scale;
+  cropState.ox = Math.min(0, Math.max(cropState.fw - dw, cropState.ox));
+  cropState.oy = Math.min(0, Math.max(cropState.fh - dh, cropState.oy));
+}
+function cropApplyTransform() {
+  const img = document.getElementById('crop-img');
+  const s = cropState.base * cropState.scale;
+  img.style.width = (cropState.nw * s) + 'px';
+  img.style.height = (cropState.nh * s) + 'px';
+  img.style.transform = `translate(${cropState.ox}px, ${cropState.oy}px)`;
+}
+function openCrop(i) {
+  const p = pendingPhotos[i]; if (!p) return;
+  const overlay = document.getElementById('crop-overlay');
+  const frame = document.getElementById('crop-frame');
+  const img = document.getElementById('crop-img');
+  const zoom = document.getElementById('crop-zoom');
+  cropState.i = i;
+  const probe = new Image();
+  probe.onload = () => {
+    cropState.nw = probe.naturalWidth; cropState.nh = probe.naturalHeight;
+    // deterministic 3:4 frame that fits the viewport (no layout-timing dependency)
+    let fw = Math.min(window.innerWidth * 0.86, 360);
+    let fh = fw * 4 / 3;
+    const maxH = window.innerHeight * 0.66;
+    if (fh > maxH) { fh = maxH; fw = fh * 3 / 4; }
+    frame.style.width = fw + 'px';
+    frame.style.height = fh + 'px';
+    cropState.fw = fw; cropState.fh = fh;
+    cropState.base = Math.max(fw / cropState.nw, fh / cropState.nh);
+    cropState.scale = 1; zoom.value = '1';
+    const dw = cropState.nw * cropState.base, dh = cropState.nh * cropState.base;
+    cropState.ox = (fw - dw) / 2; cropState.oy = (fh - dh) / 2;
+    img.src = p.dataUrl;
+    cropApplyTransform();
+    overlay.classList.add('open');
+  };
+  probe.src = p.dataUrl;
+}
+function setupCrop() {
+  const frame = document.getElementById('crop-frame');
+  const zoom = document.getElementById('crop-zoom');
+  let dragging = false, lx = 0, ly = 0;
+  const pointers = new Map();
+  let pinchDist = 0, pinchScale = 1;
+
+  frame.addEventListener('pointerdown', e => {
+    frame.setPointerCapture(e.pointerId);
+    pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (pointers.size === 1) { dragging = true; lx = e.clientX; ly = e.clientY; }
+    else if (pointers.size === 2) {
+      const pts = [...pointers.values()];
+      pinchDist = Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y);
+      pinchScale = cropState.scale; dragging = false;
+    }
+  });
+  frame.addEventListener('pointermove', e => {
+    if (!pointers.has(e.pointerId)) return;
+    pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (pointers.size >= 2) {
+      const pts = [...pointers.values()];
+      const d = Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y);
+      if (pinchDist > 0) {
+        cropState.scale = Math.min(3, Math.max(1, pinchScale * (d / pinchDist)));
+        zoom.value = String(cropState.scale);
+        cropClamp(); cropApplyTransform();
+      }
+    } else if (dragging) {
+      cropState.ox += e.clientX - lx; cropState.oy += e.clientY - ly;
+      lx = e.clientX; ly = e.clientY;
+      cropClamp(); cropApplyTransform();
+    }
+  });
+  const endPointer = e => {
+    pointers.delete(e.pointerId);
+    if (pointers.size < 2) pinchDist = 0;
+    if (pointers.size === 0) dragging = false;
+    else if (pointers.size === 1) { const pt = [...pointers.values()][0]; lx = pt.x; ly = pt.y; dragging = true; }
+  };
+  frame.addEventListener('pointerup', endPointer);
+  frame.addEventListener('pointercancel', endPointer);
+
+  zoom.addEventListener('input', () => {
+    cropState.scale = parseFloat(zoom.value);
+    cropClamp(); cropApplyTransform();
+  });
+  document.getElementById('crop-cancel').addEventListener('click', () => {
+    document.getElementById('crop-overlay').classList.remove('open');
+  });
+  document.getElementById('crop-apply').addEventListener('click', () => {
+    const s = cropState.base * cropState.scale;
+    const sx = -cropState.ox / s, sy = -cropState.oy / s;
+    const sw = cropState.fw / s, sh = cropState.fh / s;
+    const outW = Math.min(Math.round(sw), 1080);
+    const outH = Math.round(outW * 4 / 3);
+    const canvas = document.createElement('canvas');
+    canvas.width = outW; canvas.height = outH;
+    const ctx = canvas.getContext('2d');
+    const img = document.getElementById('crop-img');
+    ctx.drawImage(img, sx, sy, sw, sh, 0, 0, outW, outH);
+    const p = pendingPhotos[cropState.i];
+    if (p) { p.dataUrl = canvas.toDataURL('image/jpeg', 0.9); p.isNew = true; }
+    document.getElementById('crop-overlay').classList.remove('open');
+    renderPreview();
+  });
 }
 
 /* ── Open form (new or edit) ── */
