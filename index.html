@@ -54,18 +54,21 @@
     .nav {
       position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
       width: 100%; max-width: 480px;
-      display: flex; border-top: 0.5px solid var(--border);
-      background: var(--bg); z-index: 50;
+      display: flex; align-items: stretch;
+      background: #fff; z-index: 50;
+      box-shadow: 0 -4px 13px rgba(0,0,0,0.08);
       padding-bottom: env(safe-area-inset-bottom, 0px);
     }
     .nav-btn {
-      flex: 1; display: flex; flex-direction: column; align-items: center;
-      gap: 3px; background: none; border: none; cursor: pointer; padding: 10px 0 8px;
-      -webkit-tap-highlight-color: transparent;
+      flex: 1; display: flex; align-items: center; justify-content: center;
+      background: none; border: none; cursor: pointer; padding: 18px 10px;
+      font-family: 'Zen Maru Gothic', sans-serif; font-weight: 700; font-size: 16px;
+      color: var(--grey600); -webkit-tap-highlight-color: transparent;
     }
-    .nav-icon { font-size: 22px; line-height: 1; }
-    .nav-label { font-size: 10px; color: var(--text3); }
-    .nav-btn.active .nav-label { color: var(--text); font-weight: 600; }
+    /* keep clear of the centered FAB */
+    .nav-btn[data-screen="list"]  { padding-right: 44px; }
+    .nav-btn[data-screen="stats"] { padding-left: 44px; }
+    .nav-btn.active { color: var(--secondary); }
 
     /* ── Screens ── */
     .screens { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding-bottom: calc(var(--nav-h) + env(safe-area-inset-bottom, 0px)); }
@@ -73,7 +76,7 @@
     .screen.active { display: block; }
 
     /* ── List (TOP) ── */
-    #s-list { background: var(--primary); }
+    #s-list { background: var(--bg_light_grey); }
     /* Search bar */
     .list-search {
       padding: 20px 20px 0;
@@ -154,15 +157,15 @@
     .card-panel-count-line { flex: 1; height: 1px; background: var(--border); }
 
     .btn-add-float {
-      position: fixed; bottom: calc(var(--nav-h) + env(safe-area-inset-bottom,0px) + 16px);
+      position: fixed; bottom: calc(var(--nav-h) + env(safe-area-inset-bottom,0px) - 36px);
       left: 50%; transform: translateX(-50%);
       width: 72px; height: 72px; aspect-ratio: 1/1; border-radius: 50%;
-      background: var(--primary); color: var(--secondary);
-      border: 1px solid #e8fdb0; opacity: 0.97;
+      background: #21231C; color: #fff;
+      border: 1px solid #acacac; opacity: 0.97;
       display: flex; align-items: center; justify-content: center;
-      cursor: pointer; z-index: 40; -webkit-tap-highlight-color: transparent;
+      cursor: pointer; z-index: 51; -webkit-tap-highlight-color: transparent;
       box-shadow: none;
-      filter: drop-shadow(0 12px 20px rgba(61,90,0,0.24)) drop-shadow(0 6px 8px rgba(61,90,0,0.28));
+      filter: drop-shadow(0 12px 20px rgba(58,58,58,0.24)) drop-shadow(0 6px 8px rgba(58,58,58,0.28));
     }
 
     /* Card grid — two masonry-style columns */
@@ -522,14 +525,14 @@
 
   <!-- Fixed bottom nav -->
   <nav class="nav">
-    <button class="nav-btn active" data-screen="list"><span class="nav-icon">🍶</span><span class="nav-label">一覧</span></button>
-    <button class="nav-btn" data-screen="stats"><span class="nav-icon">📊</span><span class="nav-label">統計</span></button>
+    <button class="nav-btn active" data-screen="list">飲んだ</button>
+    <button class="nav-btn" data-screen="stats">記録</button>
   </nav>
 </div>
 
 <!-- Float add button -->
 <button class="btn-add-float" id="btn-add-float" title="新しく記録">
-  <svg width="34" height="34" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M20.2663 2.5C20.6233 2.5 20.9762 2.58348 21.2956 2.74316C21.6148 2.90284 21.8929 3.13439 22.1071 3.41992L25.0671 7.36621C25.1757 7.51107 25.3162 7.62896 25.4782 7.70996C25.6401 7.79091 25.8187 7.83296 25.9997 7.83301H26.6667C27.7717 7.83301 28.8316 8.27231 29.613 9.05371C30.3944 9.83511 30.8337 10.8949 30.8337 12V25.333C30.8337 26.438 30.3943 27.4979 29.613 28.2793C28.8316 29.0607 27.7717 29.5 26.6667 29.5H5.33366C4.22859 29.5 3.16877 29.0607 2.38737 28.2793C1.60597 27.4979 1.16666 26.4381 1.16666 25.333V12L1.17155 11.793C1.22273 10.7633 1.6549 9.78618 2.38737 9.05371C3.16875 8.27241 4.22866 7.83301 5.33366 7.83301H5.99967C6.18079 7.83301 6.36013 7.79096 6.52213 7.70996C6.68397 7.62897 6.82468 7.51099 6.93327 7.36621L9.89323 3.41992C10.3276 2.84076 11.0091 2.50008 11.7331 2.5H20.2663ZM15.9997 11.5C15.2337 11.5 14.4749 11.6512 13.7673 11.9443C13.0597 12.2375 12.4172 12.6674 11.8756 13.209C11.3341 13.7505 10.9041 14.393 10.611 15.1006C10.3179 15.8082 10.1667 16.5671 10.1667 17.333C10.1667 18.099 10.3179 18.8577 10.611 19.5654C10.9042 20.2732 11.334 20.9163 11.8756 21.458C12.4172 21.9995 13.0597 22.4295 13.7673 22.7227C14.4749 23.0158 15.2337 23.1669 15.9997 23.167C17.5468 23.167 19.0307 22.552 20.1247 21.458C21.2186 20.364 21.8337 18.8801 21.8337 17.333C21.8336 15.7861 21.2185 14.3029 20.1247 13.209C19.0307 12.115 17.5468 11.5 15.9997 11.5Z" fill="#4A2C67" stroke="url(#paint0_linear_fab)"/><defs><linearGradient id="paint0_linear_fab" x1="3" y1="3" x2="29" y2="29" gradientUnits="userSpaceOnUse"><stop stop-color="white"/><stop offset="1" stop-color="#CFCFCF"/></linearGradient></defs></svg>
+  <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
 </button>
 
 <!-- ── 記録フォーム overlay ── -->
