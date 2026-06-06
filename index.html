@@ -1542,7 +1542,9 @@ function rateClass(rating) {
 }
 
 function cardHtml(r, mainUrl) {
+  const pref = (r.prefecture || '').replace(/[都府県]$/, ''); // 北海道はそのまま
   const brewery = r.region || '';
+  const origin = [pref, brewery].filter(Boolean).join(' / ');
   const rating = (r.rating != null) ? Number(r.rating).toFixed(1) : '―';
   const star = r.favorite ? STAR_BADGE_SVG : '';
   return `
@@ -1556,7 +1558,7 @@ function cardHtml(r, mainUrl) {
       <div class="grid-card-overlay">
         <div class="grid-card-name">${esc(r.name)}</div>
         <div class="grid-card-meta">
-          <span class="grid-card-brewery">${esc(brewery)}</span>
+          <span class="grid-card-brewery">${esc(origin)}</span>
           <span class="grid-card-badge ${rateClass(r.rating)}">${star}<span class="grid-card-badge-num">${rating}</span></span>
         </div>
       </div>
