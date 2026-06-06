@@ -611,7 +611,8 @@
     </div>
     <div class="field">
       <label>産地・蔵元</label>
-      <input type="text" id="f-region" placeholder="例：山口県 / 旭酒造" autocomplete="off">
+      <input type="text" id="f-region" placeholder="例：山口県 / 旭酒造" autocomplete="off" list="region-suggest">
+      <datalist id="region-suggest"></datalist>
     </div>
 
     <div class="field">
@@ -1279,9 +1280,26 @@ function setupCrop() {
   });
 }
 
+/* ── Region (brewery) suggestions from existing records ── */
+function buildRegionSuggest() {
+  const dl = document.getElementById('region-suggest');
+  if (!dl) return;
+  const seen = new Map(); // lowercased -> original (first seen), with count
+  records.forEach(r => {
+    const v = (r.region || '').trim();
+    if (!v) return;
+    const key = v.toLowerCase();
+    if (!seen.has(key)) seen.set(key, { val: v, n: 0 });
+    seen.get(key).n++;
+  });
+  const list = [...seen.values()].sort((a, b) => b.n - a.n || a.val.localeCompare(b.val, 'ja'));
+  dl.innerHTML = list.map(o => `<option value="${esc(o.val)}"></option>`).join('');
+}
+
 /* ── Open form (new or edit) ── */
 function openForm(rec) {
   resetForm();
+  buildRegionSuggest();
   if (rec) {
     document.getElementById('form-title').textContent = '編集';
     document.getElementById('f-edit-id').value = rec.id;
