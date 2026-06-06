@@ -609,10 +609,26 @@
         <input type="date" id="f-date">
       </div>
     </div>
-    <div class="field">
-      <label>産地・蔵元</label>
-      <input type="text" id="f-region" placeholder="例：山口県 / 旭酒造" autocomplete="off" list="region-suggest">
-      <datalist id="region-suggest"></datalist>
+    <div class="grid2">
+      <div class="field">
+        <label>産地</label>
+        <select id="f-prefecture">
+          <option value="">選択...</option>
+          <option>北海道</option><option>青森県</option><option>岩手県</option><option>宮城県</option><option>秋田県</option><option>山形県</option><option>福島県</option>
+          <option>茨城県</option><option>栃木県</option><option>群馬県</option><option>埼玉県</option><option>千葉県</option><option>東京都</option><option>神奈川県</option>
+          <option>新潟県</option><option>富山県</option><option>石川県</option><option>福井県</option><option>山梨県</option><option>長野県</option><option>岐阜県</option><option>静岡県</option><option>愛知県</option>
+          <option>三重県</option><option>滋賀県</option><option>京都府</option><option>大阪府</option><option>兵庫県</option><option>奈良県</option><option>和歌山県</option>
+          <option>鳥取県</option><option>島根県</option><option>岡山県</option><option>広島県</option><option>山口県</option>
+          <option>徳島県</option><option>香川県</option><option>愛媛県</option><option>高知県</option>
+          <option>福岡県</option><option>佐賀県</option><option>長崎県</option><option>熊本県</option><option>大分県</option><option>宮崎県</option><option>鹿児島県</option><option>沖縄県</option>
+          <option>海外・その他</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>蔵元</label>
+        <input type="text" id="f-region" placeholder="例：旭酒造" autocomplete="off" list="region-suggest">
+        <datalist id="region-suggest"></datalist>
+      </div>
     </div>
 
     <div class="field">
@@ -1363,6 +1379,7 @@ function openForm(rec) {
     document.getElementById('f-edit-id').value = rec.id;
     document.getElementById('f-name').value = rec.name || '';
     document.getElementById('f-type').value = rec.type || '';
+    document.getElementById('f-prefecture').value = rec.prefecture || '';
     document.getElementById('f-region').value = rec.region || '';
     document.getElementById('f-date').value = rec.date || '';
     document.getElementById('f-memo').value = rec.memo || '';
@@ -1425,6 +1442,7 @@ async function loadRecordPhotos(rec) {
 function resetForm() {
   ['f-name','f-region','f-memo'].forEach(id => document.getElementById(id).value = '');
   document.getElementById('f-type').value = '';
+  document.getElementById('f-prefecture').value = '';
   document.getElementById('f-edit-id').value = '';
   SLIDERS.forEach(s => { document.getElementById('f-' + s.id).value = 3; });
   document.getElementById('f-aroma').value = 3;
@@ -1491,6 +1509,7 @@ async function save() {
     const rec = {
       id: recId, name,
       type: document.getElementById('f-type').value,
+      prefecture: document.getElementById('f-prefecture').value,
       region: document.getElementById('f-region').value.trim(),
       date: document.getElementById('f-date').value,
       rating, scores, flavors, concerns,
@@ -1562,7 +1581,7 @@ async function renderList() {
   let shown = records;
   if (listTab === 'fav') shown = shown.filter(r => r.favorite);
   if (q) shown = shown.filter(r =>
-    [r.name, r.region, r.type].some(v => (v || '').toLowerCase().includes(q))
+    [r.name, r.region, r.prefecture, r.type].some(v => (v || '').toLowerCase().includes(q))
   );
   sub.innerHTML = `<span class="list-count-num">${shown.length}</span><span class="list-count-suffix">本を表示中</span>`;
 
@@ -1657,7 +1676,8 @@ async function openDetail(id) {
       </div>` : ''}
     <div class="detail-row"><span class="detail-label">飲んだ日</span><span class="detail-value">${r.date||'—'}</span></div>
     ${r.type   ? `<div class="detail-row"><span class="detail-label">種類</span><span class="detail-value">${esc(r.type)}</span></div>` : ''}
-    ${r.region ? `<div class="detail-row"><span class="detail-label">産地・蔵元</span><span class="detail-value">${esc(r.region)}</span></div>` : ''}
+    ${r.prefecture ? `<div class="detail-row"><span class="detail-label">産地</span><span class="detail-value">${esc(r.prefecture)}</span></div>` : ''}
+    ${r.region ? `<div class="detail-row"><span class="detail-label">蔵元</span><span class="detail-value">${esc(r.region)}</span></div>` : ''}
     <div class="detail-row"><span class="detail-label">評価</span><span class="detail-value">${starsHtml(r.rating,16)}</span></div>
     ${aromaHtml}
     <div class="detail-scores">
