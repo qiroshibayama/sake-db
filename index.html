@@ -91,19 +91,22 @@
     .list-hero-stat { flex: 1; }
     .list-hero-label {
       font-family: 'Dongle', sans-serif;
-      font-size: 36px; font-weight: 400; color: var(--secondary); line-height: 1;
-      margin-bottom: 4px;
+      font-size: 40px; font-weight: 400; color: var(--secondary); line-height: 1;
+      margin-bottom: 8px;
+      text-box-trim: trim-both; text-box-edge: cap alphabetic;
     }
     .list-hero-count {
       display: flex; align-items: flex-end; gap: 4px; color: var(--secondary); line-height: 1;
     }
     .list-hero-num {
       font-family: 'Dongle', sans-serif;
-      font-size: clamp(96px, 36vw, 140px); font-weight: 400; line-height: 0.62;
+      font-size: clamp(96px, 36vw, 140px); font-weight: 400; line-height: 0.8;
+      text-box-trim: trim-both; text-box-edge: cap alphabetic;
     }
     .list-hero-unit {
       font-family: 'Zen Maru Gothic', sans-serif;
-      font-size: 20px; font-weight: 700; padding-bottom: 10px;
+      font-size: 20px; font-weight: 700;
+      text-box-trim: trim-both; text-box-edge: cap alphabetic;
     }
 
     .card-panel {
@@ -138,7 +141,7 @@
     .list-count-label {
       display: flex; align-items: flex-end; gap: 2px; color: var(--grey600); white-space: nowrap;
     }
-    .list-count-num { font-family: 'Dongle', sans-serif; font-size: 32px; line-height: 0.6; }
+    .list-count-num { font-family: 'Dongle', sans-serif; font-size: 32px; line-height: 1; text-box-trim: trim-both; text-box-edge: cap alphabetic; }
     .list-count-suffix { font-family: 'Zen Maru Gothic', sans-serif; font-weight: 500; font-size: 13px; }
     .card-panel-count-line { flex: 1; height: 1px; background: var(--border); }
 
@@ -207,7 +210,8 @@
     .grid-card-badge svg { width: 11px; height: 11px; display: block; }
     .grid-card-badge-num {
       font-family: 'Dongle', sans-serif; font-weight: 700; font-size: 24px;
-      line-height: 12px; color: #fff;
+      line-height: 1; color: #fff;
+      text-box-trim: trim-both; text-box-edge: cap alphabetic;
     }
     /* "これまでの記録" promo tile */
     .grid-promo {
