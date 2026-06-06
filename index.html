@@ -292,10 +292,11 @@
     .star-wrap.s-empty .star-svg-half { opacity: 0; }
 
     /* Photos */
+    .photo-upload-row { display: flex; gap: 10px; margin-bottom: 8px; }
     .photo-upload-area {
-      border: 1.5px dashed var(--border2); border-radius: var(--radius-lg);
-      padding: 20px; text-align: center; cursor: pointer;
-      -webkit-tap-highlight-color: transparent; margin-bottom: 12px;
+      flex: 1; border: 1.5px dashed var(--border2); border-radius: var(--radius-lg);
+      padding: 18px 12px; text-align: center; cursor: pointer; background: none;
+      -webkit-tap-highlight-color: transparent;
     }
     .photo-upload-area:active { background: var(--bg2); }
     .photo-upload-icon { font-size: 32px; line-height: 1; margin-bottom: 6px; }
@@ -574,11 +575,18 @@
     <div class="field">
       <label>写真（複数枚可・先頭をメイン表示）</label>
       <input type="file" id="f-photos" accept="image/*" multiple>
-      <div class="photo-upload-area" id="upload-area">
-        <div class="photo-upload-icon">📷</div>
-        <div class="photo-upload-text">タップして撮影・アルバムから選択</div>
-        <div class="photo-upload-sub">★でメイン設定 / タップで拡大確認</div>
+      <input type="file" id="f-photos-cam" accept="image/*" capture="environment">
+      <div class="photo-upload-row">
+        <button type="button" class="photo-upload-area" id="upload-cam">
+          <div class="photo-upload-icon">📷</div>
+          <div class="photo-upload-text">撮影</div>
+        </button>
+        <button type="button" class="photo-upload-area" id="upload-album">
+          <div class="photo-upload-icon">🖼</div>
+          <div class="photo-upload-text">アルバムから選択</div>
+        </button>
       </div>
+      <div class="photo-upload-sub" style="margin:0 0 12px">★でメイン設定 / タップで拡大確認 / ⛶でトリミング</div>
       <div class="photo-grid" id="photo-preview"></div>
     </div>
 
@@ -1058,8 +1066,10 @@ function setupEvents() {
   }));
 
   // Photo upload
-  document.getElementById('upload-area').addEventListener('click', () => document.getElementById('f-photos').click());
+  document.getElementById('upload-cam').addEventListener('click', () => document.getElementById('f-photos-cam').click());
+  document.getElementById('upload-album').addEventListener('click', () => document.getElementById('f-photos').click());
   document.getElementById('f-photos').addEventListener('change', handlePhotos);
+  document.getElementById('f-photos-cam').addEventListener('change', handlePhotos);
 
   // Save
   document.getElementById('btn-save').addEventListener('click', save);
