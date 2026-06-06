@@ -218,10 +218,12 @@
       border-radius: 12px; overflow: hidden; cursor: pointer; position: relative;
       min-height: 115px; display: flex; flex-direction: column; justify-content: center; gap: 8px;
       padding: 0 16px; color: #fff;
-      background: linear-gradient(135deg, #f6a6a0 0%, #e98a86 100%);
+      background-image: url('assets/promo-bg.jpg');
+      background-size: cover; background-position: center;
       -webkit-tap-highlight-color: transparent;
       box-shadow: 0 2px 2px rgba(176,176,189,0.10);
     }
+    .grid-promo > * { position: relative; z-index: 1; }
     .grid-promo-label {
       font-family: 'Instrument Sans', sans-serif; font-weight: 400; font-size: 14px;
     }
@@ -442,8 +444,12 @@
             <button class="list-tab" data-tab="fav">お気に入り</button>
           </div>
           <div class="card-panel-actions">
-            <button class="toolbar-pill-btn" title="並び替え">⇅</button>
-            <button class="toolbar-pill-btn" title="フィルター">⚙</button>
+            <button class="toolbar-pill-btn" title="並び替え" aria-label="並び替え">
+              <svg width="17" height="14" viewBox="0 0 17 14" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 13L4 1" stroke="#202020" stroke-width="1.8" stroke-linecap="round"/><path d="M1 4L4 1L7 4" stroke="#202020" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M13 13L13 1" stroke="#202020" stroke-width="1.8" stroke-linecap="round"/><path d="M10 10L13 13L16 10" stroke="#202020" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <button class="toolbar-pill-btn" title="フィルター" aria-label="フィルター">
+              <svg width="16" height="14" viewBox="0 0 16 14" fill="none" xmlns="http://www.w3.org/2000/svg"><g clip-path="url(#clip_filter)"><path d="M14.9333 10C15.5224 10 16 10.4477 16 11C16 11.5523 15.5224 12 14.9333 12H1.06667C0.477563 12 0 11.5523 0 11C0 10.4477 0.477563 10 1.06667 10H14.9333Z" fill="#202020"/><path d="M14.9333 2C15.5224 2 16 2.44772 16 3C16 3.55228 15.5224 4 14.9333 4H1.06667C0.477563 4 0 3.55228 0 3C0 2.44772 0.477563 2 1.06667 2H14.9333Z" fill="#202020"/><circle cx="6" cy="2.99902" r="2" fill="white" stroke="#202020" stroke-width="2"/><ellipse cx="10" cy="11.001" rx="2" ry="2" transform="rotate(-180 10 11.001)" fill="white" stroke="#202020" stroke-width="2"/></g><defs><clipPath id="clip_filter"><rect width="16" height="14" fill="white"/></clipPath></defs></svg>
+            </button>
           </div>
         </div>
         <div class="card-panel-count">
@@ -504,7 +510,7 @@
 
 <!-- Float add button -->
 <button class="btn-add-float" id="btn-add-float" title="新しく記録">
-  <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+  <svg width="34" height="34" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M20.2663 2.5C20.6233 2.5 20.9762 2.58348 21.2956 2.74316C21.6148 2.90284 21.8929 3.13439 22.1071 3.41992L25.0671 7.36621C25.1757 7.51107 25.3162 7.62896 25.4782 7.70996C25.6401 7.79091 25.8187 7.83296 25.9997 7.83301H26.6667C27.7717 7.83301 28.8316 8.27231 29.613 9.05371C30.3944 9.83511 30.8337 10.8949 30.8337 12V25.333C30.8337 26.438 30.3943 27.4979 29.613 28.2793C28.8316 29.0607 27.7717 29.5 26.6667 29.5H5.33366C4.22859 29.5 3.16877 29.0607 2.38737 28.2793C1.60597 27.4979 1.16666 26.4381 1.16666 25.333V12L1.17155 11.793C1.22273 10.7633 1.6549 9.78618 2.38737 9.05371C3.16875 8.27241 4.22866 7.83301 5.33366 7.83301H5.99967C6.18079 7.83301 6.36013 7.79096 6.52213 7.70996C6.68397 7.62897 6.82468 7.51099 6.93327 7.36621L9.89323 3.41992C10.3276 2.84076 11.0091 2.50008 11.7331 2.5H20.2663ZM15.9997 11.5C15.2337 11.5 14.4749 11.6512 13.7673 11.9443C13.0597 12.2375 12.4172 12.6674 11.8756 13.209C11.3341 13.7505 10.9041 14.393 10.611 15.1006C10.3179 15.8082 10.1667 16.5671 10.1667 17.333C10.1667 18.099 10.3179 18.8577 10.611 19.5654C10.9042 20.2732 11.334 20.9163 11.8756 21.458C12.4172 21.9995 13.0597 22.4295 13.7673 22.7227C14.4749 23.0158 15.2337 23.1669 15.9997 23.167C17.5468 23.167 19.0307 22.552 20.1247 21.458C21.2186 20.364 21.8337 18.8801 21.8337 17.333C21.8336 15.7861 21.2185 14.3029 20.1247 13.209C19.0307 12.115 17.5468 11.5 15.9997 11.5Z" fill="#4A2C67" stroke="url(#paint0_linear_fab)"/><defs><linearGradient id="paint0_linear_fab" x1="3" y1="3" x2="29" y2="29" gradientUnits="userSpaceOnUse"><stop stop-color="white"/><stop offset="1" stop-color="#CFCFCF"/></linearGradient></defs></svg>
 </button>
 
 <!-- ── 記録フォーム overlay ── -->
