@@ -8,11 +8,11 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="日本酒ノート">
-  <meta name="theme-color" content="#f5ce53">
+  <meta name="theme-color" content="#d4ee8b">
   <title>日本酒ノート</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@600&family=Noto+Sans+JP:wght@300;400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Dongle:wght@400;700&family=Instrument+Sans:wght@400;600&family=Noto+Sans+JP:wght@300;400&family=Zen+Kaku+Gothic+New:wght@500;700&family=Zen+Maru+Gothic:wght@500;700&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
@@ -20,6 +20,7 @@
       --text: #1a1a1a; --text2: #666660; --text3: #aaaaaa;
       --border: rgba(0,0,0,0.12); --border2: rgba(0,0,0,0.22);
       --radius: 10px; --radius-lg: 14px; --amber: #c97b2e;
+      --primary: #d4ee8b; --secondary: #4a2c67; --grey600: #6f6f6f; --grey900: #202020;
       --blue-bg: #E6F1FB; --blue-text: #0C447C;
       --green-bg: #EAF3DE; --green-text: #27500A;
       --teal-bg: #E1F5EE; --teal-text: #085041;
@@ -71,73 +72,102 @@
     .screen.active { display: block; }
 
     /* ── List (TOP) ── */
-    #s-list { background: #f5ce53; }
+    #s-list { background: var(--primary); }
+    /* Search bar */
+    .list-search {
+      padding: 20px 20px 0;
+    }
+    .list-search-bar {
+      background: #fff; border-radius: 9999px; height: 56px;
+      display: flex; align-items: center; padding: 0 28px;
+      font-family: 'Zen Kaku Gothic New', sans-serif; font-weight: 500;
+      font-size: 16px; color: #888; cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+    /* Hero stats */
     .list-hero {
-      display: flex; padding: 44px 20px 24px; gap: 0;
+      display: flex; padding: 24px 20px 28px; gap: 0;
     }
     .list-hero-stat { flex: 1; }
     .list-hero-label {
-      font-family: 'Instrument Sans', sans-serif;
-      font-size: 18px; font-weight: 400; color: #4a2c68; line-height: 1;
-      margin-bottom: 10px;
+      font-family: 'Dongle', sans-serif;
+      font-size: 36px; font-weight: 400; color: var(--secondary); line-height: 1;
+      margin-bottom: 4px;
     }
     .list-hero-count {
-      display: flex; align-items: flex-end; gap: 2px; color: #4a2c68; line-height: 1;
+      display: flex; align-items: flex-end; gap: 4px; color: var(--secondary); line-height: 1;
     }
     .list-hero-num {
-      font-family: 'Instrument Sans', sans-serif;
-      font-size: clamp(56px, 19vw, 80px); font-weight: 600; line-height: 0.9; letter-spacing: -2px;
+      font-family: 'Dongle', sans-serif;
+      font-size: clamp(96px, 36vw, 140px); font-weight: 400; line-height: 0.62;
     }
     .list-hero-unit {
-      font-size: 22px; font-weight: 400; padding-bottom: 8px;
+      font-family: 'Zen Maru Gothic', sans-serif;
+      font-size: 20px; font-weight: 700; padding-bottom: 10px;
     }
 
     .card-panel {
-      background: #fff; border-radius: 16px 16px 0 0;
-      box-shadow: 0 0 10px rgba(0,0,0,0.08);
-      min-height: 65vh;
+      background: #fff; border-radius: 24px 24px 0 0;
+      padding-top: 8px; min-height: 70vh;
     }
-    .card-panel-toolbar {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 16px 16px 4px 16px;
+    /* Tabs + sort/filter row */
+    .card-panel-tabs {
+      display: flex; align-items: center; gap: 8px;
+      padding: 8px 20px 4px;
     }
-    .list-count-label { font-size: 12px; color: #303030; }
+    .list-tabs { flex: 1; display: flex; align-items: center; gap: 4px; }
+    .list-tab {
+      font-family: 'Zen Maru Gothic', sans-serif; font-weight: 700; font-size: 15px;
+      color: var(--grey600); background: none; border: none; cursor: pointer;
+      padding: 11px 20px; border-radius: 50px; line-height: 1;
+      -webkit-tap-highlight-color: transparent; white-space: nowrap;
+    }
+    .list-tab.active { background: var(--primary); color: var(--secondary); }
     .card-panel-actions { display: flex; gap: 8px; }
     .toolbar-pill-btn {
-      width: 36px; height: 36px; border-radius: 999px;
-      background: #efeded; border: none; cursor: pointer;
+      width: 46px; height: 46px; border-radius: 999px;
+      background: #efefef; border: none; cursor: pointer;
       display: flex; align-items: center; justify-content: center;
-      font-size: 14px; color: #555;
+      font-size: 17px; color: #555;
       -webkit-tap-highlight-color: transparent;
     }
+    /* count + divider */
+    .card-panel-count {
+      display: flex; align-items: center; gap: 16px; padding: 16px 20px;
+    }
+    .list-count-label {
+      display: flex; align-items: flex-end; gap: 2px; color: var(--grey600); white-space: nowrap;
+    }
+    .list-count-num { font-family: 'Dongle', sans-serif; font-size: 32px; line-height: 0.6; }
+    .list-count-suffix { font-family: 'Zen Maru Gothic', sans-serif; font-weight: 500; font-size: 13px; }
+    .card-panel-count-line { flex: 1; height: 1px; background: var(--border); }
 
     .btn-add-float {
-      position: fixed; bottom: calc(var(--nav-h) + env(safe-area-inset-bottom,0px) + 20px);
+      position: fixed; bottom: calc(var(--nav-h) + env(safe-area-inset-bottom,0px) + 16px);
       left: 50%; transform: translateX(-50%);
       width: 64px; height: 64px; border-radius: 50%;
-      background: #4a2c68; color: #fff;
+      background: var(--primary); color: var(--secondary);
       border: none; font-size: 26px;
       display: flex; align-items: center; justify-content: center;
       cursor: pointer; z-index: 40; -webkit-tap-highlight-color: transparent;
-      box-shadow: 0 4px 16px rgba(74,44,104,0.45);
+      box-shadow: 0 4px 16px rgba(74,44,104,0.30);
     }
 
-    /* Card grid */
-    .card-grid { padding: 8px 16px 80px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    /* Card grid — two masonry-style columns */
+    .card-grid { padding: 0 20px 90px; display: flex; gap: 10px; }
+    .card-col { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 10px; }
     .grid-card {
-      position: relative; border-radius: 6px; overflow: hidden; cursor: pointer;
+      position: relative; border-radius: 12px; overflow: hidden; cursor: pointer;
       aspect-ratio: 3 / 4; background: #d9d9d9;
       -webkit-tap-highlight-color: transparent;
-      box-shadow: 0 2px 2px rgba(176,176,189,0.15);
+      box-shadow: 0 2px 2px rgba(176,176,189,0.10);
     }
     .grid-card-img { position: absolute; inset: 0; overflow: hidden; }
-    /* blurred background fills the card so narrow photos have no empty bars */
     .grid-card-img-bg {
       position: absolute; inset: 0; width: 100%; height: 100%;
       object-fit: cover; display: block;
       filter: blur(14px); transform: scale(1.2);
     }
-    /* foreground photo matched to card height, centered; overflow cropped */
     .grid-card-img-fg {
       position: absolute; top: 0; bottom: 0; left: 50%; transform: translateX(-50%);
       height: 100%; width: auto; max-width: none; display: block;
@@ -145,33 +175,56 @@
     .grid-card-img-placeholder { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 28px; background: #e8e8e8; }
     .grid-card-overlay {
       position: absolute; left: 0; right: 0; bottom: 0;
-      background: linear-gradient(to top, #29293d 0%, rgba(108,102,153,0.6) 45%, transparent 100%);
+      background: linear-gradient(to top, rgba(63,51,75,0.78) 0%, rgba(139,58,81,0.30) 66%, rgba(217,79,75,0) 100%);
       display: flex; flex-direction: column; justify-content: flex-end;
-      padding: 24px 10px 10px; gap: 6px;
+      padding: 24px 12px 12px; gap: 6px;
     }
-    /* blur as a separate masked layer so the fade is seamless */
     .grid-card-overlay::before {
       content: ''; position: absolute; inset: 0; pointer-events: none;
-      backdrop-filter: blur(5px);
-      -webkit-backdrop-filter: blur(5px);
-      mask-image: linear-gradient(to top, #000 0%, #000 40%, transparent 88%);
-      -webkit-mask-image: linear-gradient(to top, #000 0%, #000 40%, transparent 88%);
+      backdrop-filter: blur(3px);
+      -webkit-backdrop-filter: blur(3px);
+      mask-image: linear-gradient(to top, #000 0%, #000 35%, transparent 80%);
+      -webkit-mask-image: linear-gradient(to top, #000 0%, #000 35%, transparent 80%);
     }
     .grid-card-overlay > * { position: relative; z-index: 1; }
-    .grid-card--high .grid-card-overlay {
-      background: linear-gradient(to top, #4a2c68 0%, rgba(163,41,76,0.6) 45%, transparent 100%);
-    }
     .grid-card-name {
-      font-family: 'Noto Sans JP', 'Hiragino Sans', sans-serif;
-      font-weight: 400; font-size: 13px; line-height: 16px; color: #fff;
-      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      font-family: 'Zen Maru Gothic', sans-serif;
+      font-weight: 700; font-size: 13px; line-height: 16px; color: #fff;
+      max-height: 32px; overflow: hidden;
+      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
     }
-    .grid-card-rating {
-      font-family: 'Instrument Sans', sans-serif;
-      font-weight: 600; font-size: 17px; color: #fff; line-height: 17px;
-      letter-spacing: 0.05em;
+    .grid-card-meta {
+      display: flex; align-items: center; justify-content: space-between; gap: 6px;
     }
-    .grid-card-badge { display: inline-block; font-size: 10px; padding: 2px 7px; border-radius: 999px; margin-top: 4px; }
+    .grid-card-brewery {
+      font-family: 'Zen Maru Gothic', sans-serif; font-weight: 500; font-size: 11px;
+      line-height: 16px; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .grid-card-badge {
+      flex-shrink: 0; display: flex; align-items: center; gap: 3px;
+      background: var(--secondary); border-radius: 999px; padding: 6px 7px;
+    }
+    .grid-card-badge svg { width: 11px; height: 11px; display: block; }
+    .grid-card-badge-num {
+      font-family: 'Dongle', sans-serif; font-weight: 700; font-size: 24px;
+      line-height: 12px; color: #fff;
+    }
+    /* "これまでの記録" promo tile */
+    .grid-promo {
+      border-radius: 12px; overflow: hidden; cursor: pointer; position: relative;
+      min-height: 115px; display: flex; flex-direction: column; justify-content: center; gap: 8px;
+      padding: 0 16px; color: #fff;
+      background: linear-gradient(135deg, #f6a6a0 0%, #e98a86 100%);
+      -webkit-tap-highlight-color: transparent;
+      box-shadow: 0 2px 2px rgba(176,176,189,0.10);
+    }
+    .grid-promo-label {
+      font-family: 'Instrument Sans', sans-serif; font-weight: 400; font-size: 14px;
+    }
+    .grid-promo-title {
+      font-family: 'Zen Kaku Gothic New', sans-serif; font-weight: 700; font-size: 18px;
+      line-height: 1.3;
+    }
 
     .empty { text-align: center; padding: 60px 16px; color: var(--text3); font-size: 14px; line-height: 2.2; }
     .loading { text-align: center; padding: 40px; color: var(--text3); font-size: 14px; }
@@ -359,6 +412,9 @@
 
     <!-- ① 一覧 (TOP) -->
     <div id="s-list" class="screen active">
+      <div class="list-search">
+        <div class="list-search-bar" id="list-search-bar">検索</div>
+      </div>
       <div class="list-hero">
         <div class="list-hero-stat">
           <div class="list-hero-label">Total</div>
@@ -376,12 +432,19 @@
         </div>
       </div>
       <div class="card-panel">
-        <div class="card-panel-toolbar">
-          <div class="list-count-label" id="list-sub">読み込み中...</div>
+        <div class="card-panel-tabs">
+          <div class="list-tabs">
+            <button class="list-tab active" data-tab="all">すべて</button>
+            <button class="list-tab" data-tab="fav">お気に入り</button>
+          </div>
           <div class="card-panel-actions">
             <button class="toolbar-pill-btn" title="並び替え">⇅</button>
             <button class="toolbar-pill-btn" title="フィルター">⚙</button>
           </div>
+        </div>
+        <div class="card-panel-count">
+          <div class="list-count-label" id="list-sub"><span class="list-count-num">0</span><span class="list-count-suffix">本を表示中</span></div>
+          <div class="card-panel-count-line"></div>
         </div>
         <div id="card-grid-wrap"></div>
       </div>
@@ -870,6 +933,14 @@ function setupEvents() {
     if (id === 'stats') renderStats();
   }));
 
+  // List tabs (all / favorites)
+  document.querySelectorAll('.list-tab').forEach(tab => tab.addEventListener('click', () => {
+    document.querySelectorAll('.list-tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    listTab = tab.dataset.tab;
+    renderList();
+  }));
+
   // Float add
   document.getElementById('btn-add-float').addEventListener('click', () => openForm(null));
 
@@ -1152,6 +1223,30 @@ async function save() {
 }
 
 /* ── List (TOP grid) ── */
+let listTab = 'all';
+const STAR_BADGE_SVG = '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2.5l2.95 5.98 6.6.96-4.78 4.66 1.13 6.57L12 18.56 6.1 21.67l1.13-6.57L2.45 9.44l6.6-.96L12 2.5z" fill="#fff"/></svg>';
+
+function cardHtml(r, mainUrl) {
+  const brewery = r.region || '';
+  const rating = (r.rating != null) ? Number(r.rating).toFixed(1) : '―';
+  return `
+    <div class="grid-card" data-id="${r.id}">
+      <div class="grid-card-img">
+        ${mainUrl
+          ? `<img class="grid-card-img-bg" src="${mainUrl}" alt="" loading="lazy" aria-hidden="true">
+             <img class="grid-card-img-fg" src="${mainUrl}" alt="" loading="lazy">`
+          : `<div class="grid-card-img-placeholder">🍶</div>`}
+      </div>
+      <div class="grid-card-overlay">
+        <div class="grid-card-name">${esc(r.name)}</div>
+        <div class="grid-card-meta">
+          <span class="grid-card-brewery">${esc(brewery)}</span>
+          <span class="grid-card-badge">${STAR_BADGE_SVG}<span class="grid-card-badge-num">${rating}</span></span>
+        </div>
+      </div>
+    </div>`;
+}
+
 async function renderList() {
   const wrap = document.getElementById('card-grid-wrap');
   const sub = document.getElementById('list-sub');
@@ -1161,21 +1256,23 @@ async function renderList() {
   const thisYear = new Date().getFullYear();
   if (yearLabelEl) yearLabelEl.textContent = String(thisYear);
 
-  if (!records.length) {
-    if (totalEl) totalEl.textContent = '0';
-    if (yearEl) yearEl.textContent = '0';
-    sub.textContent = '記録がありません';
-    wrap.innerHTML = '<div class="empty">最初の一杯を記録してみましょう！<br>下のカメラボタンからどうぞ</div>';
-    return;
-  }
-
   const yearCount = records.filter(r => r.date && r.date.startsWith(String(thisYear))).length;
   if (totalEl) totalEl.textContent = String(records.length);
   if (yearEl) yearEl.textContent = String(yearCount);
-  sub.textContent = `${records.length}本を表示中`;
-  wrap.innerHTML = '<div class="loading">読み込み中...</div>';
 
-  const items = await Promise.all(records.map(async r => {
+  // favorite logic placeholder: filter by r.favorite when tab === 'fav'
+  const shown = (listTab === 'fav') ? records.filter(r => r.favorite) : records;
+  sub.innerHTML = `<span class="list-count-num">${shown.length}</span><span class="list-count-suffix">本を表示中</span>`;
+
+  if (!shown.length) {
+    wrap.innerHTML = listTab === 'fav'
+      ? '<div class="empty">お気に入りはまだありません</div>'
+      : '<div class="empty">最初の一杯を記録してみましょう！<br>下のカメラボタンからどうぞ</div>';
+    return;
+  }
+
+  wrap.innerHTML = '<div class="loading">読み込み中...</div>';
+  const items = await Promise.all(shown.map(async r => {
     const mainIdx = r.mainPhotoIdx || 0;
     const pid = (r.photoIds || [])[mainIdx];
     let mainUrl = null;
@@ -1183,25 +1280,19 @@ async function renderList() {
     return { r, mainUrl };
   }));
 
+  // two masonry columns; promo tile sits at top of the right column
+  const promo = `<div class="grid-promo" id="grid-promo"><div class="grid-promo-label">Data</div><div class="grid-promo-title">これまでの<br>記録</div></div>`;
+  const left = [], right = [promo];
+  items.forEach((it, i) => (i % 2 === 0 ? left : right).push(cardHtml(it.r, it.mainUrl)));
+
   const grid = document.createElement('div');
   grid.className = 'card-grid';
-  grid.innerHTML = items.map(({ r, mainUrl }) => `
-    <div class="grid-card${(r.rating != null && r.rating >= 4.0) ? ' grid-card--high' : ''}" data-id="${r.id}">
-      <div class="grid-card-img">
-        ${mainUrl
-          ? `<img class="grid-card-img-bg" src="${mainUrl}" alt="" loading="lazy" aria-hidden="true">
-             <img class="grid-card-img-fg" src="${mainUrl}" alt="" loading="lazy">`
-          : `<div class="grid-card-img-placeholder">🍶</div>`}
-      </div>
-      <div class="grid-card-overlay">
-        <div class="grid-card-name">${esc(r.name)}</div>
-        <div class="grid-card-rating">${r.rating != null ? Number(r.rating).toFixed(1) : '―'}</div>
-      </div>
-    </div>
-  `).join('');
+  grid.innerHTML = `<div class="card-col">${left.join('')}</div><div class="card-col">${right.join('')}</div>`;
   wrap.innerHTML = '';
   wrap.appendChild(grid);
   grid.querySelectorAll('.grid-card').forEach(card => card.addEventListener('click', () => openDetail(parseInt(card.dataset.id))));
+  const promoEl = grid.querySelector('#grid-promo');
+  if (promoEl) promoEl.addEventListener('click', () => document.querySelector('.nav-btn[data-screen="stats"]').click());
 }
 
 /* ── Detail ── */
