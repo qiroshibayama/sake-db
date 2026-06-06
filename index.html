@@ -189,7 +189,7 @@
       position: absolute; left: 0; right: 0; bottom: 0;
       background: linear-gradient(to top, rgba(63,51,75,0.78) 0%, rgba(139,58,81,0.30) 66%, rgba(217,79,75,0) 100%);
       display: flex; flex-direction: column; justify-content: flex-end;
-      padding: 24px 12px 12px; gap: 6px;
+      padding: 24px 10px 12px 12px; gap: 6px;
     }
     .grid-card-overlay::before {
       content: ''; position: absolute; inset: 0; pointer-events: none;
@@ -213,13 +213,17 @@
       line-height: 16px; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     }
     .grid-card-badge {
-      flex-shrink: 0; display: flex; align-items: center; gap: 3px;
-      background: var(--secondary); border-radius: 999px; padding: 6px 7px;
+      flex-shrink: 0; display: flex; align-items: center; justify-content: center; gap: 3px;
+      height: 22px; padding: 6px 7px 6px 8px; border-radius: 999px;
+      box-shadow: 0 2px 4px rgba(54,64,57,0.16);
     }
-    .grid-card-badge svg { width: 11px; height: 11px; display: block; }
+    .grid-card-badge.rate-low  { background: rgba(74,44,103,0.9); }   /* <= 2.9 紫 */
+    .grid-card-badge.rate-mid  { background: rgba(27,176,199,0.9); }  /* >= 3.0 水色 */
+    .grid-card-badge.rate-high { background: rgba(45,186,164,0.9); }  /* >= 4.0 緑 */
+    .grid-card-badge svg { width: 11px; height: 11px; display: block; flex-shrink: 0; }
     .grid-card-badge-num {
       font-family: 'Dongle', sans-serif; font-weight: 700; font-size: 24px;
-      line-height: 1; color: #fff;
+      line-height: 12px; color: #fff;
       text-box-trim: trim-both; text-box-edge: cap alphabetic;
     }
     /* "これまでの記録" promo tile */
@@ -1257,11 +1261,19 @@ async function save() {
 /* ── List (TOP grid) ── */
 let listTab = 'all';
 let listSearch = '';
-const STAR_BADGE_SVG = '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2.5l2.95 5.98 6.6.96-4.78 4.66 1.13 6.57L12 18.56 6.1 21.67l1.13-6.57L2.45 9.44l6.6-.96L12 2.5z" fill="#fff"/></svg>';
+const STAR_BADGE_SVG = '<svg viewBox="0 0 11 11" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M5.13067 0.887972C5.26731 0.559455 5.73269 0.559454 5.86933 0.887972L6.86094 3.2721C6.91855 3.41059 7.04879 3.50522 7.19831 3.51721L9.77217 3.72355C10.1268 3.75199 10.2706 4.19459 10.0004 4.42606L8.03941 6.10587C7.9255 6.20345 7.87575 6.35657 7.91055 6.50247L8.50967 9.01412C8.59223 9.36021 8.21573 9.63376 7.91209 9.4483L5.7085 8.10235C5.5805 8.02417 5.4195 8.02417 5.2915 8.10235L3.08791 9.44829C2.78427 9.63376 2.40777 9.36021 2.49032 9.01412L3.08945 6.50247C3.12425 6.35657 3.0745 6.20345 2.96059 6.10587L0.999572 4.42606C0.729357 4.19459 0.873167 3.75199 1.22783 3.72355L3.80169 3.51721C3.95121 3.50522 4.08145 3.41059 4.13906 3.2721L5.13067 0.887972Z" fill="#F5CE53"/></svg>';
+
+function rateClass(rating) {
+  if (rating == null) return 'rate-low';
+  if (rating >= 4.0) return 'rate-high';
+  if (rating >= 3.0) return 'rate-mid';
+  return 'rate-low';
+}
 
 function cardHtml(r, mainUrl) {
   const brewery = r.region || '';
   const rating = (r.rating != null) ? Number(r.rating).toFixed(1) : '―';
+  const star = r.favorite ? STAR_BADGE_SVG : '';
   return `
     <div class="grid-card" data-id="${r.id}">
       <div class="grid-card-img">
@@ -1274,7 +1286,7 @@ function cardHtml(r, mainUrl) {
         <div class="grid-card-name">${esc(r.name)}</div>
         <div class="grid-card-meta">
           <span class="grid-card-brewery">${esc(brewery)}</span>
-          <span class="grid-card-badge">${STAR_BADGE_SVG}<span class="grid-card-badge-num">${rating}</span></span>
+          <span class="grid-card-badge ${rateClass(r.rating)}">${star}<span class="grid-card-badge-num">${rating}</span></span>
         </div>
       </div>
     </div>`;
