@@ -916,6 +916,13 @@
 </div>
 <input type="file" id="wz-cam" accept="image/*" capture="environment" style="display:none">
 <input type="file" id="wz-alb" accept="image/*" multiple style="display:none">
+<datalist id="rice-suggest">
+  <option value="山田錦"></option><option value="五百万石"></option><option value="美山錦"></option><option value="雄町"></option>
+  <option value="出羽燦々"></option><option value="八反錦"></option><option value="愛山"></option><option value="亀の尾"></option>
+  <option value="ひとごこち"></option><option value="玉栄"></option><option value="渡船"></option><option value="露葉風"></option>
+  <option value="吟風"></option><option value="彗星"></option><option value="きたしずく"></option><option value="越淡麗"></option>
+  <option value="千本錦"></option><option value="祝"></option><option value="強力"></option><option value="夢山水"></option>
+</datalist>
 
 <!-- ── 詳細 overlay ── -->
 <div class="overlay" id="ov-detail">
@@ -1712,7 +1719,7 @@ const WZ = { open:false, idx:0, editId:null, d:null };
 
 function wzResetData(){
   WZ.idx=0; WZ.editId=null;
-  WZ.d={ name:'',type:'',date:wzTodayISO(),pref:'',region:'',
+  WZ.d={ name:'',type:'',date:wzTodayISO(),pref:'',region:'',rice:'',yeast:'',abv:'',
     aromaCat:null,aromaStr:3,firstImp:null,aromaSub:[],alc:null,offAroma:[],
     taste:{attack:3,sweet:3,acid:3,body:3},feats:{},finish:{flen:3,fkire:3},fLeft:[],
     rating:0,fav:false,memo:'' };
@@ -1722,10 +1729,12 @@ function wzResetData(){
 
 async function openWizard(rec){
   wzResetData();
+  buildRegionSuggest();
   if(rec){
     WZ.editId=rec.id; const d=WZ.d, sc=rec.scores||{}, fl=(rec.flavors&&typeof rec.flavors==='object'&&!Array.isArray(rec.flavors))?rec.flavors:{};
     d.name=rec.name||''; d.type=rec.type||''; d.date=rec.date||wzTodayISO();
     d.pref=rec.prefecture||''; d.region=rec.region||'';
+    d.rice=rec.rice||''; d.yeast=rec.yeast||''; d.abv=rec.abv||'';
     d.aromaCat=rec.aromaCatId||null; d.aromaStr=sc.aroma||3; d.firstImp=rec.firstImpression||null;
     d.aromaSub=(fl.aromaSub||[]).slice(); d.alc=rec.alcohol||null; d.offAroma=(rec.concerns||[]).slice();
     d.taste={attack:rec.attack||3,sweet:sc.sweet||3,acid:sc.acid||3,body:sc.body||3};
@@ -1806,6 +1815,14 @@ function wzBodyEntry(){
     <div class="grid2">
       <div class="field"><label>産地</label>${wzSelect('pref',['北海道','青森県','岩手県','宮城県','秋田県','山形県','福島県','茨城県','栃木県','群馬県','埼玉県','千葉県','東京都','神奈川県','新潟県','富山県','石川県','福井県','山梨県','長野県','岐阜県','静岡県','愛知県','三重県','滋賀県','京都府','大阪府','兵庫県','奈良県','和歌山県','鳥取県','島根県','岡山県','広島県','山口県','徳島県','香川県','愛媛県','高知県','福岡県','佐賀県','長崎県','熊本県','大分県','宮崎県','鹿児島県','沖縄県','海外・その他'],d.pref,'選択...')}</div>
       <div class="field"><label>蔵元</label><input type="text" data-wf="region" value="${wzEsc(d.region)}" placeholder="例：旭酒造" list="region-suggest" autocomplete="off"></div>
+    </div>
+    <div class="grid2">
+      <div class="field"><label>酒米</label><input type="text" data-wf="rice" value="${wzEsc(d.rice)}" placeholder="例：山田錦" list="rice-suggest" autocomplete="off"></div>
+      <div class="field"><label>酵母</label><input type="text" data-wf="yeast" value="${wzEsc(d.yeast)}" placeholder="例：協会1801号" autocomplete="off"></div>
+    </div>
+    <div class="grid2">
+      <div class="field"><label>アルコール度数</label><input type="text" inputmode="decimal" data-wf="abv" value="${wzEsc(d.abv)}" placeholder="例：15.5"></div>
+      <div></div>
     </div>`;
 }
 
@@ -1914,6 +1931,7 @@ async function wzSave(){
     const rec={
       id:recId, createdAt:(WZ.editId&&records.find(r=>r.id===recId)?.createdAt)||new Date().toISOString(),
       name:d.name.trim(), type:d.type, prefecture:d.pref, region:(d.region||'').trim(), date:d.date,
+      rice:(d.rice||'').trim(), yeast:(d.yeast||'').trim(), abv:(d.abv||'').trim(),
       rating:d.rating, favorite:d.fav, memo:(d.memo||'').trim(),
       scores, flavors:{aromaMain:cat?cat.name:'', aromaSub:d.aromaSub.slice()}, concerns:d.offAroma.slice(),
       photoIds, mainPhotoIdx,
@@ -2091,6 +2109,9 @@ async function openDetail(id) {
     ${r.type   ? `<div class="detail-row"><span class="detail-label">種類</span><span class="detail-value">${esc(r.type)}</span></div>` : ''}
     ${r.prefecture ? `<div class="detail-row"><span class="detail-label">産地</span><span class="detail-value">${esc(r.prefecture)}</span></div>` : ''}
     ${r.region ? `<div class="detail-row"><span class="detail-label">蔵元</span><span class="detail-value">${esc(r.region)}</span></div>` : ''}
+    ${r.rice ? `<div class="detail-row"><span class="detail-label">酒米</span><span class="detail-value">${esc(r.rice)}</span></div>` : ''}
+    ${r.yeast ? `<div class="detail-row"><span class="detail-label">酵母</span><span class="detail-value">${esc(r.yeast)}</span></div>` : ''}
+    ${r.abv ? `<div class="detail-row"><span class="detail-label">度数</span><span class="detail-value">${esc(r.abv)}${/^[\d.]+$/.test(r.abv)?'%':''}</span></div>` : ''}
     <div class="detail-row"><span class="detail-label">評価</span><span class="detail-value">${starsHtml(r.rating,16)}</span></div>
     ${aromaHtml}
     <div class="detail-scores">
