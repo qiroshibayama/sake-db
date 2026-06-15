@@ -1972,6 +1972,40 @@ function photoRefresh(){ if(WZ.open) wzRender(); else renderPreview(); }
 const WZ_RICE_LIST=['山田錦','五百万石','美山錦','雄町','出羽燦々','八反錦','愛山','亀の尾','ひとごこち','玉栄','渡船','露葉風','吟風','彗星','きたしずく','越淡麗','千本錦','祝','強力','夢山水','山田穂','短稈渡船','神力','たかね錦','ゆめさんすい','吟ぎんが','華吹雪','華想い','百万石乃白','さけ武蔵','酒未来','雄山錦','金紋錦'];
 function wzLoadScript(src){ return new Promise((res,rej)=>{ if(window.Tesseract) return res(); const s=document.createElement('script'); s.src=src; s.onload=()=>res(); s.onerror=()=>rej(new Error('load failed')); document.head.appendChild(s); }); }
 function wzOcrProgress(show,pct,msg){ const el=document.getElementById('ocr-progress'); if(!el) return; el.classList.toggle('open',show); if(pct!=null) document.getElementById('ocr-pct').textContent=Math.round(pct*100)+'%'; if(msg) document.getElementById('ocr-msg').textContent=msg; }
+/* 低コントラストのラベル向け前処理：拡大＋グレースケール＋コントラスト伸長 */
+function wzPreprocess(file){
+  return new Promise((res,rej)=>{
+    const img=new Image();
+    img.onload=()=>{
+      let w=img.naturalWidth, h=img.naturalHeight;
+      const scale=Math.min(2.5, Math.max(1, 1800/Math.max(w,h))); // 小さい画像は拡大、最大2.5倍
+      const cw=Math.round(w*scale), ch=Math.round(h*scale);
+      const cv=document.createElement('canvas'); cv.width=cw; cv.height=ch;
+      const ctx=cv.getContext('2d'); ctx.drawImage(img,0,0,cw,ch);
+      try{
+        const id=ctx.getImageData(0,0,cw,ch), p=id.data, N=cw*ch;
+        const lum=new Float32Array(N);
+        // グレースケール＋ヒストグラム
+        const hist=new Array(256).fill(0);
+        for(let i=0,j=0;i<p.length;i+=4,j++){ const y=0.299*p[i]+0.587*p[i+1]+0.114*p[i+2]; lum[j]=y; hist[y|0]++; }
+        // 上下2%をクリップして外れ値に強いコントラスト伸長
+        const lo=N*0.02, hi=N*0.98; let acc=0,minV=0,maxV=255;
+        for(let v=0;v<256;v++){ acc+=hist[v]; if(acc>=lo){ minV=v; break; } }
+        acc=0; for(let v=255;v>=0;v--){ acc+=hist[v]; if(acc>=N-hi){ maxV=v; break; } }
+        const range=Math.max(1,maxV-minV);
+        for(let i=0,j=0;i<p.length;i+=4,j++){
+          let y=(lum[j]-minV)/range*255; y=255*Math.pow(Math.max(0,Math.min(1,y/255)),0.75);
+          const v=y<0?0:y>255?255:y; p[i]=p[i+1]=p[i+2]=v;
+        }
+        ctx.putImageData(id,0,0);
+      }catch(e){ /* CORS等で失敗したら原画のまま */ }
+      URL.revokeObjectURL(img.src);
+      res(cv);
+    };
+    img.onerror=()=>rej(new Error('img'));
+    img.src=URL.createObjectURL(file);
+  });
+}
 let _wzWorker=null;
 async function wzRunOCR(file){
   if(!file) return;
@@ -1981,7 +2015,9 @@ async function wzRunOCR(file){
     const logger=m=>{ if(m.status==='recognizing text') wzOcrProgress(true,m.progress,'ラベルを読み取り中…'); else if(m.status) wzOcrProgress(true,null,'辞書データを準備中…（縦書き対応）'); };
     // 縦書き(jpn_vert)＋横書き(jpn) 両モデルを使用。ワーカーは再利用
     if(!_wzWorker){ _wzWorker=await Tesseract.createWorker(['jpn','jpn_vert'],1,{ logger }); }
-    const { data:{ text } } = await _wzWorker.recognize(file);
+    wzOcrProgress(true,0,'画像を補正中…');
+    const input=await wzPreprocess(file).catch(()=>file);
+    const { data:{ text } } = await _wzWorker.recognize(input);
     const filled=wzApplyOCR(text);
     wzOcrProgress(false);
     wzRender();
