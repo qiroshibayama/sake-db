@@ -2017,8 +2017,12 @@ async function wzRunOCR(file){
     if(!_wzWorker){ _wzWorker=await Tesseract.createWorker(['jpn','jpn_vert'],1,{ logger }); }
     wzOcrProgress(true,0,'画像を補正中…');
     const input=await wzPreprocess(file).catch(()=>file);
-    const { data:{ text } } = await _wzWorker.recognize(input);
-    const filled=wzApplyOCR(text);
+    // 2パス：横書き(自動)＋縦書き(縦ブロック)。結果を統合してキーワード抽出
+    let t1='',t2='';
+    try{ await _wzWorker.setParameters({tessedit_pageseg_mode:'3'}); t1=(await _wzWorker.recognize(input)).data.text; }catch(e){}
+    wzOcrProgress(true,0,'縦書きを解析中…');
+    try{ await _wzWorker.setParameters({tessedit_pageseg_mode:'5'}); t2=(await _wzWorker.recognize(input)).data.text; }catch(e){}
+    const filled=wzApplyOCR(t1+'\n'+t2);
     wzOcrProgress(false);
     wzRender();
     wzToast(filled? `読み取り完了（${filled}項目・要確認）` : '読み取れる項目がありませんでした');
