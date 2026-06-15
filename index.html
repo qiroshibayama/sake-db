@@ -1972,13 +1972,16 @@ function photoRefresh(){ if(WZ.open) wzRender(); else renderPreview(); }
 const WZ_RICE_LIST=['山田錦','五百万石','美山錦','雄町','出羽燦々','八反錦','愛山','亀の尾','ひとごこち','玉栄','渡船','露葉風','吟風','彗星','きたしずく','越淡麗','千本錦','祝','強力','夢山水','山田穂','短稈渡船','神力','たかね錦','ゆめさんすい','吟ぎんが','華吹雪','華想い','百万石乃白','さけ武蔵','酒未来','雄山錦','金紋錦'];
 function wzLoadScript(src){ return new Promise((res,rej)=>{ if(window.Tesseract) return res(); const s=document.createElement('script'); s.src=src; s.onload=()=>res(); s.onerror=()=>rej(new Error('load failed')); document.head.appendChild(s); }); }
 function wzOcrProgress(show,pct,msg){ const el=document.getElementById('ocr-progress'); if(!el) return; el.classList.toggle('open',show); if(pct!=null) document.getElementById('ocr-pct').textContent=Math.round(pct*100)+'%'; if(msg) document.getElementById('ocr-msg').textContent=msg; }
+let _wzWorker=null;
 async function wzRunOCR(file){
   if(!file) return;
   wzOcrProgress(true,0,'準備中…');
   try{
     await wzLoadScript('https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js');
-    wzOcrProgress(true,0,'ラベルを読み取り中…');
-    const { data:{ text } } = await Tesseract.recognize(file,'jpn',{ logger:m=>{ if(m.status==='recognizing text') wzOcrProgress(true,m.progress,'ラベルを読み取り中…'); else if(m.status) wzOcrProgress(true,null,'辞書データを準備中…'); } });
+    const logger=m=>{ if(m.status==='recognizing text') wzOcrProgress(true,m.progress,'ラベルを読み取り中…'); else if(m.status) wzOcrProgress(true,null,'辞書データを準備中…（縦書き対応）'); };
+    // 縦書き(jpn_vert)＋横書き(jpn) 両モデルを使用。ワーカーは再利用
+    if(!_wzWorker){ _wzWorker=await Tesseract.createWorker(['jpn','jpn_vert'],1,{ logger }); }
+    const { data:{ text } } = await _wzWorker.recognize(file);
     const filled=wzApplyOCR(text);
     wzOcrProgress(false);
     wzRender();
