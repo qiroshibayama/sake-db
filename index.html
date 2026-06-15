@@ -1217,7 +1217,7 @@ function setupEvents() {
   // ウィザード用 写真入力
   document.getElementById('wz-cam').addEventListener('change', handlePhotos);
   document.getElementById('wz-alb').addEventListener('change', handlePhotos);
-  document.getElementById('wz-ocr').addEventListener('change', e => { const f=e.target.files[0]; e.target.value=''; wzRunOCR(f); });
+  document.getElementById('wz-ocr').addEventListener('change', e => { const f=e.target.files[0]; e.target.value=''; wzRunOCR(f,_wzOcrMode); });
 
   // Form back
   document.getElementById('form-back').addEventListener('click', () => {
@@ -1812,7 +1812,10 @@ function wzPhotoSection(){
   const btns=`<div class="grid2" style="margin-bottom:10px">
     <button type="button" class="btn-ghost" data-wp="cam" style="margin-top:0">📷 撮影</button>
     <button type="button" class="btn-ghost" data-wp="alb" style="margin-top:0">🖼 アルバム</button></div>
-    <button type="button" class="btn-ghost" data-wp="ocr" style="margin:0 0 18px">📄 ラベルから読み取り（自動入力）</button>`;
+    <div class="sec-label" style="margin:2px 0 8px">📄 ラベルから自動入力<span class="opt">向きを選んで読み取り</span></div>
+    <div class="grid2" style="margin-bottom:18px">
+      <button type="button" class="btn-ghost" data-wp="ocrv" style="margin-top:0">縦書きラベル</button>
+      <button type="button" class="btn-ghost" data-wp="ocrh" style="margin-top:0">横書きラベル</button></div>`;
   return grid+btns;
 }
 
@@ -1906,7 +1909,8 @@ function wzWire(s){
     const a=el.dataset.wp, i=+el.dataset.i;
     if(a==='cam') document.getElementById('wz-cam').click();
     else if(a==='alb') document.getElementById('wz-alb').click();
-    else if(a==='ocr') document.getElementById('wz-ocr').click();
+    else if(a==='ocrv'){ _wzOcrMode='vert'; document.getElementById('wz-ocr').click(); }
+    else if(a==='ocrh'){ _wzOcrMode='horiz'; document.getElementById('wz-ocr').click(); }
     else if(a==='main'){ mainPhotoIdx=i; wzRender(); }
     else if(a==='del'){ pendingPhotos.splice(i,1); if(mainPhotoIdx>=pendingPhotos.length) mainPhotoIdx=Math.max(0,pendingPhotos.length-1); wzRender(); }
     else if(a==='crop') openCrop(i);
@@ -2006,23 +2010,22 @@ function wzPreprocess(file){
     img.src=URL.createObjectURL(file);
   });
 }
-let _wzWorker=null;
-async function wzRunOCR(file){
+let _wzWorker=null, _wzOcrMode='horiz';
+async function wzRunOCR(file, mode){
   if(!file) return;
   wzOcrProgress(true,0,'準備中…');
   try{
     await wzLoadScript('https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js');
-    const logger=m=>{ if(m.status==='recognizing text') wzOcrProgress(true,m.progress,'ラベルを読み取り中…'); else if(m.status) wzOcrProgress(true,null,'辞書データを準備中…（縦書き対応）'); };
-    // 縦書き(jpn_vert)＋横書き(jpn) 両モデルを使用。ワーカーは再利用
+    const logger=m=>{ if(m.status==='recognizing text') wzOcrProgress(true,m.progress,'ラベルを読み取り中…'); else if(m.status) wzOcrProgress(true,null,'辞書データを準備中…'); };
     if(!_wzWorker){ _wzWorker=await Tesseract.createWorker(['jpn','jpn_vert'],1,{ logger }); }
     wzOcrProgress(true,0,'画像を補正中…');
     const input=await wzPreprocess(file).catch(()=>file);
-    // 2パス：横書き(自動)＋縦書き(縦ブロック)。結果を統合してキーワード抽出
-    let t1='',t2='';
-    try{ await _wzWorker.setParameters({tessedit_pageseg_mode:'3'}); t1=(await _wzWorker.recognize(input)).data.text; }catch(e){}
-    wzOcrProgress(true,0,'縦書きを解析中…');
-    try{ await _wzWorker.setParameters({tessedit_pageseg_mode:'5'}); t2=(await _wzWorker.recognize(input)).data.text; }catch(e){}
-    const filled=wzApplyOCR(t1+'\n'+t2);
+    // 選択された向きで1パス（縦書き=縦ブロック PSM5 / 横書き=自動 PSM3）
+    const psm = mode==='vert' ? '5' : '3';
+    wzOcrProgress(true,0, mode==='vert' ? '縦書きを読み取り中…' : 'ラベルを読み取り中…');
+    await _wzWorker.setParameters({ tessedit_pageseg_mode: psm });
+    const { data:{ text } } = await _wzWorker.recognize(input);
+    const filled=wzApplyOCR(text);
     wzOcrProgress(false);
     wzRender();
     wzToast(filled? `読み取り完了（${filled}項目・要確認）` : '読み取れる項目がありませんでした');
