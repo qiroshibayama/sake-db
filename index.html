@@ -591,6 +591,15 @@
     #ov-wizard .btn-save-inline{flex-shrink:0;padding:18px 24px;background:var(--secondary);color:#fff;border:none;border-radius:16px;font-family:var(--font-round);font-weight:700;font-size:15px;cursor:pointer;-webkit-tap-highlight-color:transparent;}
     #ov-wizard .rf-toast{position:fixed;left:50%;bottom:40px;transform:translate(-50%,16px);background:var(--secondary);color:#fff;font-family:var(--font-round);font-weight:700;font-size:14px;padding:13px 22px;border-radius:999px;display:flex;align-items:center;gap:8px;box-shadow:0 8px 24px rgba(74,44,103,.32);opacity:0;pointer-events:none;transition:all .28s;z-index:120;}
     #ov-wizard .rf-toast svg{width:18px;height:18px;} #ov-wizard .rf-toast.show{opacity:1;transform:translate(-50%,0);}
+    /* OCR進捗 */
+    #ocr-progress{display:none;position:fixed;inset:0;z-index:300;background:rgba(20,20,20,.6);align-items:center;justify-content:center;}
+    #ocr-progress.open{display:flex;}
+    #ocr-progress .ocr-card{background:var(--bg_white,#fff);border-radius:20px;padding:30px 28px;max-width:280px;width:80%;text-align:center;}
+    #ocr-progress .ocr-spinner{width:42px;height:42px;margin:0 auto 16px;border:4px solid var(--secondary-soft,#efeafc);border-top-color:var(--secondary,#4a2c67);border-radius:50%;animation:ocrspin .8s linear infinite;}
+    @keyframes ocrspin{to{transform:rotate(360deg);}}
+    #ocr-progress .ocr-msg{font-family:var(--font-round);font-weight:700;font-size:15px;color:var(--grey900,#202020);}
+    #ocr-progress .ocr-pct{font-family:var(--font-num);font-size:30px;color:var(--secondary,#4a2c67);line-height:1;margin:6px 0 8px;}
+    #ocr-progress .ocr-hint{font-size:11px;color:var(--grey600,#6f6f6f);line-height:1.6;}
   </style>
 </head>
 <body>
@@ -916,6 +925,8 @@
 </div>
 <input type="file" id="wz-cam" accept="image/*" capture="environment" style="display:none">
 <input type="file" id="wz-alb" accept="image/*" multiple style="display:none">
+<input type="file" id="wz-ocr" accept="image/*" style="display:none">
+<div id="ocr-progress"><div class="ocr-card"><div class="ocr-spinner"></div><div class="ocr-msg" id="ocr-msg">ラベルを読み取り中…</div><div class="ocr-pct" id="ocr-pct">0%</div><div class="ocr-hint">初回は辞書データの読み込みに時間がかかります</div></div></div>
 <datalist id="rice-suggest">
   <option value="山田錦"></option><option value="五百万石"></option><option value="美山錦"></option><option value="雄町"></option>
   <option value="出羽燦々"></option><option value="八反錦"></option><option value="愛山"></option><option value="亀の尾"></option>
@@ -1206,6 +1217,7 @@ function setupEvents() {
   // ウィザード用 写真入力
   document.getElementById('wz-cam').addEventListener('change', handlePhotos);
   document.getElementById('wz-alb').addEventListener('change', handlePhotos);
+  document.getElementById('wz-ocr').addEventListener('change', e => { const f=e.target.files[0]; e.target.value=''; wzRunOCR(f); });
 
   // Form back
   document.getElementById('form-back').addEventListener('click', () => {
@@ -1719,7 +1731,7 @@ const WZ = { open:false, idx:0, editId:null, d:null };
 
 function wzResetData(){
   WZ.idx=0; WZ.editId=null;
-  WZ.d={ name:'',type:'',date:wzTodayISO(),pref:'',region:'',rice:'',yeast:'',abv:'',
+  WZ.d={ name:'',type:'',date:wzTodayISO(),pref:'',region:'',rice:'',yeast:'',abv:'',polish:'',
     aromaCat:null,aromaStr:3,firstImp:null,aromaSub:[],alc:null,offAroma:[],
     taste:{attack:3,sweet:3,acid:3,body:3},feats:{},finish:{flen:3,fkire:3},fLeft:[],
     rating:0,fav:false,memo:'' };
@@ -1734,7 +1746,7 @@ async function openWizard(rec){
     WZ.editId=rec.id; const d=WZ.d, sc=rec.scores||{}, fl=(rec.flavors&&typeof rec.flavors==='object'&&!Array.isArray(rec.flavors))?rec.flavors:{};
     d.name=rec.name||''; d.type=rec.type||''; d.date=rec.date||wzTodayISO();
     d.pref=rec.prefecture||''; d.region=rec.region||'';
-    d.rice=rec.rice||''; d.yeast=rec.yeast||''; d.abv=rec.abv||'';
+    d.rice=rec.rice||''; d.yeast=rec.yeast||''; d.abv=rec.abv||''; d.polish=rec.polish||'';
     d.aromaCat=rec.aromaCatId||null; d.aromaStr=sc.aroma||3; d.firstImp=rec.firstImpression||null;
     d.aromaSub=(fl.aromaSub||[]).slice(); d.alc=rec.alcohol||null; d.offAroma=(rec.concerns||[]).slice();
     d.taste={attack:rec.attack||3,sweet:sc.sweet||3,acid:sc.acid||3,body:sc.body||3};
@@ -1797,9 +1809,10 @@ function wzPhotoSection(){
     </div>`).join('');
     grid=`<div class="ph-grid">${thumbs}</div>`;
   }
-  const btns=`<div class="grid2" style="margin-bottom:18px">
+  const btns=`<div class="grid2" style="margin-bottom:10px">
     <button type="button" class="btn-ghost" data-wp="cam" style="margin-top:0">📷 撮影</button>
-    <button type="button" class="btn-ghost" data-wp="alb" style="margin-top:0">🖼 アルバム</button></div>`;
+    <button type="button" class="btn-ghost" data-wp="alb" style="margin-top:0">🖼 アルバム</button></div>
+    <button type="button" class="btn-ghost" data-wp="ocr" style="margin:0 0 18px">📄 ラベルから読み取り（自動入力）</button>`;
   return grid+btns;
 }
 
@@ -1822,7 +1835,7 @@ function wzBodyEntry(){
     </div>
     <div class="grid2">
       <div class="field"><label>アルコール度数</label><input type="text" inputmode="decimal" data-wf="abv" value="${wzEsc(d.abv)}" placeholder="例：15.5"></div>
-      <div></div>
+      <div class="field"><label>精米歩合</label><input type="text" inputmode="numeric" data-wf="polish" value="${wzEsc(d.polish)}" placeholder="例：50"></div>
     </div>`;
 }
 
@@ -1889,6 +1902,7 @@ function wzWire(s){
     const a=el.dataset.wp, i=+el.dataset.i;
     if(a==='cam') document.getElementById('wz-cam').click();
     else if(a==='alb') document.getElementById('wz-alb').click();
+    else if(a==='ocr') document.getElementById('wz-ocr').click();
     else if(a==='main'){ mainPhotoIdx=i; wzRender(); }
     else if(a==='del'){ pendingPhotos.splice(i,1); if(mainPhotoIdx>=pendingPhotos.length) mainPhotoIdx=Math.max(0,pendingPhotos.length-1); wzRender(); }
     else if(a==='crop') openCrop(i);
@@ -1931,7 +1945,7 @@ async function wzSave(){
     const rec={
       id:recId, createdAt:(WZ.editId&&records.find(r=>r.id===recId)?.createdAt)||new Date().toISOString(),
       name:d.name.trim(), type:d.type, prefecture:d.pref, region:(d.region||'').trim(), date:d.date,
-      rice:(d.rice||'').trim(), yeast:(d.yeast||'').trim(), abv:(d.abv||'').trim(),
+      rice:(d.rice||'').trim(), yeast:(d.yeast||'').trim(), abv:(d.abv||'').trim(), polish:(d.polish||'').trim(),
       rating:d.rating, favorite:d.fav, memo:(d.memo||'').trim(),
       scores, flavors:{aromaMain:cat?cat.name:'', aromaSub:d.aromaSub.slice()}, concerns:d.offAroma.slice(),
       photoIds, mainPhotoIdx,
@@ -1949,6 +1963,41 @@ async function wzSave(){
 
 /* 写真の再描画ルーティング（ウィザード or 旧フォーム） */
 function photoRefresh(){ if(WZ.open) wzRender(); else renderPreview(); }
+
+/* ── ラベルOCR（Tesseract.js・無料/端末内・遅延ロード） ── */
+const WZ_RICE_LIST=['山田錦','五百万石','美山錦','雄町','出羽燦々','八反錦','愛山','亀の尾','ひとごこち','玉栄','渡船','露葉風','吟風','彗星','きたしずく','越淡麗','千本錦','祝','強力','夢山水','山田穂','短稈渡船','神力','たかね錦','ゆめさんすい','吟ぎんが','華吹雪','華想い','百万石乃白','さけ武蔵','酒未来','雄山錦','金紋錦'];
+function wzLoadScript(src){ return new Promise((res,rej)=>{ if(window.Tesseract) return res(); const s=document.createElement('script'); s.src=src; s.onload=()=>res(); s.onerror=()=>rej(new Error('load failed')); document.head.appendChild(s); }); }
+function wzOcrProgress(show,pct,msg){ const el=document.getElementById('ocr-progress'); if(!el) return; el.classList.toggle('open',show); if(pct!=null) document.getElementById('ocr-pct').textContent=Math.round(pct*100)+'%'; if(msg) document.getElementById('ocr-msg').textContent=msg; }
+async function wzRunOCR(file){
+  if(!file) return;
+  wzOcrProgress(true,0,'準備中…');
+  try{
+    await wzLoadScript('https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js');
+    wzOcrProgress(true,0,'ラベルを読み取り中…');
+    const { data:{ text } } = await Tesseract.recognize(file,'jpn',{ logger:m=>{ if(m.status==='recognizing text') wzOcrProgress(true,m.progress,'ラベルを読み取り中…'); else if(m.status) wzOcrProgress(true,null,'辞書データを準備中…'); } });
+    const filled=wzApplyOCR(text);
+    wzOcrProgress(false);
+    wzRender();
+    wzToast(filled? `読み取り完了（${filled}項目・要確認）` : '読み取れる項目がありませんでした');
+  }catch(e){ wzOcrProgress(false); wzToast('読み取りに失敗しました（通信環境をご確認ください）'); }
+}
+function wzApplyOCR(raw){
+  const d=WZ.d; let n=0;
+  const text=(raw||'').replace(/[ \t　]/g,'');
+  // アルコール度数
+  let m=text.match(/アルコール(?:分|度数)?[:：]?\s*([0-9]{1,2}(?:[.．][0-9])?)/) || text.match(/([0-9]{1,2}(?:[.．][0-9])?)\s*(?:度|%|％)(?![^\n]*精米)/);
+  if(m){ d.abv=m[1].replace('．','.'); n++; }
+  // 精米歩合
+  m=text.match(/精米歩合[:：]?\s*([0-9]{2})\s*[%％]?/);
+  if(m){ d.polish=m[1]; n++; }
+  // 酒米（品種リスト照合）
+  const rice=WZ_RICE_LIST.find(r=>text.includes(r));
+  if(rice){ d.rice=rice; n++; }
+  // 酵母
+  m=text.match(/(?:きょうかい|協会)[^\n]{0,2}?([0-9]{1,4})号?/) || text.match(/([0-9]{3,4}号)/) || text.match(/(セルレニン耐性\S*|M-?310|アンプル\S*)/);
+  if(m){ d.yeast=(m[0]||'').replace(/酵母|使用/g,'').trim(); n++; }
+  return n;
+}
 
 /* ── Android戻る/ジェスチャー対応：オーバーレイを履歴スタックに積む ──
    open時に hide関数を登録＋history.pushState。戻る(popstate)で最上段を閉じる。
@@ -2112,6 +2161,7 @@ async function openDetail(id) {
     ${r.rice ? `<div class="detail-row"><span class="detail-label">酒米</span><span class="detail-value">${esc(r.rice)}</span></div>` : ''}
     ${r.yeast ? `<div class="detail-row"><span class="detail-label">酵母</span><span class="detail-value">${esc(r.yeast)}</span></div>` : ''}
     ${r.abv ? `<div class="detail-row"><span class="detail-label">度数</span><span class="detail-value">${esc(r.abv)}${/^[\d.]+$/.test(r.abv)?'%':''}</span></div>` : ''}
+    ${r.polish ? `<div class="detail-row"><span class="detail-label">精米歩合</span><span class="detail-value">${esc(r.polish)}${/^[\d.]+$/.test(r.polish)?'%':''}</span></div>` : ''}
     <div class="detail-row"><span class="detail-label">評価</span><span class="detail-value">${starsHtml(r.rating,16)}</span></div>
     ${aromaHtml}
     <div class="detail-scores">
