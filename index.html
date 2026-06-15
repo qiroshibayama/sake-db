@@ -461,6 +461,133 @@
     .concerns-arrow.open { transform: rotate(90deg); }
     .ftag-concern { font-size: 14px; padding: 8px 13px; border-radius: 999px; background: var(--bg2); color: var(--text2); border: 0.5px solid var(--border); cursor: pointer; -webkit-tap-highlight-color: transparent; user-select: none; display: inline-block; margin: 0 4px 6px 0; transition: all 0.15s; }
     .ftag-concern.on-concern { background: var(--red-bg); color: var(--red-text); border-color: transparent; font-weight: 500; }
+
+    /* ============ テイスティング・ウィザード ============ */
+    :root{
+      --primary-deep:#c4e36a; --primary-soft:#eef7d3; --secondary-soft:#efeafc;
+      --rate-low:#4a2c67; --rate-mid:#1bb0c7; --rate-high:#2dbaa4;
+      --cat-kaoru-bg:#efeafc; --cat-kaoru:#5a3b8c;
+      --cat-sou-bg:#e6f1fb;   --cat-sou:#0c447c;
+      --cat-jun-bg:#fbeede;   --cat-jun:#9a5a2a;
+      --cat-juku-bg:#efe7dd;  --cat-juku:#6f5236;
+      --cat-alc-bg:#fbf3d4;   --cat-alc:#857018;
+      --cat-none-bg:#eeeeea;  --cat-none:#9a9a95;
+      --wz-line:rgba(32,32,32,.10); --wz-line2:rgba(32,32,32,.18); --wz-grey4:#a7a7a2;
+      --font-round:'Zen Maru Gothic',sans-serif; --font-num:'Dongle',sans-serif;
+      --font-head:'Zen Kaku Gothic New',sans-serif;
+    }
+    #ov-wizard{position:fixed;inset:0;z-index:100;background:var(--bg_light_grey);display:none;flex-direction:column;
+      transform:translateY(100%);transition:transform .34s cubic-bezier(.22,.61,.36,1);max-width:480px;margin:0 auto;}
+    #ov-wizard.open{display:flex;transform:translateY(0);}
+    #wiz-frame{flex:1;display:flex;flex-direction:column;min-height:0;}
+    #ov-wizard .wiz-top{display:flex;align-items:center;gap:14px;padding:18px 20px 12px;flex-shrink:0;}
+    #ov-wizard .wiz-step-pill{font-family:var(--font-round);font-weight:700;font-size:11px;letter-spacing:.06em;color:var(--secondary);background:var(--secondary-soft);padding:6px 12px;border-radius:999px;white-space:nowrap;}
+    #ov-wizard .wiz-prog-seg{flex:1;display:flex;gap:5px;}
+    #ov-wizard .pseg{flex:1;height:6px;border-radius:3px;background:#dfe2da;transition:background .35s;}
+    #ov-wizard .pseg.done{background:var(--primary);}
+    #ov-wizard .pseg.cur{background:var(--secondary);}
+    #ov-wizard .wiz-skip{font-family:var(--font-round);font-weight:500;font-size:13px;color:var(--wz-grey4);background:none;border:none;cursor:pointer;-webkit-tap-highlight-color:transparent;white-space:nowrap;padding:6px 0;}
+    #ov-wizard .wiz-titlebar{display:flex;align-items:center;gap:8px;padding:4px 20px 14px;border-bottom:1px solid var(--wz-line);flex-shrink:0;}
+    #ov-wizard .wiz-back{width:30px;height:30px;border-radius:999px;border:none;background:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--grey600);-webkit-tap-highlight-color:transparent;margin-left:-6px;flex-shrink:0;}
+    #ov-wizard .wiz-back svg{width:20px;height:20px;}
+    #ov-wizard .wiz-sectitle{font-family:var(--font-round);font-weight:700;font-size:23px;color:var(--grey900);letter-spacing:.02em;}
+    #ov-wizard .wiz-bignum{font-family:var(--font-num);font-weight:700;font-size:44px;line-height:.7;color:var(--secondary);margin-left:auto;white-space:nowrap;}
+    #ov-wizard .wiz-bignum small{font-family:var(--font-num);font-weight:400;font-size:23px;color:var(--wz-grey4);}
+    #ov-wizard .wiz-body{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:20px 20px 24px;}
+    #ov-wizard .wiz-anim{animation:wizIn .3s cubic-bezier(.22,.61,.36,1) both;}
+    @keyframes wizIn{from{transform:translateX(10px);}to{transform:translateX(0);}}
+    #ov-wizard .q-title{font-family:var(--font-round);font-weight:700;font-size:23px;line-height:1.4;color:var(--grey900);margin-bottom:6px;}
+    #ov-wizard .q-title .accent{color:var(--secondary);}
+    #ov-wizard .q-sub{font-family:var(--font-body,sans-serif);font-size:12.5px;color:var(--wz-grey4);margin-bottom:20px;line-height:1.6;}
+    #ov-wizard .sel-chip{display:inline-flex;align-items:center;gap:7px;font-family:var(--font-round);font-weight:700;font-size:13px;padding:8px 14px;border-radius:999px;margin-bottom:18px;}
+    #ov-wizard .cat-list{display:flex;flex-direction:column;gap:11px;}
+    #ov-wizard .cat-item{display:flex;align-items:center;gap:14px;width:100%;text-align:left;border:1.5px solid transparent;border-radius:18px;padding:15px 16px;cursor:pointer;background:#f3f3ef;-webkit-tap-highlight-color:transparent;transition:all .16s;}
+    #ov-wizard .cat-ic{width:46px;height:46px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:25px;background:rgba(255,255,255,.7);flex-shrink:0;}
+    #ov-wizard .cat-txt{flex:1;min-width:0;}
+    #ov-wizard .cat-name{font-family:var(--font-round);font-weight:700;font-size:15.5px;color:var(--grey900);}
+    #ov-wizard .cat-desc{font-size:11.5px;color:var(--grey600);margin-top:2px;}
+    #ov-wizard .cat-check{width:22px;height:22px;border-radius:999px;border:2px solid var(--wz-line2);flex-shrink:0;display:flex;align-items:center;justify-content:center;opacity:.4;transition:all .16s;}
+    #ov-wizard .cat-check svg{width:13px;height:13px;opacity:0;}
+    #ov-wizard .cat-item.on .cat-check{opacity:1;border-color:transparent;background:var(--secondary);}
+    #ov-wizard .cat-item.on .cat-check svg{opacity:1;}
+    #ov-wizard .cat-item[data-cat=kaoru]{background:var(--cat-kaoru-bg);} #ov-wizard .cat-item[data-cat=kaoru].on{border-color:var(--cat-kaoru);}
+    #ov-wizard .cat-item[data-cat=sou]{background:var(--cat-sou-bg);} #ov-wizard .cat-item[data-cat=sou].on{border-color:var(--cat-sou);}
+    #ov-wizard .cat-item[data-cat=jun]{background:var(--cat-jun-bg);} #ov-wizard .cat-item[data-cat=jun].on{border-color:var(--cat-jun);}
+    #ov-wizard .cat-item[data-cat=juku]{background:var(--cat-juku-bg);} #ov-wizard .cat-item[data-cat=juku].on{border-color:var(--cat-juku);}
+    #ov-wizard .cat-item[data-cat=alc]{background:var(--cat-alc-bg);} #ov-wizard .cat-item[data-cat=alc].on{border-color:var(--cat-alc);}
+    #ov-wizard .cat-item[data-cat=none]{background:var(--cat-none-bg);} #ov-wizard .cat-item[data-cat=none].on{border-color:var(--cat-none);}
+    #ov-wizard .field{margin-bottom:18px;}
+    #ov-wizard .field:last-child{margin-bottom:0;}
+    #ov-wizard .field > label{display:block;font-family:var(--font-round);font-weight:500;font-size:13px;color:var(--grey600);margin-bottom:8px;}
+    #ov-wizard .field .req{color:var(--secondary);font-weight:700;margin-left:3px;}
+    #ov-wizard .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+    #ov-wizard .sec-label{font-family:var(--font-round);font-weight:700;font-size:13px;color:var(--grey900);margin:0 0 11px;}
+    #ov-wizard .sec-label .opt{font-weight:400;font-size:11px;color:var(--wz-grey4);margin-left:7px;}
+    #ov-wizard .divider{height:1px;background:var(--wz-line);margin:20px 0 18px;}
+    #ov-wizard input[type=text],#ov-wizard input[type=date],#ov-wizard select,#ov-wizard textarea{
+      width:100%;padding:14px;font-size:16px;font-family:var(--font-round);font-weight:500;background:#fff;
+      border:1px solid var(--wz-line2);border-radius:13px;color:var(--grey900);-webkit-appearance:none;outline:none;transition:border-color .15s,box-shadow .15s;}
+    #ov-wizard input::placeholder{color:var(--wz-grey4);font-weight:500;}
+    #ov-wizard input:focus,#ov-wizard select:focus,#ov-wizard textarea:focus{border-color:var(--secondary);box-shadow:0 0 0 3px var(--secondary-soft);}
+    #ov-wizard select{background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 14 14'><path d='M3 5l4 4 4-4' stroke='%236f6f6f' stroke-width='1.6' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>");background-repeat:no-repeat;background-position:right 14px center;padding-right:36px;}
+    #ov-wizard textarea{resize:none;height:104px;line-height:1.6;font-weight:400;}
+    #ov-wizard .photo-drop{border:1.5px dashed var(--wz-line2);border-radius:18px;background:#fff;cursor:pointer;padding:30px 16px;display:flex;flex-direction:column;align-items:center;gap:10px;-webkit-tap-highlight-color:transparent;margin-bottom:18px;}
+    #ov-wizard .photo-drop .ic{width:44px;height:44px;border-radius:14px;background:var(--secondary-soft);display:flex;align-items:center;justify-content:center;color:var(--secondary);}
+    #ov-wizard .photo-drop .ic svg{width:24px;height:24px;}
+    #ov-wizard .photo-drop .tx{font-family:var(--font-round);font-weight:700;font-size:14px;color:var(--grey600);}
+    #ov-wizard .ph-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:18px;}
+    #ov-wizard .ph-thumb{position:relative;aspect-ratio:3/4;border-radius:12px;overflow:hidden;background:#e8e9e3;}
+    #ov-wizard .ph-thumb img{width:100%;height:100%;object-fit:cover;display:block;}
+    #ov-wizard .ph-badge{position:absolute;top:6px;left:6px;background:var(--secondary);color:#fff;font-family:var(--font-round);font-weight:700;font-size:9px;padding:3px 7px;border-radius:999px;}
+    #ov-wizard .ph-mini{position:absolute;bottom:0;left:0;right:0;display:flex;}
+    #ov-wizard .ph-mini button{flex:1;border:none;cursor:pointer;padding:6px 1px;font-size:11px;color:#fff;-webkit-tap-highlight-color:transparent;}
+    #ov-wizard .ph-main{background:rgba(74,44,103,.8);} #ov-wizard .ph-main.is{background:rgba(74,44,103,.97);}
+    #ov-wizard .ph-crop{background:rgba(27,176,199,.82);} #ov-wizard .ph-del{background:rgba(0,0,0,.5);}
+    #ov-wizard .ph-add{aspect-ratio:3/4;border:1.5px dashed var(--wz-line2);border-radius:12px;background:#fff;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;color:var(--secondary);-webkit-tap-highlight-color:transparent;}
+    #ov-wizard .ph-add svg{width:22px;height:22px;} #ov-wizard .ph-add span{font-family:var(--font-round);font-weight:700;font-size:11px;}
+    #ov-wizard .imp-row{display:grid;grid-template-columns:1fr 1fr;gap:11px;}
+    #ov-wizard .imp-btn{display:flex;align-items:center;justify-content:center;gap:8px;border:1.5px solid var(--wz-line2);border-radius:14px;background:#fff;cursor:pointer;padding:15px 10px;-webkit-tap-highlight-color:transparent;font-family:var(--font-round);font-weight:700;font-size:14px;color:var(--grey600);}
+    #ov-wizard .imp-btn.on{background:var(--primary-soft);border-color:var(--secondary);color:var(--secondary);}
+    #ov-wizard .chips{display:flex;flex-wrap:wrap;gap:8px;}
+    #ov-wizard .chip{font-family:var(--font-round);font-weight:500;font-size:13.5px;padding:9px 14px;border-radius:999px;background:#fff;color:var(--grey600);border:1px solid var(--wz-line2);cursor:pointer;-webkit-tap-highlight-color:transparent;user-select:none;white-space:nowrap;}
+    #ov-wizard .chip.sm{font-size:13px;padding:8px 13px;}
+    #ov-wizard .chip.on{background:var(--secondary-soft);color:var(--secondary);border-color:transparent;font-weight:700;}
+    #ov-wizard .chip.on-warn{background:#fcebeb;color:#a32d2d;border-color:transparent;font-weight:700;}
+    #ov-wizard .sld{margin-bottom:18px;} #ov-wizard .sld:last-child{margin-bottom:0;}
+    #ov-wizard .sld-phase{font-size:10.5px;color:var(--wz-grey4);margin-bottom:1px;}
+    #ov-wizard .sld-name{font-family:var(--font-round);font-weight:700;font-size:14px;color:var(--grey900);margin-bottom:7px;}
+    #ov-wizard .sld input[type=range]{width:100%;height:24px;cursor:pointer;accent-color:var(--secondary);}
+    #ov-wizard .sld-ends{display:flex;justify-content:space-between;margin-top:3px;}
+    #ov-wizard .sld-ends span{font-size:11px;color:var(--wz-grey4);}
+    #ov-wizard .seg-row{display:flex;align-items:center;gap:12px;margin-bottom:10px;}
+    #ov-wizard .seg-name{font-family:var(--font-round);font-weight:500;font-size:13.5px;color:var(--grey900);width:62px;flex-shrink:0;}
+    #ov-wizard .seg{flex:1;display:flex;gap:6px;}
+    #ov-wizard .seg-cell{flex:1;text-align:center;font-family:var(--font-round);font-weight:700;font-size:12.5px;padding:8px 0;border-radius:9px;background:#fff;border:1px solid var(--wz-line);color:var(--wz-grey4);cursor:pointer;-webkit-tap-highlight-color:transparent;user-select:none;}
+    #ov-wizard .seg-cell.fill{background:var(--primary);color:var(--secondary);border-color:transparent;}
+    #ov-wizard .rating-block{display:flex;flex-direction:column;align-items:center;gap:10px;padding:6px 0 4px;}
+    #ov-wizard .wz-stars{display:flex;gap:6px;}
+    #ov-wizard .star-wrap{position:relative;display:inline-flex;width:46px;height:46px;cursor:pointer;flex-shrink:0;-webkit-tap-highlight-color:transparent;}
+    #ov-wizard .star-svg{position:absolute;inset:0;width:46px;height:46px;pointer-events:none;transition:opacity .1s;}
+    #ov-wizard .star-svg-half{opacity:0;}
+    #ov-wizard .star-wrap.s-half .star-svg-half{opacity:1;}
+    #ov-wizard .star-wrap.s-half .star-svg-full{opacity:0;}
+    #ov-wizard .star-wrap.s-empty .star-svg-full{opacity:.15;}
+    #ov-wizard .rating-cap{display:flex;align-items:baseline;gap:6px;}
+    #ov-wizard .rating-num{font-family:var(--font-num);font-weight:700;font-size:40px;line-height:.7;}
+    #ov-wizard .rating-cap .u{font-family:var(--font-round);font-weight:700;font-size:13px;color:var(--grey600);}
+    #ov-wizard .rating-empty{font-family:var(--font-round);font-weight:500;font-size:13px;color:var(--wz-grey4);}
+    #ov-wizard .fav-toggle{display:flex;align-items:center;gap:10px;width:100%;border:1px solid var(--wz-line2);border-radius:15px;background:#fff;cursor:pointer;padding:14px 16px;-webkit-tap-highlight-color:transparent;transition:all .18s;}
+    #ov-wizard .fav-toggle svg{width:22px;height:22px;flex-shrink:0;}
+    #ov-wizard .fav-toggle .lbl{font-family:var(--font-round);font-weight:700;font-size:14px;color:var(--grey600);}
+    #ov-wizard .fav-toggle .hint{font-size:11px;color:var(--wz-grey4);margin-left:auto;}
+    #ov-wizard .fav-toggle.on{background:var(--primary-soft);border-color:var(--primary);}
+    #ov-wizard .fav-toggle.on .lbl{color:var(--secondary);}
+    #ov-wizard .wiz-foot{flex-shrink:0;padding:14px 20px calc(18px + env(safe-area-inset-bottom,0));background:linear-gradient(0deg,var(--bg_light_grey) 76%,rgba(237,240,231,0));}
+    #ov-wizard .btn-next{width:100%;padding:18px;background:var(--primary);color:var(--secondary);border:none;border-radius:16px;cursor:pointer;-webkit-tap-highlight-color:transparent;font-family:var(--font-round);font-weight:700;font-size:16px;letter-spacing:.04em;display:flex;align-items:center;justify-content:center;gap:8px;}
+    #ov-wizard .btn-next svg{width:19px;height:19px;} #ov-wizard .btn-next:active{background:var(--primary-deep);}
+    #ov-wizard .btn-ghost{width:100%;padding:16px;background:#fff;color:var(--secondary);border:1.5px solid var(--wz-line2);border-radius:16px;cursor:pointer;-webkit-tap-highlight-color:transparent;font-family:var(--font-round);font-weight:700;font-size:15px;margin-top:10px;}
+    #ov-wizard .rf-toast{position:fixed;left:50%;bottom:40px;transform:translate(-50%,16px);background:var(--secondary);color:#fff;font-family:var(--font-round);font-weight:700;font-size:14px;padding:13px 22px;border-radius:999px;display:flex;align-items:center;gap:8px;box-shadow:0 8px 24px rgba(74,44,103,.32);opacity:0;pointer-events:none;transition:all .28s;z-index:120;}
+    #ov-wizard .rf-toast svg{width:18px;height:18px;} #ov-wizard .rf-toast.show{opacity:1;transform:translate(-50%,0);}
   </style>
 </head>
 <body>
@@ -780,6 +907,13 @@
   </div>
 </div>
 
+<!-- ── テイスティング・ウィザード overlay ── -->
+<div id="ov-wizard">
+  <div id="wiz-frame"></div>
+</div>
+<input type="file" id="wz-cam" accept="image/*" capture="environment" style="display:none">
+<input type="file" id="wz-alb" accept="image/*" multiple style="display:none">
+
 <!-- ── 詳細 overlay ── -->
 <div class="overlay" id="ov-detail">
   <div class="overlay-header">
@@ -1056,8 +1190,12 @@ function setupEvents() {
     renderList();
   }));
 
-  // Float add
-  document.getElementById('btn-add-float').addEventListener('click', () => openForm(null));
+  // Float add → ウィザード
+  document.getElementById('btn-add-float').addEventListener('click', () => openWizard(null));
+
+  // ウィザード用 写真入力
+  document.getElementById('wz-cam').addEventListener('change', handlePhotos);
+  document.getElementById('wz-alb').addEventListener('change', handlePhotos);
 
   // Form back
   document.getElementById('form-back').addEventListener('click', () => {
@@ -1146,7 +1284,7 @@ function handlePhotos(e) {
       loaded++;
       if (loaded === files.length) {
         pendingPhotos.push(...newPhotos);
-        renderPreview();
+        photoRefresh();
       }
     };
     reader.readAsDataURL(file);
@@ -1296,7 +1434,7 @@ function setupCrop() {
     const p = pendingPhotos[cropState.i];
     if (p) { p.dataUrl = canvas.toDataURL('image/jpeg', 0.9); p.isNew = true; }
     document.getElementById('crop-overlay').classList.remove('open');
-    renderPreview();
+    photoRefresh();
   });
 }
 
@@ -1533,6 +1671,256 @@ async function save() {
   finally { btn.textContent = '記録する'; btn.disabled = false; }
 }
 
+/* ============ テイスティング・ウィザード ============ */
+const WZ_CATS=[
+  {id:'kaoru',emoji:'🌸',name:'薫酒系（華やか）',desc:'フルーティ・花・吟醸香'},
+  {id:'sou',emoji:'💧',name:'爽酒系（爽やか）',desc:'すっきり・控えめ・清涼感'},
+  {id:'jun',emoji:'🌾',name:'醇酒系（ふくよか）',desc:'米・麹・乳酸・旨み'},
+  {id:'juku',emoji:'🌰',name:'熟酒系（熟成）',desc:'カラメル・スパイス・木'},
+  {id:'alc',emoji:'⚡',name:'アルコール・刺激感',desc:'ツンとした感じ・フーゼル'},
+  {id:'none',emoji:'🫧',name:'ほぼ感じない',desc:''},
+];
+const WZ_SUB={
+  kaoru:['りんご','洋梨','バナナ','メロン','柑橘','マスカット','白桃','トロピカル','白い花','キンモクセイ'],
+  sou:['青りんご','ラムネ','ミント','笹','きゅうり','レモン','若草'],
+  jun:['炊いた米','蒸米','麹','栗','ヨーグルト','クリーム','ナッツ'],
+  juku:['カラメル','はちみつ','ドライフルーツ','スパイス','醤油','きのこ','黒糖'],
+  alc:['アルコール','セメダイン','シンナー'], none:[],
+};
+const WZ_FIRST=[{v:'sweet',em:'🍯',label:'甘い印象'},{v:'dry',em:'🌿',label:'辛い印象'}];
+const WZ_ALC=['なし','あり'];
+const WZ_OFF=['老香','生老ね香','カビっぽい','セメダイン','ゴム・樹脂','紙・段ボール'];
+const WZ_TASTE=[{id:'attack',phase:'アタック',name:'アタック感',left:'やわらか',right:'インパクト強い'},{id:'sweet',phase:'',name:'甘辛',left:'甘い',right:'辛い'},{id:'acid',phase:'',name:'酸味',left:'弱い',right:'強い'},{id:'body',phase:'中盤',name:'濃淡',left:'淡麗',right:'濃醇'}];
+const WZ_FEATS=['旨み','苦み','渋み','シルキー','発泡感'];
+const WZ_FINISH=[{id:'flen',name:'長さ',left:'スッと消える',right:'じわっと残る'},{id:'fkire',name:'キレ',left:'まろやか',right:'シャープ'}];
+const WZ_FLEFT=['香り','甘み','苦み','旨み','酸','渋み'];
+const WZ_STEPS=[{key:'entry',step:0,label:'新しく記録'},{key:'aroma',step:1,label:'香り'},{key:'aromad',step:1,label:'香り'},{key:'taste',step:2,label:'味わい'},{key:'finish',step:3,label:'余韻'},{key:'overall',step:4,label:'総合評価'}];
+const WZIC={
+  back:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>',
+  cam:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>',
+  arrow:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>',
+  check:'<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>',
+  checkS:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>',
+  heart:f=>`<svg viewBox="0 0 24 24" fill="${f?'#4a2c67':'none'}" stroke="#4a2c67" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>`,
+};
+function wzRateColor(v){ if(v>=4) return 'var(--rate-high)'; if(v>=3) return 'var(--rate-mid)'; return 'var(--rate-low)'; }
+function wzStarSVG(){ return `<svg class="star-svg star-svg-full" viewBox="0 0 24 24"><path d="${STAR_FULL_PATH}" fill="var(--star-fill)"/></svg><svg class="star-svg star-svg-half" viewBox="0 0 24 24"><path d="${STAR_HALF_PATH}" fill="var(--star-fill)"/></svg>`; }
+function wzTodayISO(){ return new Date().toISOString().slice(0,10); }
+
+const WZ = { open:false, idx:0, editId:null, d:null };
+
+function wzResetData(){
+  WZ.idx=0; WZ.editId=null;
+  WZ.d={ name:'',type:'',date:wzTodayISO(),pref:'',region:'',
+    aromaCat:null,aromaStr:3,firstImp:null,aromaSub:[],alc:null,offAroma:[],
+    taste:{attack:3,sweet:3,acid:3,body:3},feats:{},finish:{flen:3,fkire:3},fLeft:[],
+    rating:0,fav:false,memo:'' };
+  WZ_FEATS.forEach(f=>WZ.d.feats[f]=0);
+  pendingPhotos=[]; mainPhotoIdx=0;
+}
+
+async function openWizard(rec){
+  wzResetData();
+  if(rec){
+    WZ.editId=rec.id; const d=WZ.d, sc=rec.scores||{}, fl=(rec.flavors&&typeof rec.flavors==='object'&&!Array.isArray(rec.flavors))?rec.flavors:{};
+    d.name=rec.name||''; d.type=rec.type||''; d.date=rec.date||wzTodayISO();
+    d.pref=rec.prefecture||''; d.region=rec.region||'';
+    d.aromaCat=rec.aromaCatId||null; d.aromaStr=sc.aroma||3; d.firstImp=rec.firstImpression||null;
+    d.aromaSub=(fl.aromaSub||[]).slice(); d.alc=rec.alcohol||null; d.offAroma=(rec.concerns||[]).slice();
+    d.taste={attack:rec.attack||3,sweet:sc.sweet||3,acid:sc.acid||3,body:sc.body||3};
+    WZ_FEATS.forEach(f=>d.feats[f]=0);
+    if(rec.features) Object.assign(d.feats, rec.features); else { d.feats['苦み']=sc.bitter||0; d.feats['発泡感']=sc.fizz||0; }
+    d.finish={flen:sc.finishLen||3,fkire:sc.finishKire||3}; d.fLeft=(rec.finishLeft||[]).slice();
+    d.rating=rec.rating||0; d.fav=!!rec.favorite; d.memo=rec.memo||'';
+    await loadRecordPhotos(rec); mainPhotoIdx=rec.mainPhotoIdx||0;
+  }
+  WZ.open=true;
+  wzRender();
+  document.getElementById('ov-wizard').classList.add('open');
+}
+function closeWizard(){ WZ.open=false; document.getElementById('ov-wizard').classList.remove('open'); }
+
+function wzCur(){ return WZ_STEPS[WZ.idx]; }
+function wzGo(key){ const i=WZ_STEPS.findIndex(s=>s.key===key); if(i>=0){WZ.idx=i; wzRender();} }
+function wzGoIdx(i){ WZ.idx=Math.max(0,Math.min(WZ_STEPS.length-1,i)); wzRender(); }
+
+function wzRender(){
+  const s=wzCur(); let html;
+  if(s.key==='entry'){
+    html = `<div class="wiz-titlebar" style="padding-top:18px"><button class="wiz-back" data-wact="close">${WZIC.back}</button><div class="wiz-sectitle">${s.label}</div></div>`
+      + `<div class="wiz-body wiz-anim">${wzBodyEntry()}</div>`
+      + `<div class="wiz-foot"><button class="btn-next" data-wact="start">テイスティングを始める ${WZIC.arrow}</button><button class="btn-ghost" data-wact="save">基本情報だけ保存</button></div>`;
+  } else {
+    let segs=''; for(let i=1;i<=4;i++){ const c=i<s.step?'done':(i===s.step?'cur':''); segs+=`<div class="pseg ${c}"></div>`; }
+    const isLast=s.key==='overall';
+    html = `<div class="wiz-top"><span class="wiz-step-pill">STEP ${s.step}/4</span><div class="wiz-prog-seg">${segs}</div><button class="wiz-skip" data-wact="skip">スキップ →</button></div>`
+      + `<div class="wiz-titlebar"><button class="wiz-back" data-wact="back">${WZIC.back}</button><div class="wiz-sectitle">${s.label}</div><span class="wiz-bignum">${s.step}<small>/4</small></span></div>`
+      + `<div class="wiz-body wiz-anim">${wzBody(s)}</div>`
+      + `<div class="wiz-foot"><button class="btn-next" data-wact="${isLast?'save':'next'}">${isLast?'記録する':'次へ'} ${isLast?WZIC.checkS:WZIC.arrow}</button></div>`;
+  }
+  html += `<div class="rf-toast">${WZIC.checkS}<span>記録しました</span></div>`;
+  const frame=document.getElementById('wiz-frame');
+  frame.innerHTML=html; wzWire(s);
+}
+
+function wzEsc(s){ return (s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
+function wzSelect(f,opts,val,ph){ return `<select data-wf="${f}"><option value="">${ph}</option>${opts.map(o=>`<option ${o===val?'selected':''}>${o}</option>`).join('')}</select>`; }
+
+function wzPhotoSection(){
+  const d=WZ.d;
+  let grid='';
+  if(pendingPhotos.length){
+    const thumbs=pendingPhotos.map((p,i)=>`<div class="ph-thumb">
+      <img src="${p.dataUrl}" alt="" data-wp="view" data-i="${i}">
+      ${i===mainPhotoIdx?'<span class="ph-badge">メイン</span>':''}
+      <div class="ph-mini"><button class="ph-main ${i===mainPhotoIdx?'is':''}" data-wp="main" data-i="${i}">★</button><button class="ph-crop" data-wp="crop" data-i="${i}">⛶</button><button class="ph-del" data-wp="del" data-i="${i}">×</button></div>
+    </div>`).join('');
+    grid=`<div class="ph-grid">${thumbs}</div>`;
+  }
+  const btns=`<div class="grid2" style="margin-bottom:18px">
+    <button type="button" class="btn-ghost" data-wp="cam" style="margin-top:0">📷 撮影</button>
+    <button type="button" class="btn-ghost" data-wp="alb" style="margin-top:0">🖼 アルバム</button></div>`;
+  return grid+btns;
+}
+
+function wzBodyEntry(){
+  const d=WZ.d;
+  return `${wzPhotoSection()}
+    <div class="field"><label>酒の名前<span class="req">*</span></label>
+      <input type="text" data-wf="name" value="${wzEsc(d.name)}" placeholder="例：獺祭 純米大吟醸" autocomplete="off"></div>
+    <div class="grid2">
+      <div class="field"><label>種類</label>${wzSelect('type',['純米大吟醸','大吟醸','純米吟醸','特別純米','純米酒','吟醸酒','本醸造','にごり酒','スパークリング','古酒','その他'],d.type,'選択...')}</div>
+      <div class="field"><label>飲んだ日</label><input type="date" data-wf="date" value="${d.date}"></div>
+    </div>
+    <div class="grid2">
+      <div class="field"><label>産地</label>${wzSelect('pref',['北海道','青森県','岩手県','宮城県','秋田県','山形県','福島県','茨城県','栃木県','群馬県','埼玉県','千葉県','東京都','神奈川県','新潟県','富山県','石川県','福井県','山梨県','長野県','岐阜県','静岡県','愛知県','三重県','滋賀県','京都府','大阪府','兵庫県','奈良県','和歌山県','鳥取県','島根県','岡山県','広島県','山口県','徳島県','香川県','愛媛県','高知県','福岡県','佐賀県','長崎県','熊本県','大分県','宮崎県','鹿児島県','沖縄県','海外・その他'],d.pref,'選択...')}</div>
+      <div class="field"><label>蔵元</label><input type="text" data-wf="region" value="${wzEsc(d.region)}" placeholder="例：旭酒造" list="region-suggest" autocomplete="off"></div>
+    </div>`;
+}
+
+function wzBody(s){
+  const d=WZ.d;
+  if(s.key==='aroma'){
+    const items=WZ_CATS.map(c=>`<button class="cat-item ${d.aromaCat===c.id?'on':''}" data-cat="${c.id}" data-wpick="${c.id}"><span class="cat-ic">${c.emoji}</span><span class="cat-txt"><span class="cat-name">${c.name}</span>${c.desc?`<span class="cat-desc">${c.desc}</span>`:''}</span><span class="cat-check">${WZIC.check}</span></button>`).join('');
+    return `<div class="q-title">グラスに近づけて<br><span class="accent">最初に感じた</span>のは？</div><div class="q-sub">直感でOK・1つだけ選択</div><div class="cat-list">${items}</div>`;
+  }
+  if(s.key==='aromad'){
+    const cat=WZ_CATS.find(c=>c.id===d.aromaCat);
+    const chip=cat?`<div class="sel-chip" style="background:var(--cat-${cat.id}-bg);color:var(--cat-${cat.id})">${cat.emoji} ${cat.name} <span>✓</span></div>`:'';
+    const subs=WZ_SUB[d.aromaCat||'kaoru'];
+    const imp=WZ_FIRST.map(i=>`<button class="imp-btn ${d.firstImp===i.v?'on':''}" data-wimp="${i.v}"><span class="em">${i.em}</span>${i.label}</button>`).join('');
+    const subTags=subs.map(t=>`<span class="chip ${d.aromaSub.includes(t)?'on':''}" data-wsub="${t}">${t}</span>`).join('');
+    const alc=WZ_ALC.map(a=>`<span class="chip sm ${d.alc===a?'on':''}" data-walc="${a}">${a}</span>`).join('');
+    const off=WZ_OFF.map(o=>`<span class="chip sm ${d.offAroma.includes(o)?'on-warn':''}" data-woff="${o}">${o}</span>`).join('');
+    return `${chip}<div class="q-title">もう少し詳しく</div><div class="q-sub">わからなければスキップOK</div>
+      <div class="sld"><div class="sld-name">香りの強さ</div><input type="range" min="1" max="5" step="1" value="${d.aromaStr}" data-wsld="aromaStr"><div class="sld-ends"><span>控えめ</span><span>華やか</span></div></div>
+      <div class="divider"></div><div class="sec-label">ファーストインプレッション</div><div class="imp-row">${imp}</div>
+      <div class="divider"></div><div class="sec-label">詳細タグ<span class="opt">最大2つ・任意</span></div><div class="chips">${subTags}</div>
+      <div class="divider"></div><div class="sec-label">アルコール感<span class="opt">オプション</span></div><div class="chips">${alc}</div>
+      <div class="sec-label" style="margin-top:16px">気になる香り</div><div class="chips">${off}</div>`;
+  }
+  if(s.key==='taste'){
+    const sl=WZ_TASTE.map(x=>`<div class="sld">${x.phase?`<div class="sld-phase">${x.phase}</div>`:''}<div class="sld-name">${x.name}</div><input type="range" min="1" max="5" step="1" value="${d.taste[x.id]}" data-wtaste="${x.id}"><div class="sld-ends"><span>${x.left}</span><span>${x.right}</span></div></div>`).join('');
+    const seg=WZ_FEATS.map(f=>{const v=d.feats[f];const cells=['なし','1','2','3'].map((lbl,i)=>`<div class="seg-cell ${i<=v?'fill':''}" data-wfeat="${f}" data-val="${i}">${lbl}</div>`).join('');return `<div class="seg-row"><span class="seg-name">${f}</span><div class="seg">${cells}</div></div>`;}).join('');
+    return `<div class="q-title">口に含んだ印象は？</div><div class="q-sub">スライドして感じたバランスを記録</div>${sl}<div class="divider"></div><div class="sec-label">特徴<span class="opt">なし起点・最大3まで</span></div><div>${seg}</div>`;
+  }
+  if(s.key==='finish'){
+    const sl=WZ_FINISH.map(x=>`<div class="sld"><div class="sld-name">${x.name}</div><input type="range" min="1" max="5" step="1" value="${d.finish[x.id]}" data-wfin="${x.id}"><div class="sld-ends"><span>${x.left}</span><span>${x.right}</span></div></div>`).join('');
+    const left=WZ_FLEFT.map(t=>`<span class="chip ${d.fLeft.includes(t)?'on':''}" data-wleft="${t}">${t}</span>`).join('');
+    return `<div class="q-title">飲み込んだあとは？</div><div class="q-sub">後味の印象を教えてください</div>${sl}<div class="divider"></div><div class="sec-label">何が残ってる？<span class="opt">任意・複数OK</span></div><div class="chips">${left}</div>`;
+  }
+  if(s.key==='overall'){
+    const r=d.rating;
+    const stars=[1,2,3,4,5].map(i=>{let cls='s-empty';if(r>=i)cls='';else if(r>=i-0.5)cls='s-half';return `<span class="star-wrap ${cls}" data-wstar="${i}">${wzStarSVG()}</span>`;}).join('');
+    const fill=r>0?wzRateColor(r):'var(--rate-low)';
+    const cap=r>0?`<div class="rating-cap"><span class="rating-num" id="wz-rnum" style="color:${wzRateColor(r)}">${r}</span><span class="u">/ 5.0</span></div>`:`<div class="rating-empty" id="wz-rnum">タップで評価（0.5刻み）</div>`;
+    return `<div class="q-title">全体の印象は？</div><div class="q-sub">総合評価とメモを残しましょう</div>
+      <div class="rating-block" id="wz-rblock" style="--star-fill:${fill}"><div class="wz-stars">${stars}</div>${cap}</div>
+      <div class="divider"></div>
+      <div class="fav-toggle ${d.fav?'on':''}" data-wact="fav">${WZIC.heart(d.fav)}<span class="lbl">お気に入りに登録</span><span class="hint">★タブに表示されます</span></div>
+      <div class="divider"></div>
+      <div class="field"><label>メモ・感想</label><textarea data-wf="memo" placeholder="どこで飲んだか、合わせた料理、感想など...">${wzEsc(d.memo)}</textarea></div>`;
+  }
+  return '';
+}
+
+function wzWire(s){
+  const frame=document.getElementById('wiz-frame');
+  const $=sel=>frame.querySelectorAll(sel), d=WZ.d;
+  $('[data-wact]').forEach(el=>el.addEventListener('click',()=>{
+    const a=el.dataset.wact;
+    if(a==='close') closeWizard();
+    else if(a==='back') wzGoIdx(WZ.idx-1);
+    else if(a==='skip') wzSkip();
+    else if(a==='start'||a==='next') wzGoIdx(WZ.idx+1);
+    else if(a==='save') wzSave();
+    else if(a==='fav'){ d.fav=!d.fav; el.classList.toggle('on',d.fav); el.querySelector('svg').outerHTML=WZIC.heart(d.fav); }
+  }));
+  $('[data-wf]').forEach(el=>{ const f=el.dataset.wf; el.addEventListener('input',()=>d[f]=el.value); el.addEventListener('change',()=>d[f]=el.value); });
+  $('[data-wp]').forEach(el=>el.addEventListener('click',()=>{
+    const a=el.dataset.wp, i=+el.dataset.i;
+    if(a==='cam') document.getElementById('wz-cam').click();
+    else if(a==='alb') document.getElementById('wz-alb').click();
+    else if(a==='main'){ mainPhotoIdx=i; wzRender(); }
+    else if(a==='del'){ pendingPhotos.splice(i,1); if(mainPhotoIdx>=pendingPhotos.length) mainPhotoIdx=Math.max(0,pendingPhotos.length-1); wzRender(); }
+    else if(a==='crop') openCrop(i);
+    else if(a==='view'){ document.getElementById('lb-img').src=pendingPhotos[i].dataUrl; document.getElementById('lightbox').classList.add('open'); }
+  }));
+  $('[data-wpick]').forEach(el=>el.addEventListener('click',()=>{ d.aromaCat=el.dataset.wpick; $('.cat-item').forEach(c=>c.classList.toggle('on',c===el)); }));
+  $('[data-wsld]').forEach(el=>el.addEventListener('input',()=>d[el.dataset.wsld]=+el.value));
+  $('[data-wtaste]').forEach(el=>el.addEventListener('input',()=>d.taste[el.dataset.wtaste]=+el.value));
+  $('[data-wfin]').forEach(el=>el.addEventListener('input',()=>d.finish[el.dataset.wfin]=+el.value));
+  $('[data-wimp]').forEach(el=>el.addEventListener('click',()=>{ d.firstImp=d.firstImp===el.dataset.wimp?null:el.dataset.wimp; $('[data-wimp]').forEach(b=>b.classList.toggle('on',d.firstImp===b.dataset.wimp)); }));
+  $('[data-wsub]').forEach(el=>el.addEventListener('click',()=>{ const t=el.dataset.wsub,arr=d.aromaSub,i=arr.indexOf(t); if(i>=0)arr.splice(i,1); else if(arr.length<2)arr.push(t); el.classList.toggle('on',arr.includes(t)); }));
+  $('[data-walc]').forEach(el=>el.addEventListener('click',()=>{ d.alc=d.alc===el.dataset.walc?null:el.dataset.walc; $('[data-walc]').forEach(b=>b.classList.toggle('on',d.alc===b.dataset.walc)); }));
+  $('[data-woff]').forEach(el=>el.addEventListener('click',()=>{ const t=el.dataset.woff,arr=d.offAroma,i=arr.indexOf(t); if(i>=0)arr.splice(i,1); else arr.push(t); el.classList.toggle('on-warn',arr.includes(t)); }));
+  $('[data-wleft]').forEach(el=>el.addEventListener('click',()=>{ const t=el.dataset.wleft,arr=d.fLeft,i=arr.indexOf(t); if(i>=0)arr.splice(i,1); else arr.push(t); el.classList.toggle('on',arr.includes(t)); }));
+  $('[data-wfeat]').forEach(el=>el.addEventListener('click',()=>{ const f=el.dataset.wfeat,v=+el.dataset.val; d.feats[f]=v; $(`[data-wfeat="${f}"]`).forEach(c=>c.classList.toggle('fill',+c.dataset.val<=v)); }));
+  $('.star-wrap').forEach(el=>el.addEventListener('click',e=>{ const i=+el.dataset.wstar,rect=el.getBoundingClientRect(); d.rating=(e.clientX-rect.left)<rect.width/2?i-0.5:i; wzUpdateStars(); }));
+}
+
+function wzUpdateStars(){
+  const d=WZ.d, frame=document.getElementById('wiz-frame');
+  frame.querySelectorAll('.star-wrap').forEach(el=>{ const i=+el.dataset.wstar; el.classList.remove('s-empty','s-half'); if(d.rating>=i){} else if(d.rating>=i-0.5) el.classList.add('s-half'); else el.classList.add('s-empty'); });
+  const block=frame.querySelector('#wz-rblock'); if(block) block.style.setProperty('--star-fill', d.rating>0?wzRateColor(d.rating):'var(--rate-low)');
+  const num=frame.querySelector('#wz-rnum');
+  if(num){ if(d.rating>0){ num.className='rating-cap'; num.innerHTML=`<span class="rating-num" style="color:${wzRateColor(d.rating)}">${d.rating}</span><span class="u">/ 5.0</span>`; } else { num.className='rating-empty'; num.textContent='タップで評価（0.5刻み）'; } }
+}
+
+function wzSkip(){ const k=wzCur().key; if(k==='aroma'||k==='aromad') wzGo('taste'); else if(k==='taste') wzGo('finish'); else if(k==='finish') wzGo('overall'); else wzGoIdx(WZ.idx+1); }
+function wzToast(msg){ const t=document.querySelector('#ov-wizard .rf-toast'); if(t){ t.querySelector('span').textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),1700); } }
+
+async function wzSave(){
+  const d=WZ.d;
+  if(!(d.name||'').trim()){ wzGo('entry'); setTimeout(()=>{ const inp=document.querySelector('#wiz-frame [data-wf="name"]'); if(inp){ inp.focus(); inp.style.borderColor='#d4574a'; inp.style.boxShadow='0 0 0 3px rgba(213,87,74,.18)'; } },50); wzToast('酒の名前を入力してください'); return; }
+  try{
+    const photoIds=[];
+    for(const p of pendingPhotos){ if(p.isNew) await dbPut('photos',{id:p.id,dataUrl:p.dataUrl}); photoIds.push(p.id); }
+    const recId=WZ.editId||Date.now();
+    if(WZ.editId){ const old=records.find(r=>r.id===recId); if(old){ const removed=(old.photoIds||[]).filter(pid=>!photoIds.includes(pid)); for(const pid of removed) await dbDel('photos',pid); } }
+    const cat=WZ_CATS.find(c=>c.id===d.aromaCat);
+    const scores={ sweet:d.taste.sweet, acid:d.taste.acid, body:d.taste.body, aroma:d.aromaStr, finishLen:d.finish.flen, finishKire:d.finish.fkire, bitter:d.feats['苦み']||0, fizz:d.feats['発泡感']||0, lactic:0 };
+    const rec={
+      id:recId, createdAt:(WZ.editId&&records.find(r=>r.id===recId)?.createdAt)||new Date().toISOString(),
+      name:d.name.trim(), type:d.type, prefecture:d.pref, region:(d.region||'').trim(), date:d.date,
+      rating:d.rating, favorite:d.fav, memo:(d.memo||'').trim(),
+      scores, flavors:{aromaMain:cat?cat.name:'', aromaSub:d.aromaSub.slice()}, concerns:d.offAroma.slice(),
+      photoIds, mainPhotoIdx,
+      aromaCatId:d.aromaCat, firstImpression:d.firstImp, alcohol:d.alc,
+      attack:d.taste.attack, features:{...d.feats}, finishLeft:d.fLeft.slice()
+    };
+    await dbPut('records',rec);
+    const idx=records.findIndex(r=>r.id===recId);
+    if(idx>=0) records[idx]=rec; else records.unshift(rec);
+    wzToast(WZ.editId?'更新しました':'記録しました');
+    renderList();
+    setTimeout(closeWizard,650);
+  }catch(e){ wzToast('保存に失敗しました'); }
+}
+
+/* 写真の再描画ルーティング（ウィザード or 旧フォーム） */
+function photoRefresh(){ if(WZ.open) wzRender(); else renderPreview(); }
+
 /* ── List (TOP grid) ── */
 let listTab = 'all';
 let listSearch = '';
@@ -1711,7 +2099,7 @@ async function openDetail(id) {
   }));
   document.getElementById('detail-edit-btn').addEventListener('click', () => {
     document.getElementById('ov-detail').classList.remove('open');
-    openForm(r);
+    openWizard(r);
   });
   document.getElementById('detail-del-btn').addEventListener('click', async () => {
     if (!confirm('この記録を削除しますか？')) return;
