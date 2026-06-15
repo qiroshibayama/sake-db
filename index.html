@@ -586,6 +586,9 @@
     #ov-wizard .btn-next{width:100%;padding:18px;background:var(--primary);color:var(--secondary);border:none;border-radius:16px;cursor:pointer;-webkit-tap-highlight-color:transparent;font-family:var(--font-round);font-weight:700;font-size:16px;letter-spacing:.04em;display:flex;align-items:center;justify-content:center;gap:8px;}
     #ov-wizard .btn-next svg{width:19px;height:19px;} #ov-wizard .btn-next:active{background:var(--primary-deep);}
     #ov-wizard .btn-ghost{width:100%;padding:16px;background:#fff;color:var(--secondary);border:1.5px solid var(--wz-line2);border-radius:16px;cursor:pointer;-webkit-tap-highlight-color:transparent;font-family:var(--font-round);font-weight:700;font-size:15px;margin-top:10px;}
+    #ov-wizard .wiz-foot-row{display:flex;gap:10px;}
+    #ov-wizard .wiz-foot-row .btn-next{flex:1;}
+    #ov-wizard .btn-save-inline{flex-shrink:0;padding:18px 24px;background:var(--secondary);color:#fff;border:none;border-radius:16px;font-family:var(--font-round);font-weight:700;font-size:15px;cursor:pointer;-webkit-tap-highlight-color:transparent;}
     #ov-wizard .rf-toast{position:fixed;left:50%;bottom:40px;transform:translate(-50%,16px);background:var(--secondary);color:#fff;font-family:var(--font-round);font-weight:700;font-size:14px;padding:13px 22px;border-radius:999px;display:flex;align-items:center;gap:8px;box-shadow:0 8px 24px rgba(74,44,103,.32);opacity:0;pointer-events:none;transition:all .28s;z-index:120;}
     #ov-wizard .rf-toast svg{width:18px;height:18px;} #ov-wizard .rf-toast.show{opacity:1;transform:translate(-50%,0);}
   </style>
@@ -1203,9 +1206,7 @@ function setupEvents() {
   });
 
   // Detail back
-  document.getElementById('detail-back').addEventListener('click', () => {
-    document.getElementById('ov-detail').classList.remove('open');
-  });
+  document.getElementById('detail-back').addEventListener('click', () => { backOverlay(); });
 
   // Stars（0.5刻み）
   document.querySelectorAll('.star-wrap').forEach(wrap => {
@@ -1234,8 +1235,8 @@ function setupEvents() {
   document.getElementById('btn-save').addEventListener('click', save);
 
   // Lightbox
-  document.getElementById('lb-close').addEventListener('click', () => document.getElementById('lightbox').classList.remove('open'));
-  document.getElementById('lightbox').addEventListener('click', e => { if (e.target === e.currentTarget) e.currentTarget.classList.remove('open'); });
+  document.getElementById('lb-close').addEventListener('click', () => backOverlay());
+  document.getElementById('lightbox').addEventListener('click', e => { if (e.target === e.currentTarget) backOverlay(); });
 
   // TIPS overlay
   document.getElementById('tips-close').addEventListener('click', () => document.getElementById('tips-overlay').classList.remove('open'));
@@ -1309,6 +1310,7 @@ function renderPreview() {
   grid.querySelectorAll('.thumb-img').forEach(img => img.addEventListener('click', () => {
     document.getElementById('lb-img').src = img.src;
     document.getElementById('lightbox').classList.add('open');
+    openOverlay(()=>document.getElementById('lightbox').classList.remove('open'));
   }));
   grid.querySelectorAll('.photo-btn-main').forEach(btn => btn.addEventListener('click', e => {
     e.stopPropagation();
@@ -1367,6 +1369,7 @@ function openCrop(i) {
     img.src = p.dataUrl;
     cropApplyTransform();
     overlay.classList.add('open');
+    openOverlay(()=>overlay.classList.remove('open'));
   };
   probe.src = p.dataUrl;
 }
@@ -1417,9 +1420,7 @@ function setupCrop() {
     cropState.scale = parseFloat(zoom.value);
     cropClamp(); cropApplyTransform();
   });
-  document.getElementById('crop-cancel').addEventListener('click', () => {
-    document.getElementById('crop-overlay').classList.remove('open');
-  });
+  document.getElementById('crop-cancel').addEventListener('click', () => { backOverlay(); });
   document.getElementById('crop-apply').addEventListener('click', () => {
     const s = cropState.base * cropState.scale;
     const sx = -cropState.ox / s, sy = -cropState.oy / s;
@@ -1433,7 +1434,7 @@ function setupCrop() {
     ctx.drawImage(img, sx, sy, sw, sh, 0, 0, outW, outH);
     const p = pendingPhotos[cropState.i];
     if (p) { p.dataUrl = canvas.toDataURL('image/jpeg', 0.9); p.isNew = true; }
-    document.getElementById('crop-overlay').classList.remove('open');
+    backOverlay();
     photoRefresh();
   });
 }
@@ -1737,8 +1738,9 @@ async function openWizard(rec){
   WZ.open=true;
   wzRender();
   document.getElementById('ov-wizard').classList.add('open');
+  openOverlay(()=>{ WZ.open=false; document.getElementById('ov-wizard').classList.remove('open'); });
 }
-function closeWizard(){ WZ.open=false; document.getElementById('ov-wizard').classList.remove('open'); }
+function closeWizard(){ backOverlay(); }
 
 function wzCur(){ return WZ_STEPS[WZ.idx]; }
 function wzGo(key){ const i=WZ_STEPS.findIndex(s=>s.key===key); if(i>=0){WZ.idx=i; wzRender();} }
@@ -1749,20 +1751,29 @@ function wzRender(){
   if(s.key==='entry'){
     html = `<div class="wiz-titlebar" style="padding-top:18px"><button class="wiz-back" data-wact="close">${WZIC.back}</button><div class="wiz-sectitle">${s.label}</div></div>`
       + `<div class="wiz-body wiz-anim">${wzBodyEntry()}</div>`
-      + `<div class="wiz-foot"><button class="btn-next" data-wact="start">テイスティングを始める ${WZIC.arrow}</button><button class="btn-ghost" data-wact="save">基本情報だけ保存</button></div>`;
+      + wzFoot(s);
   } else {
     let segs=''; for(let i=1;i<=4;i++){ const c=i<s.step?'done':(i===s.step?'cur':''); segs+=`<div class="pseg ${c}"></div>`; }
-    const isLast=s.key==='overall';
     html = `<div class="wiz-top"><span class="wiz-step-pill">STEP ${s.step}/4</span><div class="wiz-prog-seg">${segs}</div><button class="wiz-skip" data-wact="skip">スキップ →</button></div>`
       + `<div class="wiz-titlebar"><button class="wiz-back" data-wact="back">${WZIC.back}</button><div class="wiz-sectitle">${s.label}</div><span class="wiz-bignum">${s.step}<small>/4</small></span></div>`
       + `<div class="wiz-body wiz-anim">${wzBody(s)}</div>`
-      + `<div class="wiz-foot"><button class="btn-next" data-wact="${isLast?'save':'next'}">${isLast?'記録する':'次へ'} ${isLast?WZIC.checkS:WZIC.arrow}</button></div>`;
+      + wzFoot(s);
   }
   html += `<div class="rf-toast">${WZIC.checkS}<span>記録しました</span></div>`;
   const frame=document.getElementById('wiz-frame');
   frame.innerHTML=html; wzWire(s);
 }
 
+function wzFoot(s){
+  const isLast=s.key==='overall', isEntry=s.key==='entry', editing=!!WZ.editId;
+  if(isLast) return `<div class="wiz-foot"><button class="btn-next" data-wact="save">${editing?'更新する':'記録する'} ${WZIC.checkS}</button></div>`;
+  const primary = isEntry
+    ? `<button class="btn-next" data-wact="start">テイスティングを始める ${WZIC.arrow}</button>`
+    : `<button class="btn-next" data-wact="next">次へ ${WZIC.arrow}</button>`;
+  if(editing) return `<div class="wiz-foot"><div class="wiz-foot-row">${primary}<button class="btn-save-inline" data-wact="save">保存</button></div></div>`;
+  if(isEntry) return `<div class="wiz-foot">${primary}<button class="btn-ghost" data-wact="save">基本情報だけ保存</button></div>`;
+  return `<div class="wiz-foot">${primary}</div>`;
+}
 function wzEsc(s){ return (s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
 function wzSelect(f,opts,val,ph){ return `<select data-wf="${f}"><option value="">${ph}</option>${opts.map(o=>`<option ${o===val?'selected':''}>${o}</option>`).join('')}</select>`; }
 
@@ -1864,7 +1875,7 @@ function wzWire(s){
     else if(a==='main'){ mainPhotoIdx=i; wzRender(); }
     else if(a==='del'){ pendingPhotos.splice(i,1); if(mainPhotoIdx>=pendingPhotos.length) mainPhotoIdx=Math.max(0,pendingPhotos.length-1); wzRender(); }
     else if(a==='crop') openCrop(i);
-    else if(a==='view'){ document.getElementById('lb-img').src=pendingPhotos[i].dataUrl; document.getElementById('lightbox').classList.add('open'); }
+    else if(a==='view'){ document.getElementById('lb-img').src=pendingPhotos[i].dataUrl; document.getElementById('lightbox').classList.add('open'); openOverlay(()=>document.getElementById('lightbox').classList.remove('open')); }
   }));
   $('[data-wpick]').forEach(el=>el.addEventListener('click',()=>{ d.aromaCat=el.dataset.wpick; $('.cat-item').forEach(c=>c.classList.toggle('on',c===el)); }));
   $('[data-wsld]').forEach(el=>el.addEventListener('input',()=>d[el.dataset.wsld]=+el.value));
@@ -1920,6 +1931,14 @@ async function wzSave(){
 
 /* 写真の再描画ルーティング（ウィザード or 旧フォーム） */
 function photoRefresh(){ if(WZ.open) wzRender(); else renderPreview(); }
+
+/* ── Android戻る/ジェスチャー対応：オーバーレイを履歴スタックに積む ──
+   open時に hide関数を登録＋history.pushState。戻る(popstate)で最上段を閉じる。
+   UIの閉じるボタンは backOverlay()（=history.back）経由で同じ経路に集約。 */
+const _ovStack = [];
+function openOverlay(hideFn){ _ovStack.push(hideFn); history.pushState({ sakeOv:_ovStack.length }, ''); }
+function backOverlay(){ if(_ovStack.length) history.back(); }
+window.addEventListener('popstate', () => { const fn=_ovStack.pop(); if(fn){ try{ fn(); }catch(e){} } });
 
 /* ── List (TOP grid) ── */
 let listTab = 'all';
@@ -2096,21 +2115,23 @@ async function openDetail(id) {
   document.querySelectorAll('.detail-photo-wrap').forEach(el => el.addEventListener('click', () => {
     document.getElementById('lb-img').src = el.dataset.src;
     document.getElementById('lightbox').classList.add('open');
+    openOverlay(()=>document.getElementById('lightbox').classList.remove('open'));
   }));
   document.getElementById('detail-edit-btn').addEventListener('click', () => {
-    document.getElementById('ov-detail').classList.remove('open');
-    openWizard(r);
+    backOverlay();                       // 詳細を閉じて履歴を消費
+    setTimeout(() => openWizard(r), 0);  // pop確定後にウィザードを開く
   });
   document.getElementById('detail-del-btn').addEventListener('click', async () => {
     if (!confirm('この記録を削除しますか？')) return;
     for (const pid of (r.photoIds||[])) await dbDel('photos', pid);
     await dbDel('records', id);
     records = records.filter(x => x.id !== id);
-    document.getElementById('ov-detail').classList.remove('open');
+    backOverlay();
     renderList();
   });
 
   document.getElementById('ov-detail').classList.add('open');
+  openOverlay(()=>document.getElementById('ov-detail').classList.remove('open'));
 }
 
 /* ── Stats ── */
