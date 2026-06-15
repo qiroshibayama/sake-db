@@ -1731,7 +1731,7 @@ const WZ = { open:false, idx:0, editId:null, d:null };
 
 function wzResetData(){
   WZ.idx=0; WZ.editId=null;
-  WZ.d={ name:'',type:'',date:wzTodayISO(),pref:'',region:'',rice:'',yeast:'',abv:'',polish:'',
+  WZ.d={ name:'',type:'',date:wzTodayISO(),pref:'',region:'',rice:'',yeast:'',abv:'',polish:'',smv:'',
     aromaCat:null,aromaStr:3,firstImp:null,aromaSub:[],alc:null,offAroma:[],
     taste:{attack:3,sweet:3,acid:3,body:3},feats:{},finish:{flen:3,fkire:3},fLeft:[],
     rating:0,fav:false,memo:'' };
@@ -1746,7 +1746,7 @@ async function openWizard(rec){
     WZ.editId=rec.id; const d=WZ.d, sc=rec.scores||{}, fl=(rec.flavors&&typeof rec.flavors==='object'&&!Array.isArray(rec.flavors))?rec.flavors:{};
     d.name=rec.name||''; d.type=rec.type||''; d.date=rec.date||wzTodayISO();
     d.pref=rec.prefecture||''; d.region=rec.region||'';
-    d.rice=rec.rice||''; d.yeast=rec.yeast||''; d.abv=rec.abv||''; d.polish=rec.polish||'';
+    d.rice=rec.rice||''; d.yeast=rec.yeast||''; d.abv=rec.abv||''; d.polish=rec.polish||''; d.smv=rec.smv||'';
     d.aromaCat=rec.aromaCatId||null; d.aromaStr=sc.aroma||3; d.firstImp=rec.firstImpression||null;
     d.aromaSub=(fl.aromaSub||[]).slice(); d.alc=rec.alcohol||null; d.offAroma=(rec.concerns||[]).slice();
     d.taste={attack:rec.attack||3,sweet:sc.sweet||3,acid:sc.acid||3,body:sc.body||3};
@@ -1836,6 +1836,10 @@ function wzBodyEntry(){
     <div class="grid2">
       <div class="field"><label>アルコール度数</label><input type="text" inputmode="decimal" data-wf="abv" value="${wzEsc(d.abv)}" placeholder="例：15.5"></div>
       <div class="field"><label>精米歩合</label><input type="text" inputmode="numeric" data-wf="polish" value="${wzEsc(d.polish)}" placeholder="例：50"></div>
+    </div>
+    <div class="grid2">
+      <div class="field"><label>日本酒度</label><input type="text" data-wf="smv" value="${wzEsc(d.smv)}" placeholder="例：+3"></div>
+      <div></div>
     </div>`;
 }
 
@@ -1945,7 +1949,7 @@ async function wzSave(){
     const rec={
       id:recId, createdAt:(WZ.editId&&records.find(r=>r.id===recId)?.createdAt)||new Date().toISOString(),
       name:d.name.trim(), type:d.type, prefecture:d.pref, region:(d.region||'').trim(), date:d.date,
-      rice:(d.rice||'').trim(), yeast:(d.yeast||'').trim(), abv:(d.abv||'').trim(), polish:(d.polish||'').trim(),
+      rice:(d.rice||'').trim(), yeast:(d.yeast||'').trim(), abv:(d.abv||'').trim(), polish:(d.polish||'').trim(), smv:(d.smv||'').trim(),
       rating:d.rating, favorite:d.fav, memo:(d.memo||'').trim(),
       scores, flavors:{aromaMain:cat?cat.name:'', aromaSub:d.aromaSub.slice()}, concerns:d.offAroma.slice(),
       photoIds, mainPhotoIdx,
@@ -1987,6 +1991,7 @@ function wzApplyOCR(raw){
   const text=(raw||'')
     .replace(/[０-９Ａ-Ｚａ-ｚ]/g, c=>String.fromCharCode(c.charCodeAt(0)-0xFEE0))
     .replace(/[．。]/g,'.').replace(/[％]/g,'%').replace(/[：]/g,':')
+    .replace(/[＋]/g,'+').replace(/[－ー―−]/g,'-')
     .replace(/[ \t　]/g,'');
   // アルコール度数
   let m=text.match(/アルコール(?:分|度数)?:?約?([0-9]{1,2}(?:\.[0-9])?)/) || text.match(/([0-9]{1,2}(?:\.[0-9])?)度/);
@@ -1994,6 +1999,9 @@ function wzApplyOCR(raw){
   // 精米歩合（麹米/掛米など間に語が挟まるケースに対応：ラベル後10文字以内の最初の数字）
   m=text.match(/精米歩合[^0-9]{0,10}([0-9]{2,3})/);
   if(m){ d.polish=m[1]; n++; }
+  // 日本酒度（±/+/-、整数or小数）
+  m=text.match(/日本酒度[^0-9+\-±]{0,6}(±0|[+\-][0-9]{1,2}(?:\.[0-9])?|0(?:\.[0-9])?)/);
+  if(m){ d.smv=m[1]==='±0'?'±0':m[1]; n++; }
   // 酒米（品種リスト照合。最長一致を優先）
   const rice=WZ_RICE_LIST.slice().sort((a,b)=>b.length-a.length).find(r=>text.includes(r));
   if(rice){ d.rice=rice; n++; }
@@ -2166,6 +2174,7 @@ async function openDetail(id) {
     ${r.yeast ? `<div class="detail-row"><span class="detail-label">酵母</span><span class="detail-value">${esc(r.yeast)}</span></div>` : ''}
     ${r.abv ? `<div class="detail-row"><span class="detail-label">度数</span><span class="detail-value">${esc(r.abv)}${/^[\d.]+$/.test(r.abv)?'%':''}</span></div>` : ''}
     ${r.polish ? `<div class="detail-row"><span class="detail-label">精米歩合</span><span class="detail-value">${esc(r.polish)}${/^[\d.]+$/.test(r.polish)?'%':''}</span></div>` : ''}
+    ${r.smv ? `<div class="detail-row"><span class="detail-label">日本酒度</span><span class="detail-value">${esc(r.smv)}</span></div>` : ''}
     <div class="detail-row"><span class="detail-label">評価</span><span class="detail-value">${starsHtml(r.rating,16)}</span></div>
     ${aromaHtml}
     <div class="detail-scores">
